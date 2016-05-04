@@ -208,31 +208,53 @@ var SearchBar = React.createClass({
 
 var SearchPage = React.createClass({
     /*traceTable: <TraceTable />,*/
-    handleSearch :function (value) {
+    handleSearch: function (value) {
         console.log("handleSearch:" + value)
         console.log("loadTraceFromServer")
-        url = 'http://112.74.90.113:8080/trace?request={"mac":"'+ value +'","query_type":"01","start_time":1}'
+        url = 'http://112.74.90.113:8080/trace?request={"mac":"' + value + '","query_type":"01","start_time":1}'
         $.ajax({
             url: url,
             dataType: 'json',
             cache: false,
-            success: function(rsp) {
+            success: function (rsp) {
                 console.log("loadTraceFromServer response", rsp)
-                this.setState({rsp:rsp});
+                lineArr = []
+                rsp.trace.forEach(function (e) {
+                    lineArr.push([e.longitude, e.latitude])
+                })
+                drawPath()
+                this.setState({rsp: rsp});
             }.bind(this),
-            error: function(xhr, status, err) {
+            error: function (xhr, status, err) {
                 console.error(url, status, err.toString());
             }.bind(this)
         });
     },
-    getInitialState: function() {
+    getInitialState: function () {
         console.log("getInitialState")
-        return  {rsp:{trace:[]}};
+        return {rsp: {trace: []}};
+    },
+    componentDidMount: function () {
+        start_id = "start"+this.props.No;
+        stop_id = "stop"+this.props.No
+        AMap.event.addDomListener(document.getElementById(start_id), 'click', function () {
+            console.log("start draw", lineArr)
+            marker.moveAlong(lineArr, 1000);
+        }, false);
+        AMap.event.addDomListener(document.getElementById(stop_id), 'click', function () {
+            marker.stopMove();
+        }, false);
     },
     render: function () {
+        start_id = "start"+this.props.No;
+        stop_id = "stop"+this.props.No
         return(
             <div className="right_inner">
                 <SearchBar handleSearch={this.handleSearch}></SearchBar>
+                <div class="button-group">
+                    <input type="button" class="button" value="开始动画" id={start_id}/>
+                    <input type="button" class="button" value="停止动画" id={stop_id}/>
+                </div>
                 <TraceTable trace={this.state.rsp.trace}></TraceTable>
             </div>
 
@@ -266,7 +288,36 @@ var Menu = React.createClass({
     }
 });
 
+var marker;
+var lineArr=[];
 
+// 地图图块加载完毕后执行函数
+function drawPath(){
+    console.log("drawPath", lineArr)
+    if (lineArr.length == 0)
+    {
+        return;
+    }
+    marker = new AMap.Marker({
+        map: map,
+        position: lineArr[0],
+        icon: "http://webapi.amap.com/images/car.png",
+        offset: new AMap.Pixel(-26, -13),
+        autoRotation: true
+    });
+
+    // 绘制轨迹
+    var polyline = new AMap.Polyline({
+        map: map,
+        path: lineArr,
+        strokeColor: "#00A",  //线颜色
+        strokeOpacity: 1,     //线透明度
+        strokeWeight: 3,      //线宽
+        strokeStyle: "solid"  //线样式
+    });
+    map.setFitView();
+    map.setZoomAndCenter(14, lineArr[0]);
+}
 
 React.render(
     <div>
@@ -277,14 +328,14 @@ React.render(
 );
 React.render(
     <div>
-        <SearchPage></SearchPage>
+        <SearchPage No="1"></SearchPage>
     </div>,
     document.getElementById('search_trace')
 );
 
 React.render(
     <div>
-        <SearchPage></SearchPage>
+        <SearchPage No="2"></SearchPage>
     </div>,
     document.getElementById('similar_trace')
 );
