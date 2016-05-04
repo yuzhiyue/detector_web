@@ -165,7 +165,10 @@ var TraceTable = React.createClass({
     render: function() {
         var rows = [];
         this.props.trace.forEach(function(point) {
-            rows.push(<TraceRow longitude={point.longitude} latitude={point.latitude} time={point.time} />);
+            date = new Date()
+            date.setTime(point.enter_time * 1000)
+            dateString = date.toLocaleString()
+            rows.push(<TraceRow longitude={point.longitude} latitude={point.latitude} time={dateString} />);
         });
         return (
             <table>
@@ -182,13 +185,22 @@ var TraceTable = React.createClass({
 });
 
 var SearchBar = React.createClass({
-    handleInput: function (e) {
-        this.props.onInput(e.value);
+    handleChange: function (e) {
+        console.log("handleChange:"+e.target.value)
+        this.setState({input:e.target.value});
+    },
+    handleClick:function () {
+        this.props.handleSearch(this.state.input)
+    },
+    getInitialState: function() {
+        console.log("getInitialState")
+        return  {input:"5c514f733633"};
     },
     render: function() {
         return (
             <form>
-                <input type="text" placeholder="Search..." onChange={this.handleChange}/>
+                <input type="text" placeholder="5c514f733633" onChange={this.handleChange}/>
+                <a onClick={this.handleClick} >查询</a>
             </form>
         );
     }
@@ -196,14 +208,32 @@ var SearchBar = React.createClass({
 
 var SearchPage = React.createClass({
     /*traceTable: <TraceTable />,*/
-    onInput:function (value) {
-
+    handleSearch :function (value) {
+        console.log("handleSearch:" + value)
+        console.log("loadTraceFromServer")
+        url = 'http://112.74.90.113:8080/trace?request={"mac":"'+ value +'","query_type":"01","start_time":1}'
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            cache: false,
+            success: function(rsp) {
+                console.log("loadTraceFromServer response", rsp)
+                this.setState({rsp:rsp});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(url, status, err.toString());
+            }.bind(this)
+        });
+    },
+    getInitialState: function() {
+        console.log("getInitialState")
+        return  {rsp:{trace:[]}};
     },
     render: function () {
         return(
-            <div>
-                <SearchBar onInput={this.onInput}></SearchBar>
-                <TraceTable trace={[]}></TraceTable>
+            <div className="right_inner">
+                <SearchBar handleSearch={this.handleSearch}></SearchBar>
+                <TraceTable trace={this.state.rsp.trace}></TraceTable>
             </div>
 
         );
