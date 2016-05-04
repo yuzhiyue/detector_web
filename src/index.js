@@ -12,16 +12,17 @@ var DetectorBox = React.createClass({
             cache: false,
             success: function(rsp) {
                 //console.log("loadDetectorsFromServer response", rsp)
+                var idx = 1;
                 rsp.detector_list.forEach(function (e) {
+                    var text = '<div class="marker-route marker-marker-bus-from"><b>探:'+ idx.toString() +'号</b></div>'
                     new AMap.Marker({
                         map: map,
                         position: [e.longitude, e.latitude],
-                        icon: new AMap.Icon({
-                            size: new AMap.Size(40, 50),  //图标大小
-                            image: "http://webapi.amap.com/theme/v1.3/images/newpc/way_btn2.png",
-                            imageOffset: new AMap.Pixel(0, -60)
-                        })
+                        offset: new AMap.Pixel(-17, -42), //相对于基点的偏移位置
+                        draggable: false,  //是否可拖动
+                        content: text
                     });
+                    idx = idx + 1
                 })
                 this.setState(rsp);
             }.bind(this),
@@ -37,11 +38,10 @@ var DetectorBox = React.createClass({
     componentDidMount: function() {
         console.log("componentDidMount")
         this.loadDetectorsFromServer();
-        setInterval(this.loadDetectorsFromServer, this.props.pollInterval);
+        //setInterval(this.loadDetectorsFromServer, this.props.pollInterval);
 
     },
     render: function () {
-        console.log("render")
         return(
             <div className="detector_box">
                 <h1>探针列表</h1>
@@ -61,7 +61,7 @@ var DetectorList = React.createClass({
         );
         return (
             <div className="detector_list">
-                <lo>{nodes}</lo>
+                <ol>{nodes}</ol>
             </div>
         );
     }
@@ -79,7 +79,7 @@ var DetectorItem = React.createClass({
     render: function () {
         return (
             <li className="detector_item" onClick={this.handleClick}>
-                <a><h3>{this.props.mac}</h3></a>
+                <a>{this.props.mac}</a>
             </li>
         );
     }
@@ -120,7 +120,6 @@ var DetectorInfo = React.createClass({
     componentDidMount: function() {
         console.log("DetectorInfo componentDidMount")
         this.loadDetectorInfoFromServer();
-        //setInterval(this.loadDetectorInfoFromServer, this.props.pollInterval);
 
     },
     componentDidUpdate : function( prevProps,  prevState) {
@@ -143,17 +142,81 @@ var DetectorInfo = React.createClass({
                 <h3>探针{this.props.mac}详情：</h3>
                 <div>
                     <h3>周边设备</h3>
-                    <lo>{nodes}</lo>
+                    <ol>{nodes}</ol>
                 </div>
             </div>
         )
     }
-})
+});
+
+
+var TraceRow = React.createClass({
+    render: function() {
+        return (
+            <tr>
+                <td>{this.props.longitude},{this.props.latitude}</td>
+                <td>{this.props.time}</td>
+            </tr>
+        );
+    }
+});
+
+var TraceTable = React.createClass({
+    render: function() {
+        var rows = [];
+        this.props.trace.forEach(function(point) {
+            rows.push(<TraceRow longitude={point.longitude} latitude={point.latitude} time={point.time} />);
+        });
+        return (
+            <table>
+                <thead>
+                <tr>
+                    <th>经纬</th>
+                    <th>时间</th>
+                </tr>
+                </thead>
+                <tbody>{rows}</tbody>
+            </table>
+        );
+    }
+});
+
+var SearchBar = React.createClass({
+    handleInput: function (e) {
+        this.props.onInput(e.value);
+    },
+    render: function() {
+        return (
+            <form>
+                <input type="text" placeholder="Search..." onChange={this.handleChange}/>
+            </form>
+        );
+    }
+});
+
+var SearchPage = React.createClass({
+    /*traceTable: <TraceTable />,*/
+    onInput:function (value) {
+
+    },
+    render: function () {
+        return(
+            <div>
+                <SearchBar onInput={this.onInput}></SearchBar>
+                <TraceTable trace={[]}></TraceTable>
+            </div>
+
+        );
+    }
+});
 
 var MenuItem = React.createClass({
+    handleClick:function () {
+        this.props.link()
+    },
     render: function () {
         return (
-            <li className="menu_item"><a href={this.props.link}>{this.props.children}</a></li>
+            <li className="menu_item" onClick={this.handleClick}><a>{this.props.children}</a></li>
         );
     }
 });
@@ -169,9 +232,10 @@ var Menu = React.createClass({
             <div>
                 <ul>{menu}</ul>
             </div>
-        )
+        );
     }
 });
+
 
 
 React.render(
@@ -181,12 +245,46 @@ React.render(
     </div>,
     document.getElementById('detector')
 );
+React.render(
+    <div>
+        <SearchPage></SearchPage>
+    </div>,
+    document.getElementById('search_trace')
+);
+
+React.render(
+    <div>
+        <SearchPage></SearchPage>
+    </div>,
+    document.getElementById('similar_trace')
+);
+
+showDetectorPage = function () {
+    style="display: none;"
+    document.getElementById("detector").style.display="";
+    document.getElementById("search_trace").style.display="none";
+    document.getElementById("similar_trace").style.display="none";
+}
+
+showSearchPage = function () {
+    style="display: none;"
+    document.getElementById("search_trace").style.display="";
+    document.getElementById("detector").style.display="none";
+    document.getElementById("similar_trace").style.display="none";
+}
+
+showSimilarPage = function () {
+    style="display: none;"
+    document.getElementById("search_trace").style.display="none";
+    document.getElementById("detector").style.display="none";
+    document.getElementById("similar_trace").style.display="";
+}
 
 React.render(
     <Menu items={[
-    {text:'探针信息',link:'/'},
-    {text:'轨迹查询',link:'/blogs'},
-    {text:'设备信息查询',link:'artive'}
+    {text:'探针信息',link:showDetectorPage},
+    {text:'轨迹查询',link:showSearchPage},
+    {text:'相似轨迹',link:showSimilarPage}
   ]}>
     </Menu>,
     document.getElementById('menu')
