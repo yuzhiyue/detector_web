@@ -33,7 +33,7 @@ var DetectorBox = React.createClass({
     },
     getInitialState: function() {
         console.log("getInitialState")
-        return  {detector_list:[{mac:"111111111"}]};
+        return  {today_mac_count:0 ,detector_list:[{mac:"111111111"}]};
     },
     componentDidMount: function() {
         console.log("componentDidMount")
@@ -44,7 +44,7 @@ var DetectorBox = React.createClass({
     render: function () {
         return(
             <div className="detector_box">
-                <h1>探针列表</h1>
+                <h3>今日探测MAC总量：{this.state.today_mac_count}</h3>
                 <DetectorList data={this.state.detector_list} />
             </div>
         );
@@ -53,9 +53,11 @@ var DetectorBox = React.createClass({
 
 var DetectorList = React.createClass({
     render: function () {
+        var idx = 0;
         var nodes = this.props.data.map(function (detector) {
+                idx += 1;
                 return (
-                    <DetectorItem mac={detector.mac}></DetectorItem>
+                    <DetectorItem data={detector} idx={idx}></DetectorItem>
                 );
             }
         );
@@ -69,17 +71,27 @@ var DetectorList = React.createClass({
 
 var DetectorItem = React.createClass({
     handleClick: function(event) {
-        console.log("click on " + this.props.mac)
-        var detector = <DetectorInfo mac={this.props.mac} pollInterval={5000} />
+        console.log("click on " + this.props.data.mac)
+        var detector = <DetectorInfo mac={this.props.data.mac} pollInterval={5000} />
         React.render(
             detector,
             document.getElementById('detector_detail')
         );
     },
     render: function () {
+        state = this.props.data.status === "01" ? "在线" : "离线";
+        div_class = this.props.data.status === "01" ? "online" : "offline";
+        mac_count = 0;
+        if (this.props.data.today_mac_count != null) {
+            mac_count = this.props.data.today_mac_count;
+        }
         return (
             <li className="detector_item" onClick={this.handleClick}>
-                <a>{this.props.mac}</a>
+                <a>
+                    <div><b>{this.props.idx}.</b> {this.props.data.mac}</div>
+                    <div><b> 今日MAC数：</b>{mac_count}</div>
+                    <div className={div_class}><b>状态：</b>{state}</div>
+                </a>
             </li>
         );
     }
@@ -87,10 +99,14 @@ var DetectorItem = React.createClass({
 
 var DeviceItem = React.createClass({
     render: function () {
+        date = new Date()
+        date.setTime(this.props.data.time * 1000)
+        dateString = date.toLocaleString()
         return (
             <li>
                 <div><b>设备MAC：</b> {this.props.data.mac}</div>
                 <div><b>经纬度：</b> {this.props.data.longitude}, {this.props.data.latitude}</div>
+                <div><b>时间：</b> {dateString}</div>
             </li>
         )
     }
