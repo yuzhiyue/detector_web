@@ -216,7 +216,7 @@ var SearchBar = React.createClass({
         return (
             <form>
                 <input type="text" placeholder="5c514f733633" onChange={this.handleChange}/>
-                <a onClick={this.handleClick} >查询</a>
+                <input type="button" class="button" value="查询" onClick={this.handleClick} ></input>
             </form>
         );
     }
