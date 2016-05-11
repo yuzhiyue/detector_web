@@ -7,32 +7,32 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
     <title>基本地图展示</title>
+
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- 可选的Bootstrap主题文件（一般不用引入） -->
+    <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
     <!--link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/-->
     <link rel="stylesheet" href="css/main.css"/>
-    <script src="src/jquery.min.js"></script>
     <script src="http://cache.amap.com/lbs/static/es5.min.js"></script>
     <script src="http://webapi.amap.com/maps?v=1.3&key=1b96f49f8f6466a53f0c23182b4f1cf0"></script>
     <script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js"></script>
 </head>
-<div id="root">
-    <div id="menu"></div>
-    <div id="content">
-        <div id="map"></div>
-        <div id="detector" class="right_div"></div>
-        <div id="search_trace" class="right_div" style="display: none;"> </div>
-        <div id="similar_trace" class="right_div" style="display: none;"> </div>
-    </div>
-    <div class="clean"></div>
+<div id="warpper">
+
 </div>
 <div class="footer">广晟通信科技 版权所有</div>
-<script type="text/jsx" src="src/index.js"></script>
+<script type="text/jsx" src="src/index2.js"></script>
 <script>
-    var map = new AMap.Map('map', {
-        resizeEnable: true,
-        zoom:14,
-        center: [116.109095,24.296806]
 
-    });
 </script>
 </body>
 </html>

@@ -2,6 +2,26 @@
  * Created by Cosine on 2016/5/3.
  */
 
+/*showDetectorPage = function () {
+    style="display: none;"
+    document.getElementById("detector").style.display="";
+    document.getElementById("search_trace").style.display="none";
+    document.getElementById("similar_trace").style.display="none";
+}
+
+showSearchPage = function () {
+    style="display: none;"
+    document.getElementById("search_trace").style.display="";
+    document.getElementById("detector").style.display="none";
+    document.getElementById("similar_trace").style.display="none";
+}
+
+showSimilarPage = function () {
+    style="display: none;"
+    document.getElementById("search_trace").style.display="none";
+    document.getElementById("detector").style.display="none";
+    document.getElementById("similar_trace").style.display="";
+}*/
 
 var DetectorBox = React.createClass({
     loadDetectorsFromServer: function() {
@@ -43,9 +63,12 @@ var DetectorBox = React.createClass({
     },
     render: function () {
         return(
-            <div className="detector_box">
-                <h3>今日探测MAC总量：{this.state.today_mac_count}</h3>
-                <DetectorList data={this.state.detector_list} />
+            <div className="container-fluid">
+                <div className="col-sm-6">
+                    <h5>今日探测MAC总量：{this.state.today_mac_count}</h5>
+                    <DetectorList data={this.state.detector_list} />
+                </div>
+                <div className="col-sm-6" id="detector_detail"></div>
             </div>
         );
     }
@@ -63,7 +86,7 @@ var DetectorList = React.createClass({
         );
         return (
             <div className="detector_list">
-                <ol>{nodes}</ol>
+                <ul className="list-group">{nodes}</ul>
             </div>
         );
     }
@@ -86,13 +109,11 @@ var DetectorItem = React.createClass({
             mac_count = this.props.data.today_mac_count;
         }
         return (
-            <li className="detector_item" onClick={this.handleClick}>
-                <a>
-                    <div><b>{this.props.idx}.</b> {this.props.data.mac}</div>
-                    <div><b> 今日MAC数：</b>{mac_count}</div>
-                    <div className={div_class}><b>状态：</b>{state}</div>
-                </a>
-            </li>
+            <a className="list-group-item" onClick={this.handleClick}>
+                <span className="badge">{mac_count}</span>
+                <div><b>{this.props.idx}.</b> {this.props.data.mac}</div>
+                <div className={div_class}><b>状态：</b>{state}</div>
+            </a>
         );
     }
 });
@@ -103,7 +124,7 @@ var DeviceItem = React.createClass({
         date.setTime(this.props.data.time * 1000)
         dateString = date.toLocaleString()
         return (
-            <li>
+            <li className="list-group-item">
                 <div><b>设备MAC：</b> {this.props.data.mac}</div>
                 <div><b>经纬度：</b> {this.props.data.longitude}, {this.props.data.latitude}</div>
                 <div><b>时间：</b> {dateString}</div>
@@ -155,10 +176,10 @@ var DetectorInfo = React.createClass({
 
         return (
             <div>
-                <h3>探针{this.props.mac}详情：</h3>
+                <h5>探针{this.props.mac}详情：</h5>
                 <div>
-                    <h3>周边设备</h3>
-                    <ol>{nodes}</ol>
+                    <h6>周边设备</h6>
+                    <ul className="list-group">{nodes}</ul>
                 </div>
             </div>
         )
@@ -187,7 +208,7 @@ var TraceTable = React.createClass({
             rows.push(<TraceRow longitude={point.longitude} latitude={point.latitude} time={dateString} />);
         });
         return (
-            <table>
+            <table className="table table-striped table-hover">
                 <thead>
                 <tr>
                     <th>经纬</th>
@@ -297,8 +318,59 @@ var Menu = React.createClass({
             )
         });
         return (
+            <nav className="navbar navbar-inverse navbar-fixed-top">
+                <div className="container">
+                    <ul className="nav navbar-nav">{menu}</ul>
+                </div>
+            </nav>
+        );
+    }
+});
+
+var LeftNavbar = React.createClass({
+    render: function () {
+        var items = this.props.items.map(function(item){
+            return (
+                <LeftNavbarItem link={item.link}>{item.text}</LeftNavbarItem>
+            )
+        });
+        return (
+            <nav className="narbar navbar-inverse navbar-left">
+                <ul className="nav navbar-nav"> {items} </ul>
+            </nav>
+        )
+    }
+});
+
+var LeftNavbarItem = React.createClass({
+    handleClick:function () {
+        this.props.link()
+    },
+    render: function () {
+        return (
+            <li className="menu_item" onClick={this.handleClick}><a>{this.props.children}</a></li>
+        );
+    }
+});
+
+var Page = React.createClass({
+    render:function () {
+        return (
             <div>
-                <ul>{menu}</ul>
+                <Menu items={[{text:'探针信息',link:""},{text:'轨迹查询',link:""},{text:'相似轨迹',link:""}]} ></Menu>
+                /*<div className="container-fluid">
+                    <div class="row content">
+                        <div class="col-sm-3">
+                            <LeftNavbar
+                                items={[{text:'探针信息',link:""},{text:'轨迹查询',link:""},{text:'相似轨迹',link:""}]}></LeftNavbar>
+                        </div>
+                        <div class="col-sm-9">
+                            <div id="detector" class="right_div"></div>
+                            <div id="search_trace" class="right_div" style="display: none;"></div>
+                            <div id="similar_trace" class="right_div" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>*/
             </div>
         );
     }
@@ -336,53 +408,26 @@ function drawPath(){
 }
 
 React.render(
-    <div>
-        <DetectorBox url="http://112.74.90.113:8080/detector_list?request={}" pollInterval={5000} />
-        <div id="detector_detail"></div>
-    </div>,
-    document.getElementById('detector')
-);
-React.render(
-    <div>
-        <SearchPage No="1"></SearchPage>
-    </div>,
-    document.getElementById('search_trace')
+    <Page></Page>,
+    document.getElementById("warpper")
 );
 
-React.render(
-    <div>
-        <SearchPage No="2"></SearchPage>
-    </div>,
-    document.getElementById('similar_trace')
-);
+// React.render(
+//     <DetectorBox url="http://112.74.90.113:8080/detector_list?request={}" pollInterval={5000} />,
+//     document.getElementById('detector')
+// );
+// React.render(
+//     <div>
+//         <SearchPage No="1"></SearchPage>
+//     </div>,
+//     document.getElementById('search_trace')
+// );
+//
+// React.render(
+//     <div>
+//         <SearchPage No="2"></SearchPage>
+//     </div>,
+//     document.getElementById('similar_trace')
+// );
 
-showDetectorPage = function () {
-    style="display: none;"
-    document.getElementById("detector").style.display="";
-    document.getElementById("search_trace").style.display="none";
-    document.getElementById("similar_trace").style.display="none";
-}
 
-showSearchPage = function () {
-    style="display: none;"
-    document.getElementById("search_trace").style.display="";
-    document.getElementById("detector").style.display="none";
-    document.getElementById("similar_trace").style.display="none";
-}
-
-showSimilarPage = function () {
-    style="display: none;"
-    document.getElementById("search_trace").style.display="none";
-    document.getElementById("detector").style.display="none";
-    document.getElementById("similar_trace").style.display="";
-}
-
-React.render(
-    <Menu items={[
-    {text:'探针信息',link:showDetectorPage},
-    {text:'轨迹查询',link:showSearchPage},
-    {text:'相似轨迹',link:showSimilarPage}
-  ]}>
-    </Menu>,
-    document.getElementById('menu')
-);
