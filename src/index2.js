@@ -105,6 +105,48 @@ var Panel = React.createClass({
     }
 });
 
+var MyChart = React.createClass({
+    componentDidMount: function () {
+        console.log("Chart componentDidMount")
+        var data = {
+            labels : ["January","February","March","April","May","June","July"],
+            datasets : [
+                {
+                    fillColor : "rgba(220,220,220,0.5)",
+                    strokeColor : "rgba(220,220,220,1)",
+                    pointColor : "rgba(220,220,220,1)",
+                    pointStrokeColor : "#fff",
+                    data : [65,59,90,81,56,55,40]
+                },
+                {
+                    fillColor : "rgba(151,187,205,0.5)",
+                    strokeColor : "rgba(151,187,205,1)",
+                    pointColor : "rgba(151,187,205,1)",
+                    pointStrokeColor : "#fff",
+                    data : [28,48,40,19,96,27,100]
+                }
+            ]
+        }
+
+        var ctx = document.getElementById("myChart").getContext("2d");
+        var myLineChart = new Chart(ctx, {
+            type: 'line',
+            data: data,
+            options: Chart.defaults.global
+        });
+    },
+    render: function () {
+        return (
+            <div className="panel panel-default">
+                <div className="panel-body">
+                    <canvas id="myChart" style={{height:"200px"}}></canvas>
+                </div>
+                <div className="panel-footer"><a href={this.props.link}>{this.props.linkText}</a></div>
+            </div>
+        );
+    }
+});
+
 var Home = React.createClass({
     render: function () {
         apCount = this.props.commData.detector_list.length
@@ -116,6 +158,10 @@ var Home = React.createClass({
                     <div className="col-sm-3"><Panel title="探测MAC总数" body={today_mac_count} linkText="查看列表"></Panel></div>
                     <div className="col-sm-3"><Panel title="探测器数" body={apCount} linkText="查看列表"></Panel></div>
                     <div className="col-sm-3"><Panel title="今日探测MAC数" body=""></Panel></div>
+                </div>
+                <div className="row">
+                    <div className="col-sm-6"><MyChart title="今日探测MAC数" body={today_mac_count} linkText="探测MAC曲线图"></MyChart></div>
+
                 </div>
             </div>
         );
@@ -261,7 +307,7 @@ var SearchPage = React.createClass({
             <div className="container-fluid page-content">
                 <div className="row">
                     <SearchBar handleSearch={this.handleSearch}></SearchBar>
-                    <div class="button-group">
+                    <div className="button-group">
                         <input type="button" class="button" value="开始动画" id={start_id}/>
                         <input type="button" class="button" value="停止动画" id={stop_id}/>
                     </div>
