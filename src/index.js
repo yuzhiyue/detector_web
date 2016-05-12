@@ -31,7 +31,6 @@ function deleteCookie(name){
 
 var TopNavbarItem = React.createClass({
     handleClick:function () {
-        this.props.link()
     },
     render: function () {
         return (
@@ -627,7 +626,7 @@ var Page = React.createClass({
         } else {
             return (
                 <div>
-                    <TopNavbar items={[{text:'概览',link:Home},{text:'轨迹查询',link:SearchPage},{text:'相似轨迹',link:""}]} username={username}></TopNavbar>
+                    <TopNavbar items={[{text:'首页',link:""}]} username={username}></TopNavbar>
                     <div className="container-fluid page-container">
                         <div className="row">
                             <div className="col-sm-2">
