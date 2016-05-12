@@ -227,14 +227,14 @@ var marker;
 var lineArr=[];
 
 // 地图图块加载完毕后执行函数
-function drawPath(){
+function drawPath(myMap){
     console.log("drawPath", lineArr)
     if (lineArr.length == 0)
     {
         return;
     }
     marker = new AMap.Marker({
-        map: map,
+        map: myMap,
         position: lineArr[0],
         icon: "http://webapi.amap.com/images/car.png",
         offset: new AMap.Pixel(-26, -13),
@@ -243,15 +243,15 @@ function drawPath(){
 
     // 绘制轨迹
     var polyline = new AMap.Polyline({
-        map: map,
+        map: myMap,
         path: lineArr,
         strokeColor: "#00A",  //线颜色
         strokeOpacity: 1,     //线透明度
         strokeWeight: 3,      //线宽
         strokeStyle: "solid"  //线样式
     });
-    map.setFitView();
-    map.setZoomAndCenter(14, lineArr[0]);
+    myMap.setFitView();
+    myMap.setZoomAndCenter(14, lineArr[0]);
 }
 
 var SearchPage = React.createClass({
@@ -270,7 +270,7 @@ var SearchPage = React.createClass({
                 rsp.trace.forEach(function (e) {
                     lineArr.push([e.longitude, e.latitude])
                 })
-                drawPath()
+                drawPath(this.myMap)
                 this.setState({rsp: rsp});
             }.bind(this),
             error: function (xhr, status, err) {
@@ -283,13 +283,16 @@ var SearchPage = React.createClass({
         return {rsp: {trace: []}};
     },
     componentDidMount: function () {
-        var map = new AMap.Map('map_search', {
+        var myMap = new AMap.Map('map_search', {
             resizeEnable: true,
             zoom:14,
             center: [116.109095,24.296806]
 
         });
-
+        this.myMap = myMap
+        myMap.plugin(["AMap.ToolBar"], function() {
+            myMap.addControl(new AMap.ToolBar());
+        });
         start_id = "start"+this.props.No;
         stop_id = "stop"+this.props.No
         AMap.event.addDomListener(document.getElementById(start_id), 'click', function () {
@@ -327,17 +330,21 @@ var SearchPage = React.createClass({
 
 var DetectorPage = React.createClass({
     componentDidMount: function() {
-        var map = new AMap.Map('map_detector', {
+        var myMap = new AMap.Map('map_detector', {
             resizeEnable: true,
             zoom:14,
             center: [116.109095,24.296806]
 
         });
+        myMap.plugin(["AMap.ToolBar"], function() {
+            myMap.addControl(new AMap.ToolBar());
+        });
+        
         var idx = 1;
         this.props.commData.detector_list.forEach(function (e) {
             var text = '<div class="marker-route marker-marker-bus-from"><b>探:'+ idx.toString() +'号</b></div>'
             new AMap.Marker({
-                map: map,
+                map: myMap,
                 position: [e.longitude, e.latitude],
                 offset: new AMap.Pixel(-17, -42), //相对于基点的偏移位置
                 draggable: false,  //是否可拖动
@@ -527,14 +534,13 @@ var Page = React.createClass({
         setInterval(this.loadDetectorsFromServer, 5000);
     },
     changePageHandler : function (dst) {
-        console.log("change page", dst)
         this.setState({page:dst})
     },
     getInitialState: function() {
         return  {page:Home,commData:{today_mac_count:0 ,detector_list:[{mac:""}]}};
     },
     render:function () {
-        let Child = this.state.page
+        Child = this.state.page
         username = getCookie("username")
         console.log("username:" + username)
         if (username == "") {
