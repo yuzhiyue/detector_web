@@ -190,6 +190,7 @@ var TraceRow = React.createClass({
     render: function() {
         return (
             <tr>
+                <td>{this.props.mac}</td>
                 <td>{this.props.longitude},{this.props.latitude}</td>
                 <td>{this.props.time}</td>
                 <td><div><button type="button" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#pictureModal">查看影像</button></div></td>
@@ -201,16 +202,28 @@ var TraceRow = React.createClass({
 var TraceTable = React.createClass({
     render: function() {
         var rows = [];
+        var mac = this.props.mac
+        if (mac == null) {
+            mac = ""
+        }
         this.props.trace.forEach(function(point) {
+            var time = point.enter_time
+            if (time == null) {
+                time = point.time
+            }
             date = new Date()
-            date.setTime(point.enter_time * 1000)
+            date.setTime(time * 1000)
             dateString = date.toLocaleString()
-            rows.push(<TraceRow longitude={point.longitude} latitude={point.latitude} time={dateString} />);
+            if (point.mac == null) {
+                point.mac = mac
+            }
+            rows.push(<TraceRow mac={point.mac} longitude={point.longitude} latitude={point.latitude} time={dateString} />);
         });
         return (
             <table className="table table-striped table-hover">
                 <thead>
                 <tr>
+                    <th>设备MAC</th>
                     <th>经纬</th>
                     <th>时间</th>
                     <th>影像</th>
@@ -218,6 +231,31 @@ var TraceTable = React.createClass({
                 </thead>
                 <tbody>{rows}</tbody>
             </table>
+        );
+    }
+});
+
+var ModalBox = React.createClass({
+    render: function() {
+        var bodyCompont = this.props.body
+        return (
+            <div className="modal fade" id={this.props.boxId}>
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 className="modal-title">{this.props.title}</h4>
+                        </div>
+                        <div className="modal-body">
+                            {bodyCompont}
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-primary">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         );
     }
 });
@@ -277,6 +315,7 @@ function drawPath(myMap){
 var SearchPage = React.createClass({
     /*traceTable: <TraceTable />,*/
     handleSearch: function (value) {
+        this.search_value = value
         console.log("handleSearch:" + value)
         console.log("loadTraceFromServer")
         url = 'http://112.74.90.113:8080/trace?request={"mac":"' + value + '","query_type":"01","start_time":1}'
@@ -340,7 +379,7 @@ var SearchPage = React.createClass({
                         <div id="map_search" className="map" />
                     </div>
                     <div className="col-sm-4">
-                        <TraceTable trace={this.state.rsp.trace}></TraceTable>
+                        <TraceTable mac={this.search_value} trace={this.state.rsp.trace}></TraceTable>
                     </div>
                 </div>
             </div>
@@ -425,19 +464,38 @@ var DetectorPage = React.createClass({
             idx = idx + 1
         })
     },
+    showDeviceListBox: function (apMac) {
+        url = 'http://112.74.90.113:8080/detector_info?request={"mac":"' + apMac + '","start_time":1}'
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            cache: false,
+            success: function(rsp) {
+                console.log("loadDetectorInfoFromServer response", rsp)
+                this.setState({deviceList: rsp});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(url, status, err.toString());
+            }.bind(this)
+        });
+    },
+    getInitialState: function() {
+        return  {deviceList:{"device_list":[]}}
+    },
     render: function () {
+        var modalBody = <TraceTable trace={this.state.deviceList.device_list}/>
         return(
             <div className="container-fluid page-content">
                 <div className="row">
-                    <div className="col-sm-7">
+                    <div className="col-sm-8">
                         <div id="map_detector" className="map"/>
                     </div>
-                    <div className="col-sm-2">
+                    <div className="col-sm-4">
                         <h5>今日探测MAC总量：{this.props.commData.today_mac_count}</h5>
-                        <DetectorList data={this.props.commData.detector_list} />
+                        <DetectorList data={this.props.commData.detector_list}  showBoxHandler={this.showDeviceListBox}/>
                     </div>
-                    <div className="col-sm-3" id="detector_detail"></div>
                 </div>
+                <ModalBox boxId="device_list_box" body={modalBody} title="探测到的设备"/>
             </div>
         );
     }
@@ -446,10 +504,11 @@ var DetectorPage = React.createClass({
 var DetectorList = React.createClass({
     render: function () {
         var idx = 0;
+        var showBoxHandler = this.props.showBoxHandler
         var nodes = this.props.data.map(function (detector) {
                 idx += 1;
                 return (
-                    <DetectorItem key={detector.mac} data={detector} idx={idx}></DetectorItem>
+                    <DetectorItem key={detector.mac} data={detector} idx={idx} showBoxHandler={showBoxHandler}></DetectorItem>
                 );
             }
         );
@@ -464,11 +523,7 @@ var DetectorList = React.createClass({
 var DetectorItem = React.createClass({
     handleClick: function(event) {
         console.log("click on " + this.props.data.mac)
-        var detector = <DetectorInfo mac={this.props.data.mac} pollInterval={5000} />
-        React.render(
-            detector,
-            document.getElementById('detector_detail')
-        );
+        this.props.showBoxHandler(this.props.data.mac)
     },
     render: function () {
         state = this.props.data.status === "01" ? "在线" : "离线";
@@ -482,82 +537,13 @@ var DetectorItem = React.createClass({
             company = "百米"
         }
         return (
-            <a className="list-group-item" onClick={this.handleClick}>
+            <a className="list-group-item" onClick={this.handleClick} data-toggle="modal" data-target="#device_list_box">
                 <span className="badge">{mac_count}</span>
                 <div>{this.props.idx}号 {company}</div>
                 <div>{this.props.data.mac}</div>
                 <div className={div_class}><b>状态：</b>{state}</div>
             </a>
         );
-    }
-});
-
-var DeviceItem = React.createClass({
-    render: function () {
-        date = new Date()
-        date.setTime(this.props.data.time * 1000)
-        dateString = date.toLocaleString()
-        return (
-            <li className="list-group-item">
-                <div><b>设备MAC：</b> {this.props.data.mac}</div>
-                <div><b>经纬度：</b> {this.props.data.longitude}, {this.props.data.latitude}</div>
-                <div><b>时间：</b> {dateString}</div>
-                <div><button type="button" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#pictureModal">查看影像</button></div>
-            </li>
-        )
-    }
-})
-
-var DetectorInfo = React.createClass({
-    loadDetectorInfoFromServer: function() {
-        console.log("loadDetectorInfoFromServer")
-        url = 'http://112.74.90.113:8080/detector_info?request={"mac":"' + this.props.mac + '","start_time":1}'
-        $.ajax({
-            url: url,
-            dataType: 'json',
-            cache: false,
-            success: function(rsp) {
-                console.log("loadDetectorInfoFromServer response", rsp)
-                this.setState(rsp);
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.error(url, status, err.toString());
-            }.bind(this)
-        });
-    },
-    getInitialState: function() {
-        console.log("getInitialState")
-        return  {"device_list":[]}
-    },
-    componentDidMount: function() {
-        console.log("DetectorInfo componentDidMount")
-        this.loadDetectorInfoFromServer();
-
-    },
-    componentDidUpdate : function( prevProps,  prevState) {
-        if (prevProps.mac !== this.props.mac) {
-            this.loadDetectorInfoFromServer()
-        }
-        return true;
-    },
-    render: function () {
-        var nodes = this.state.device_list.map(function (device) {
-                return (
-                    <DeviceItem data={device}>
-                    </DeviceItem>
-                );
-            }
-        );
-
-        return (
-            <div>
-                <h5>探针{this.props.mac}详情：</h5>
-                <div>
-                    <h6>周边设备</h6>
-                    <ul className="list-group">{nodes}</ul>
-                </div>
-            </div>
-        )
     }
 });
 
