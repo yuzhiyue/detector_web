@@ -220,17 +220,19 @@ var TraceTable = React.createClass({
             rows.push(<TraceRow mac={point.mac} longitude={point.longitude} latitude={point.latitude} time={dateString} />);
         });
         return (
-            <table className="table table-striped table-hover">
-                <thead>
-                <tr>
-                    <th>设备MAC</th>
-                    <th>经纬</th>
-                    <th>时间</th>
-                    <th>影像</th>
-                </tr>
-                </thead>
-                <tbody>{rows}</tbody>
-            </table>
+            <div data-spy="scroll" >
+                <table className="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>设备MAC</th>
+                            <th>经纬</th>
+                            <th>时间</th>
+                            <th>影像</th>
+                        </tr>
+                    </thead>
+                    <tbody>{rows}</tbody>
+                </table>
+            </div>
         );
     }
 });
@@ -274,10 +276,18 @@ var SearchBar = React.createClass({
     },
     render: function() {
         return (
-            <form>
-                <input type="text" placeholder="246968653c74" onChange={this.handleChange}/>
-                <input type="button" class="button" value="查询" onClick={this.handleClick} ></input>
-            </form>
+            <div>
+                <div className="input-group">
+                    <input type="text" className="form-control" placeholder="246968653c74"  onChange={this.handleChange} />
+                    <span className="input-group-btn">
+                        <button className="btn btn-default" type="button" onClick={this.handleClick} >查询</button>
+                    </span>
+                </div>
+                <div className="button-group" role="group">
+                    <input type="button" className="button" value="开始动画" id={this.props.startId}/>
+                    <input type="button" className="button" value="停止动画" id={this.props.stopId}/>
+                </div>
+            </div>
         );
     }
 });
@@ -368,18 +378,21 @@ var SearchPage = React.createClass({
         return(
             <div className="container-fluid page-content">
                 <div className="row">
-                    <SearchBar handleSearch={this.handleSearch}></SearchBar>
-                    <div className="button-group">
-                        <input type="button" class="button" value="开始动画" id={start_id}/>
-                        <input type="button" class="button" value="停止动画" id={stop_id}/>
-                    </div>
+                    <SearchBar handleSearch={this.handleSearch} startId={start_id} stopId={stop_id}></SearchBar>
                 </div>
                 <div className="row">
                     <div className="col-sm-8">
-                        <div id="map_search" className="map" />
+                        <div className="panel panel-primary">
+                            <div className="panel-heading">轨迹分布</div>
+                            <div id="map_search" className="map" />
+                        </div>
                     </div>
                     <div className="col-sm-4">
-                        <TraceTable mac={this.search_value} trace={this.state.rsp.trace}></TraceTable>
+                        <div className="panel panel-primary">
+                            <div className="panel-heading">轨迹查询结果</div>
+                            <TraceTable mac={this.search_value} trace={this.state.rsp.trace}></TraceTable>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -488,11 +501,16 @@ var DetectorPage = React.createClass({
             <div className="container-fluid page-content">
                 <div className="row">
                     <div className="col-sm-8">
-                        <div id="map_detector" className="map"/>
+                        <div className="panel panel-primary">
+                            <div className="panel-heading">探针分布</div>
+                            <div id="map_detector" className="map"/>
+                        </div>
                     </div>
                     <div className="col-sm-4">
-                        <h5>今日探测MAC总量：{this.props.commData.today_mac_count}</h5>
-                        <DetectorList data={this.props.commData.detector_list}  showBoxHandler={this.showDeviceListBox}/>
+                        <div className="panel panel-primary">
+                            <div className="panel-heading">今日探测MAC总量：{this.props.commData.today_mac_count}</div>
+                            <DetectorList data={this.props.commData.detector_list}  showBoxHandler={this.showDeviceListBox}/>
+                        </div>
                     </div>
                 </div>
                 <ModalBox boxId="device_list_box" body={modalBody} title="探测到的设备"/>
