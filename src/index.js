@@ -129,8 +129,6 @@ var MyChart = React.createClass({
 var Home = React.createClass({
     render: function () {
         apCount = this.props.commData.detector_list.length
-        today_mac_count = this.props.commData.people
-        total_mac_count = this.props.commData.discovermac
         var data1 = {
             labels : ["13:00","14:00","15:00","16:00","17:00","18:00","19:00"],
             datasets : [
@@ -173,8 +171,8 @@ var Home = React.createClass({
         return (
             <div className="container-fluid page-content">
                 <div className="row">
-                    <div className="col-sm-4"><Panel title="今日探测MAC次数" body={today_mac_count} linkText="查看列表"></Panel></div>
-                    <div className="col-sm-4"><Panel title="今日探测人数" body={total_mac_count} linkText="查看列表"></Panel></div>
+                    <div className="col-sm-4"><Panel title="今日探测MAC次数" body={this.props.commData.discovermac} linkText="查看列表"></Panel></div>
+                    <div className="col-sm-4"><Panel title="今日探测人数" body={this.props.commData.people} linkText="查看列表"></Panel></div>
                     <div className="col-sm-4"><Panel title="探测器数" body={apCount} linkText="查看列表"></Panel></div>
                 </div>
                 <div className="row">
@@ -509,7 +507,7 @@ var DetectorPage = React.createClass({
                     </div>
                     <div className="col-sm-4">
                         <div className="panel panel-primary">
-                            <div className="panel-heading">今日探测MAC总量：{this.props.commData.discovermac}</div>
+                            <div className="panel-heading">今日探测人数：{this.props.commData.people}</div>
                             <DetectorList data={this.props.commData.detector_list}  showBoxHandler={this.showDeviceListBox}/>
                         </div>
                         <div className="panel panel-primary">
