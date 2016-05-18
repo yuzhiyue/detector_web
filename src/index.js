@@ -38,6 +38,16 @@ function  randomChar(l) {
     }
     return timestamp + tmp;
 }
+
+function  randomCharWithoutTime(l) {
+    var x = "0123456789";
+    var tmp = "";
+    for (var i = 0; i < l; i++) {
+        tmp += x.charAt(Math.ceil(Math.random() * 100000000) % x.length);
+    }
+    return tmp;
+}
+
 pictures = ["video/1.jpg", "video/2.jpg", "video/3.jpg", "video/4.jpg", "video/5.jpg"]
 var PictureList = React.createClass({
     render: function () {
@@ -237,6 +247,18 @@ var TraceRow = React.createClass({
     }
 });
 
+var TraceRowWithoutMac = React.createClass({
+    render: function() {
+        return (
+            <tr>
+                <td>{this.props.longitude},{this.props.latitude}</td>
+                <td>{this.props.time}</td>
+                <td><div><button type="button" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#pictureModal">查看影像</button></div></td>
+            </tr>
+        );
+    }
+})
+
 var TraceTable = React.createClass({
     render: function() {
         var rows = [];
@@ -255,14 +277,13 @@ var TraceTable = React.createClass({
             if (point.mac == null) {
                 point.mac = mac
             }
-            rows.push(<TraceRow mac={point.mac} longitude={point.longitude} latitude={point.latitude} time={dateString} />);
+            rows.push(<TraceRowWithoutMac mac={point.mac} longitude={point.longitude} latitude={point.latitude} time={dateString} />);
         });
         return (
             <div data-spy="scroll" >
                 <table className="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th>设备MAC</th>
                             <th>经纬</th>
                             <th>时间</th>
                             <th>影像</th>
@@ -282,7 +303,12 @@ var DetectorDetailBox = React.createClass({
         if (mac == null) {
             mac = ""
         }
+        var idx = 0
         this.props.trace.forEach(function(point) {
+            if (idx > 30 ) {
+                return
+            }
+            idx++
             var time = point.enter_time
             if (time == null) {
                 time = point.time
@@ -619,6 +645,90 @@ var DetectorItem = React.createClass({
     }
 });
 
+var DetectorRow = React.createClass({
+    render: function () {
+        date = new Date()
+        date.setTime(this.props.last_login_time * 1000)
+        dateString = date.toLocaleString()
+        return (
+            <tr>
+                <td>{this.props.mac}</td>
+                <td>{this.props.longitude},{this.props.latitude}</td>
+                <td>{dateString}</td>
+                <td>在线</td>
+                <td>陈工</td>
+                <td>18554374756</td>
+                <td>{this.props.region}</td>
+            </tr>
+        );
+    }
+});
+
+var RegionPage = React.createClass({
+    detector:[{mac:"admin",longitude:116.101728,latitude:24.286132, last_login_time:1463591175, region:"梅县区"},
+        {mac:"admin",longitude:116.101628,latitude:24.286432, last_login_time:1463592175, region:"梅县区"},
+        {mac:"admin",longitude:116.101458,latitude:24.286872, last_login_time:1463594175, region:"梅县区"},
+        {mac:"admin",longitude:116.101458,latitude:24.286332, last_login_time:1463581175, region:"梅县区"},
+        {mac:"admin",longitude:116.101125,latitude:24.286052, last_login_time:1463596175, region:"梅县区"},
+        {mac:"admin",longitude:116.101526,latitude:24.285933, last_login_time:1463598176, region:"梅县区"},
+        {mac:"admin",longitude:116.101628,latitude:24.281432, last_login_time:1463592175, region:"梅江区"},
+        {mac:"admin",longitude:116.103458,latitude:24.283872, last_login_time:1463598175, region:"梅江区"},
+        {mac:"admin",longitude:116.101758,latitude:24.288332, last_login_time:1463581475, region:"梅江区"},
+        {mac:"admin",longitude:116.101125,latitude:24.286052, last_login_time:1463596135, region:"梅江区"},
+        {mac:"admin",longitude:116.103526,latitude:24.296933, last_login_time:1463599115, region:"梅江区"}
+    ],
+    getInitialState: function () {
+        return {region:"梅县区"}
+    },
+    handleClick:function (e) {
+        console.log("on click", e.targe.value)
+        this.setState({region:e.target.value})
+    },
+    render: function () {
+        var region = this.state.region
+        var rows = []
+        this.detector.forEach(function (detector) {
+            rows.push(<DetectorRow mac={randomCharWithoutTime(15)} longitude={detector.longitude} latitude={detector.latitude} last_login_time={detector.last_login_time}  region={detector.region} />)
+        });
+        return (
+            <div className="container-fluid page-container">
+                <div className="row">
+                    {/*<div className="dropdown">
+                        <button className="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            {region}
+                            <span className="caret"></span>
+                        </button>
+                        <ul className="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li><a href="#" value="梅县区" OnClick={this.handleClick}>梅县区</a></li>
+                            <li><a href="#" value="梅江区" OnClick={this.handleClick}>梅江区</a></li>
+                            <li><a href="#" value="大埔县" OnClick={this.handleClick}>大埔县</a></li>
+                            <li><a href="#" value="丰顺县" OnClick={this.handleClick}>丰顺县</a></li>
+                            <li><a href="#" value="五华县" OnClick={this.handleClick}>五华县</a></li>
+                            <li><a href="#" value="平远县" OnClick={this.handleClick}>平远县</a></li>
+                            <li><a href="#" value="蕉岭县" OnClick={this.handleClick}>蕉岭县</a></li>
+                            <li><a href="#" value="兴宁县" OnClick={this.handleClick}>兴宁县</a></li>
+                        </ul>
+                    </div>*/}
+                    <table className="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>MAC</th>
+                            <th>经纬</th>
+                            <th>上线时间</th>
+                            <th>状态</th>
+                            <th>责任人</th>
+                            <th>联系电话</th>
+                            <th>区域</th>
+                        </tr>
+                        </thead>
+                        <tbody>{rows}</tbody>
+                    </table>
+                </div>
+            </div>
+        );
+    }
+});
+
 var LoginPage = React.createClass({
     handleChange:function (e) {
         this.username = e.target.value
@@ -776,16 +886,16 @@ var FeaturePage = React.createClass({
 });
 
 var items=[{text:'概览',link:Home},
-    {text:'探测器信息',link:DetectorPage},
+    {text:'探针管理',link:DetectorPage},
+    {text:'辖区管理',link:RegionPage},
     {text:'轨迹查询',link:SearchPage},
-    {text:'相似轨迹',link:SearchPage},
-    {text:'辖区划分',link:SearchPage},
-    {text:'电子围栏',link:SearchPage},
     {text:'区域扫描',link:SearchPage},
-    {text:'视频关联',link:SearchPage},
-    {text:'车牌分析',link:SearchPage},
+    {text:'轨迹吻合度分析',link:SearchPage},
+    {text:'电子围栏',link:SearchPage},
+    {text:'视频关联分析',link:SearchPage},
+    {text:'车牌号关联分析',link:SearchPage},
     {text:'上网行为分析',link:SearchPage},
-    {text:'特征信息管理',link:FeaturePage},
+    {text:'特征库管理',link:FeaturePage},
     {text:'用户管理',link:UserPage}
 ]
 
@@ -810,7 +920,7 @@ var Page = React.createClass({
     componentDidMount: function() {
         console.log("componentDidMount")
         this.loadDetectorsFromServer();
-        setInterval(this.loadDetectorsFromServer, 5000);
+        setInterval(this.loadDetectorsFromServer, 20000);
     },
     changePageHandler : function (dst) {
         this.setState({page:dst})
