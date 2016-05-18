@@ -295,6 +295,9 @@ var DetectorDetailBox = React.createClass({
             }
             rows.push(<TraceRow mac={point.mac} longitude={point.longitude} latitude={point.latitude} time={dateString} />);
         });
+        date = new Date()
+        date.setTime(this.props.detector.last_login_time * 1000)
+        dateString = date.toLocaleString()
         return (
             <div className="container-fluid page-content">
                 <div className="row">
@@ -306,7 +309,7 @@ var DetectorDetailBox = React.createClass({
                                 <tbody><tr>
                                     <td>{this.props.detector.mac}</td>
                                     <td>{this.props.detector.longitude},{this.props.detector.latitude}</td>
-                                    <td>{this.props.detector.last_login_time}</td>
+                                    <td>{dateString}</td>
                                     <td>{this.props.trace.length}</td>
                                 </tr></tbody>
                             </table>
@@ -381,10 +384,10 @@ var SearchBar = React.createClass({
                         <button className="btn btn-default" type="button" onClick={this.handleClick} >查询</button>
                     </span>
                 </div>
-                <div className="button-group" role="group">
+                {/*<div className="button-group" role="group">
                     <input type="button" className="button" value="开始动画" id={this.props.startId}/>
                     <input type="button" className="button" value="停止动画" id={this.props.stopId}/>
-                </div>
+                </div>*/}
             </div>
         );
     }
@@ -462,23 +465,23 @@ var SearchPage = React.createClass({
         });
         start_id = "start"+this.props.No;
         stop_id = "stop"+this.props.No
-        AMap.event.addDomListener(document.getElementById(start_id), 'click', function () {
+        {/*AMap.event.addDomListener(document.getElementById(start_id), 'click', function () {
             console.log("start draw", lineArr)
             marker.moveAlong(lineArr, 1000);
         }, false);
         AMap.event.addDomListener(document.getElementById(stop_id), 'click', function () {
             marker.stopMove();
-        }, false);
+        }, false);*/}
     },
     render: function () {
         start_id = "start"+this.props.No;
         stop_id = "stop"+this.props.No
         return(
             <div className="container-fluid page-content">
-                <div className="row">
+                <div className="row" style={{width:"300px"}}>
                     <SearchBar handleSearch={this.handleSearch} startId={start_id} stopId={stop_id}></SearchBar>
                 </div>
-                <div className="row">
+                <div className="row" style={{marginTop:"10px"}}>
                     <div className="col-sm-8">
                         <div className="panel panel-primary">
                             <div className="panel-heading">轨迹分布</div>
@@ -609,7 +612,7 @@ var DetectorItem = React.createClass({
             <a className="list-group-item" onClick={this.handleClick} data-toggle="modal" data-target="#device_list_box">
                 <span className="badge">{mac_count}</span>
                 <div>{this.props.idx}号 {company}</div>
-                <div>{this.props.data.mac}</div>
+                {/*<div>{this.props.data.mac}</div>*/}
                 <div className={div_class}><b>状态：</b>{state}</div>
             </a>
         );
@@ -641,7 +644,150 @@ var LoginPage = React.createClass({
     }
 });
 
+var UserRow = React.createClass({
+    render: function () {
+        return (
+                <tr>
+                    <td>{this.props.username}</td>
+                    <td>{this.props.group}</td>
+                    <td>{this.props.phone}</td>
+                    <td>{this.props.desc}</td>
+                    <td><button type="button" className="btn btn-warning btn-sm" data-container="body" data-toggle="popover" data-placement="top" data-content="无操作权限">修改</button>
+                        <button type="button" className="btn btn-danger btn-sm" >删除</button>
+                    </td>
+                </tr>
+        );
+    }
+});
 
+var UserPage = React.createClass({
+    users:[{username:"admin",group:"管理员",desc:"系统管理员", phone:"15870002521"},
+        {username:"mzadmin",group:"管理员",desc:"梅州管理员", phone:"18667843244"},
+        {username:"mxadmin",group:"区域管理员",desc:"梅县管理员", phone:"18664214241"},
+        {username:"mjadmin",group:"区域管理员",desc:"梅江管理员", phone:"18642145641"},
+        {username:"common",group:"普通用户",desc:"普通用户", phone:"18665425432"}
+    ],
+    render: function () {
+        var rows = []
+        this.users.forEach(function (user) {
+            rows.push(<UserRow username={user.username} phone={user.phone} group={user.group} desc={user.desc} />)
+        });
+        return (
+            <div className="container-fluid page-container">
+                <div className="row">
+                    <table className="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>用户名</th>
+                            <th>用户组</th>
+                            <th>联系电话</th>
+                            <th>描述</th>
+                            <th>编辑</th>
+                        </tr>
+                        </thead>
+                        <tbody>{rows}</tbody>
+                    </table>
+                    <button type="button" className="btn btn-info btn-sm">添加用户</button>
+                </div>
+            </div>
+        );
+    }
+});
+
+var FeatureRow = React.createClass({
+    render: function () {
+        return (
+            <tr>
+                <td>{this.props.mac}</td>
+                <td>{this.props.phone}</td>
+                <td>{this.props.idType}</td>
+                <td>{this.props.idNo}</td>
+                <td>{this.props.time}</td>
+                <td><button type="button" className="btn btn-warning btn-sm" data-container="body" data-toggle="popover" data-placement="top" data-content="无操作权限">保存</button>
+                    <button type="button" className="btn btn-danger btn-sm" >删除</button>
+                </td>
+            </tr>
+        );
+    }
+});
+
+var FeaturePage = React.createClass({
+    getInitialState: function () {
+        return {data:[]}
+    },
+    componentDidMount: function () {
+        url = 'http://112.74.90.113:8080/device_user?request={"mac":["b8bc1b9e6d19","94d8592cb3c0","b4ef39251d7a","3480b3243fa4","a018282b2738","2c5bb834155c"]}'
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            cache: false,
+            success: function(rsp) {
+                console.log("loadDetectorInfoFromServer response", rsp)
+                this.setState({data: rsp.result});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(url, status, err.toString());
+            }.bind(this)
+        });
+    },
+    render: function () {
+        var rows = []
+        this.state.data.forEach(function (feature) {
+            if (feature.person_list.length > 0){
+                var persion_info = feature.person_list[0]
+                var phone = ""
+                var dateString = ""
+                if (persion_info.phone_list.length > 0){
+                    phone = persion_info.phone_list[0].phone_no
+                    time = persion_info.phone_list[0].time
+                    date = new Date()
+                    date.setTime(time * 1000)
+                    dateString = date.toLocaleString()
+                }
+
+                rows.push(<FeatureRow mac={feature.mac} phone={phone} idType="" idNo="" time={dateString} />)
+            }
+        });
+        return (
+            <div className="container-fluid page-container">
+                <div className="row">
+                    <table className="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>MAC地址</th>
+                            <th>电话号码</th>
+                            <th>证件类型</th>
+                            <th>证件号</th>
+                            <th>时间</th>
+                            <th>编辑</th>
+                        </tr>
+                        </thead>
+                        <tbody>{rows}</tbody>
+                    </table>
+                    <button type="button" className="btn btn-info btn-sm">添加特征</button>
+                    <div style={{marginTop:'5px'}} ><button type="button" style={{float:'left'}} className="btn btn-info btn-sm">上一页</button>
+                        <button type="button" style={{float:'right'}} className="btn btn-info btn-sm">下一页</button>
+                    </div>
+
+                </div>
+            </div>
+        );
+    }
+});
+
+var items=[{text:'概览',link:Home},
+    {text:'探测器信息',link:DetectorPage},
+    {text:'轨迹查询',link:SearchPage},
+    {text:'相似轨迹',link:SearchPage},
+    {text:'辖区划分',link:SearchPage},
+    {text:'电子围栏',link:SearchPage},
+    {text:'区域扫描',link:SearchPage},
+    {text:'视频关联',link:SearchPage},
+    {text:'车牌分析',link:SearchPage},
+    {text:'上网行为分析',link:SearchPage},
+    {text:'特征信息管理',link:FeaturePage},
+    {text:'用户管理',link:UserPage}
+]
 
 var Page = React.createClass({
     loadDetectorsFromServer: function() {
@@ -687,7 +833,7 @@ var Page = React.createClass({
                     <div className="container-fluid page-container">
                         <div className="row">
                             <div className="col-sm-2">
-                                <LeftNavbar changePageHandler={this.changePageHandler} items={[{text:'概览',link:Home},{text:'探测器信息',link:DetectorPage},{text:'轨迹查询',link:SearchPage}, {text:'相似轨迹',link:SearchPage}]} />
+                                <LeftNavbar changePageHandler={this.changePageHandler} items={items} />
                             </div>
                             <div className="col-sm-10">
                                 <Child commData={this.state.commData}/>
