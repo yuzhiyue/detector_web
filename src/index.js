@@ -29,6 +29,46 @@ function deleteCookie(name){
     document.cookie=name+"=v; expires="+date.toGMTString();
 }
 
+function  randomChar(l) {
+    var x = "0123456789qwertyuioplkjhgfdsazxcvbnm";
+    var tmp = "";
+    var timestamp = new Date().getTime();
+    for (var i = 0; i < l; i++) {
+        tmp += x.charAt(Math.ceil(Math.random() * 100000000) % x.length);
+    }
+    return timestamp + tmp;
+}
+pictures = ["video/1.jpg", "video/2.jpg", "video/3.jpg", "video/4.jpg", "video/5.jpg"]
+var PictureList = React.createClass({
+    render: function () {
+        var componentId = randomChar(6)
+        var target = "#"+componentId
+        var indicators = [];
+        var carousel = []
+        var idx = 0
+        this.props.pictures.forEach(function(picture) {
+            indicators.push(<li data-target={target} data-slide-to={idx}></li>);
+            if(idx == 0) {
+                carousel.push(<div className="item active"><img src={picture}/></div>)
+            } else {
+                carousel.push(<div className="item"><img src={picture}/></div>)
+            }
+
+            idx++
+        });
+        return (
+            <div id={componentId} className="carousel slide">
+                <ol className="carousel-indicators">{indicators}</ol>
+                <div className="carousel-inner">{carousel}</div>
+                <a className="carousel-control left" href={target}
+                   data-slide="prev">&lsaquo;</a>
+                <a className="carousel-control right" href={target}
+                   data-slide="next">&rsaquo;</a>
+            </div>
+        );
+    }
+});
+
 var TopNavbarItem = React.createClass({
     handleClick:function () {
     },
@@ -146,7 +186,7 @@ var Home = React.createClass({
             labels : ["13:00","14:00","15:00","16:00","17:00","18:00","19:00"],
             datasets : [
                 {
-                    label : "在线探针数量",
+                    label : "在线探测器数量",
                     fill: false,
                     lineTension: 0.1,
                     backgroundColor: "rgba(75,192,192,0.4)",
@@ -235,12 +275,74 @@ var TraceTable = React.createClass({
     }
 });
 
+var DetectorDetailBox = React.createClass({
+    render: function() {
+        var rows = [];
+        var mac = this.props.mac
+        if (mac == null) {
+            mac = ""
+        }
+        this.props.trace.forEach(function(point) {
+            var time = point.enter_time
+            if (time == null) {
+                time = point.time
+            }
+            date = new Date()
+            date.setTime(time * 1000)
+            dateString = date.toLocaleString()
+            if (point.mac == null) {
+                point.mac = mac
+            }
+            rows.push(<TraceRow mac={point.mac} longitude={point.longitude} latitude={point.latitude} time={dateString} />);
+        });
+        return (
+            <div className="container-fluid page-content">
+                <div className="row">
+                    <div className="col-sm-12">
+                        <div className="panel panel-default">
+                            <div className="panel-heading">探测器属性</div>
+                            <table className="table table-striped table-hover">
+                                <thead><tr><th>设备MAC</th><th>经纬</th><th>最近登录时间</th><th>周边设备数</th></tr></thead>
+                                <tbody><tr>
+                                    <td>{this.props.detector.mac}</td>
+                                    <td>{this.props.detector.longitude},{this.props.detector.latitude}</td>
+                                    <td>{this.props.detector.last_login_time}</td>
+                                    <td>{this.props.trace.length}</td>
+                                </tr></tbody>
+                            </table>
+                            <div><button type="button" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#pictureModal">视频联动分析</button></div>
+                        </div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-sm-12">
+                        <div className="panel panel-default">
+                            <div className="panel-heading">附近的设备</div>
+                            <table className="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>设备MAC</th>
+                                        <th>经纬</th>
+                                        <th>时间</th>
+                                        <th>影像</th>
+                                    </tr>
+                                </thead>
+                                <tbody>{rows}</tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+});
+
 var ModalBox = React.createClass({
     render: function() {
         var bodyCompont = this.props.body
         return (
             <div className="modal fade" id={this.props.boxId}>
-                <div className="modal-dialog">
+                <div className="modal-dialog modal-lg">
                     <div className="modal-content">
                         <div className="modal-header">
                             <button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -250,8 +352,6 @@ var ModalBox = React.createClass({
                             {bodyCompont}
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="button" className="btn btn-primary">Save changes</button>
                         </div>
                     </div>
                 </div>
@@ -398,58 +498,6 @@ var SearchPage = React.createClass({
     }
 });
 
-var PictureList = React.createClass({
-    render: function () {
-        return (
-            <div className="modal fade" id="pictureModal">
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 className="modal-title">影像</h4>
-                        </div>
-                        <div className="modal-body">
-                            <div id="myCarousel" className="carousel slide">
-
-                                <ol className="carousel-indicators">
-                                    <li data-target="#myCarousel" data-slide-to="0"></li>
-                                    <li data-target="#myCarousel" data-slide-to="1"></li>
-                                    <li data-target="#myCarousel" data-slide-to="2"></li>
-                                    <li data-target="#myCarousel" data-slide-to="3"></li>
-                                    <li data-target="#myCarousel" data-slide-to="4"></li>
-                                    <li data-target="#myCarousel" data-slide-to="5"></li>
-                                    <li data-target="#myCarousel" data-slide-to="6"></li>
-                                    <li data-target="#myCarousel" data-slide-to="7"></li>
-                                    <li data-target="#myCarousel" data-slide-to="8"></li>
-                                    <li data-target="#myCarousel" data-slide-to="9"></li>
-                                </ol>
-
-                                <div className="carousel-inner">
-                                    <div className="item active"><img src="./video/1.jpg"/></div>
-                                    <div className="item"><img src="./video/1.jpg"/></div>
-                                    <div className="item"><img src="./video/2.jpg"/></div>
-                                    <div className="item"><img src="./video/3.jpg"/></div>
-                                    <div className="item"><img src="./video/4.jpg"/></div>
-                                    <div className="item"><img src="./video/5.jpg"/></div>
-                                    <div className="item"><img src="./video/6.jpg"/></div>
-                                    <div className="item"><img src="./video/7.jpg"/></div>
-                                    <div className="item"><img src="./video/8.jpg"/></div>
-                                    <div className="item"><img src="./video/9.jpg"/></div>
-                                </div>
-
-                                <a className="carousel-control left" href="#myCarousel"
-                                   data-slide="prev">&lsaquo;</a>
-                                <a className="carousel-control right" href="#myCarousel"
-                                   data-slide="next">&rsaquo;</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-});
-
 var DetectorPage = React.createClass({
     componentDidMount: function() {
         var myMap = new AMap.Map('map_detector', {
@@ -475,15 +523,15 @@ var DetectorPage = React.createClass({
             idx = idx + 1
         })
     },
-    showDeviceListBox: function (apMac) {
-        url = 'http://112.74.90.113:8080/detector_info?request={"mac":"' + apMac + '","start_time":1}'
+    showDeviceListBox: function (apData) {
+        url = 'http://112.74.90.113:8080/detector_info?request={"mac":"' + apData.mac + '","start_time":1}'
         $.ajax({
             url: url,
             dataType: 'json',
             cache: false,
             success: function(rsp) {
                 console.log("loadDetectorInfoFromServer response", rsp)
-                this.setState({deviceList: rsp});
+                this.setState({deviceList: rsp, current_detector:apData});
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(url, status, err.toString());
@@ -491,17 +539,17 @@ var DetectorPage = React.createClass({
         });
     },
     getInitialState: function() {
-        return  {deviceList:{"device_list":[]}}
+        return  {deviceList:{device_list:[]}, current_detector:{mac:"", longitude:0, latitude:0,last_login_time:0}}
     },
     render: function () {
-        var modalBody = <TraceTable trace={this.state.deviceList.device_list}/>
+        var modalBody =  <DetectorDetailBox trace={this.state.deviceList.device_list} detector={this.state.current_detector}/>
         var thirdNum = this.props.commData.third_part_detector_list.length
         return(
             <div className="container-fluid page-content">
                 <div className="row">
                     <div className="col-sm-8">
                         <div className="panel panel-primary">
-                            <div className="panel-heading">探针分布</div>
+                            <div className="panel-heading">探测器分布</div>
                             <div id="map_detector" className="map"/>
                         </div>
                     </div>
@@ -516,7 +564,7 @@ var DetectorPage = React.createClass({
                         </div>
                     </div>
                 </div>
-                <ModalBox boxId="device_list_box" body={modalBody} title="探测到的设备"/>
+                <ModalBox boxId="device_list_box" body={modalBody} title="探测器详细信息"/>
             </div>
         );
     }
@@ -544,7 +592,7 @@ var DetectorList = React.createClass({
 var DetectorItem = React.createClass({
     handleClick: function(event) {
         console.log("click on " + this.props.data.mac)
-        this.props.showBoxHandler(this.props.data.mac)
+        this.props.showBoxHandler(this.props.data)
     },
     render: function () {
         state = this.props.data.status === "01" ? "在线" : "离线";
@@ -592,6 +640,8 @@ var LoginPage = React.createClass({
         );
     }
 });
+
+
 
 var Page = React.createClass({
     loadDetectorsFromServer: function() {
@@ -644,7 +694,7 @@ var Page = React.createClass({
                             </div>
                         </div>
                     </div>
-                    <PictureList />
+                    <ModalBox title="影像" boxId="pictureModal" body={<PictureList pictures={pictures}/>} />
                 </div>
             );
         }
