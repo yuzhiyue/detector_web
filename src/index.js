@@ -558,13 +558,13 @@ var SearchPage = React.createClass({
                 <div className="row" style={{marginTop:"10px"}}>
                     <div className="col-sm-8">
                         <div className="panel panel-primary">
-                            <div className="panel-heading">轨迹分布</div>
+                            <div className="panel-heading">分布</div>
                             <div id="map_search" className="map" />
                         </div>
                     </div>
                     <div className="col-sm-4">
                         <div className="panel panel-primary">
-                            <div className="panel-heading">轨迹查询结果</div>
+                            <div className="panel-heading">查询结果</div>
                             <TraceTable mac={this.search_value} trace={this.state.rsp.trace}></TraceTable>
                         </div>
 
