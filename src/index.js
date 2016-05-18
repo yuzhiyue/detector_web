@@ -665,7 +665,7 @@ var UserPage = React.createClass({
         {username:"mzadmin",group:"管理员",desc:"梅州管理员", phone:"18667843244"},
         {username:"mxadmin",group:"区域管理员",desc:"梅县管理员", phone:"18664214241"},
         {username:"mjadmin",group:"区域管理员",desc:"梅江管理员", phone:"18642145641"},
-        {username:"common",group:"普通用户",desc:"普通用户", phone:"18665425432"}
+        {username:"user",group:"普通用户",desc:"普通用户", phone:"18665425432"}
     ],
     render: function () {
         var rows = []
