@@ -53,27 +53,13 @@ var PictureList = React.createClass({
     render: function () {
         var componentId = randomChar(6)
         var target = "#"+componentId
-        var indicators = [];
-        var carousel = []
-        var idx = 0
+        var picList = []
         this.props.pictures.forEach(function(picture) {
-            indicators.push(<li data-target={target} data-slide-to={idx}></li>);
-            if(idx == 0) {
-                carousel.push(<div className="item active"><img src={picture}/></div>)
-            } else {
-                carousel.push(<div className="item"><img src={picture}/></div>)
-            }
-
-            idx++
+                picList.push(<li className="list-group-item"><img style={{width:"600px"}} src={picture}/></li>)
         });
         return (
-            <div id={componentId} className="carousel slide">
-                <ol className="carousel-indicators">{indicators}</ol>
-                <div className="carousel-inner">{carousel}</div>
-                <a className="carousel-control left" href={target}
-                   data-slide="prev">&lsaquo;</a>
-                <a className="carousel-control right" href={target}
-                   data-slide="next">&rsaquo;</a>
+            <div id={componentId}>
+                <ul className="list-group">{picList}</ul>
             </div>
         );
     }
@@ -171,6 +157,67 @@ var MyChart = React.createClass({
                     <canvas id={this.props.chartId} style={{height:"200px"}}></canvas>
                 </div>
                 <div className="panel-footer"><a href={this.props.link}>{this.props.linkText}</a></div>
+            </div>
+        );
+    }
+});
+
+var VideoAnalyser = React.createClass({
+    loadData: function () {
+        url = 'http://112.74.90.113:8080/video?request={"start_time":1, "end_time":1}'
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            cache: false,
+            success: function(rsp) {
+                console.log("loadDetectorInfoFromServer response", rsp)
+                this.setState({picture_list: rsp.picture_list});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(url, status, err.toString());
+            }.bind(this)
+        });
+    },
+    componentDidMount: function() {
+        this.loadData()
+    },
+    getInitialState: function() {
+        return  {picture_list:[]}
+    },
+    render: function () {
+        var picList = []
+        this.state.picture_list.forEach(function(picture) {
+            var macList = []
+            picture.device_list.forEach(function (device) {
+                macList.push(<li className="list-group-item">{device.mac}</li>)
+            })
+            date = new Date()
+            date.setTime(picture.time * 1000)
+            dateString = date.toLocaleString()
+            picList.push(
+                <li className="list-group-item">
+                    <div className="container-fluid page-content">
+                        <div className="row">
+                            <div className="col-sm-6">
+                                <div className="panel panel-default">
+                                    <div className="panel-heading">{dateString}</div>
+                                    <img style={{width:"385px"}} src={picture.url}/>
+                                </div>
+                            </div>
+                            <div className="col-sm-6">
+                                <div className="panel panel-default">
+                                    <div className="panel-heading">周边设备</div>
+                                    <ul className="list-group">{macList}</ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            )
+        });
+        return (
+            <div>
+                <ul className="list-group">{picList}</ul>
             </div>
         );
     }
@@ -339,7 +386,7 @@ var DetectorDetailBox = React.createClass({
                                     <td>{this.props.trace.length}</td>
                                 </tr></tbody>
                             </table>
-                            <div><button type="button" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#pictureModal">视频联动分析</button></div>
+                            <div><button type="button" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#video_analyser">视频联动分析</button></div>
                         </div>
                     </div>
                 </div>
@@ -361,6 +408,7 @@ var DetectorDetailBox = React.createClass({
                         </div>
                     </div>
                 </div>
+                <ModalBox boxId="video_analyser" body={<VideoAnalyser />} title="视频关联分析"/>
             </div>
         );
     }
@@ -521,6 +569,22 @@ var SearchPage = React.createClass({
                         </div>
 
                     </div>
+                </div>
+            </div>
+        );
+    }
+});
+
+var BehavePage = React.createClass({
+    render: function () {
+        var thirdNum = this.props.commData.third_part_detector_list.length
+        return(
+            <div className="container-fluid page-content">
+                <div className="row">
+                        <div className="panel panel-primary">
+                            <div className="panel-heading">上网行为数据：{thirdNum}</div>
+                            <DetectorList data={this.props.commData.third_part_detector_list}  showBoxHandler={this.showDeviceListBox}/>
+                        </div>
                 </div>
             </div>
         );
@@ -892,9 +956,9 @@ var items=[{text:'概览',link:Home},
     {text:'区域扫描',link:SearchPage},
     {text:'轨迹吻合度分析',link:SearchPage},
     {text:'电子围栏',link:SearchPage},
-    {text:'视频关联分析',link:SearchPage},
+    {text:'视频关联分析',link:DetectorPage},
     {text:'车牌号关联分析',link:SearchPage},
-    {text:'上网行为分析',link:SearchPage},
+    {text:'上网行为分析',link:BehavePage},
     {text:'特征库管理',link:FeaturePage},
     {text:'用户管理',link:UserPage}
 ]
