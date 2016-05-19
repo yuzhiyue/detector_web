@@ -70,7 +70,7 @@ var TopNavbarItem = React.createClass({
     },
     render: function () {
         return (
-            <li onClick={this.handleClick}><a>{this.props.children}</a></li>
+            <li onClick={this.handleClick} ><a href={this.props.link}>{this.props.children}</a></li>
         );
     }
 });
@@ -121,7 +121,7 @@ var LeftNavbarItem = React.createClass({
     },
     render: function () {
         return (
-            <li onClick={this.handleClick}><a>{this.props.children}</a></li>
+            <li onClick={this.handleClick}><a href="#">{this.props.children}</a></li>
         );
     }
 });
@@ -743,7 +743,7 @@ var DetectorItem = React.createClass({
             company = "百米"
         }
         return (
-            <a className="list-group-item" onClick={this.handleClick} data-toggle="modal" data-target="#device_list_box">
+            <a className="list-group-item" onClick={this.handleClick} href="#" data-toggle="modal" data-target="#device_list_box">
                 <span className="badge">{mac_count}</span>
                 <div>{this.props.idx}号 {company}</div>
                 {/*<div>{this.props.data.mac}</div>*/}
@@ -823,7 +823,7 @@ var DetectorItem2 = React.createClass({
             company = "百米"
         }
         return (
-            <a className="list-group-item" onClick={this.handleClick} data-toggle="modal" data-target="#video_box">
+            <a className="list-group-item" onClick={this.handleClick}  href="#" data-toggle="modal" data-target="#video_box">
                 <span className="badge">{mac_count}</span>
                 <div>{this.props.idx}号 {company}</div>
                 <div>{this.props.data.mac}</div>
@@ -1127,7 +1127,7 @@ var Page = React.createClass({
         } else {
             return (
                 <div>
-                    <TopNavbar items={[{text:'首页',link:""}]} username={username}></TopNavbar>
+                    <TopNavbar items={[{text:'首页',link:"#"},{text:'下载手机版',link:"apk/app.apk"}]} username={username}></TopNavbar>
                     <div className="container-fluid page-container">
                         <div className="row">
                             <div className="col-sm-2">
