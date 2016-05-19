@@ -327,7 +327,7 @@ var TraceTable = React.createClass({
             rows.push(<TraceRowWithoutMac mac={point.mac} longitude={point.longitude} latitude={point.latitude} time={dateString} />);
         });
         return (
-            <div data-spy="scroll" >
+            <div>
                 <table className="table table-striped table-hover">
                     <thead>
                         <tr>
@@ -568,6 +568,50 @@ var SearchPage = React.createClass({
                             <TraceTable mac={this.search_value} trace={this.state.rsp.trace}></TraceTable>
                         </div>
 
+                    </div>
+                </div>
+            </div>
+        );
+    }
+});
+
+var SimpleSearchPage = React.createClass({
+    handleSearch: function (value) {
+     
+    },
+    getInitialState: function () {
+        console.log("getInitialState")
+        return {rsp: {trace: []}};
+    },
+    componentDidMount: function () {
+      
+    },
+    render: function () {
+        return(
+            <div className="container-fluid page-content">
+                <div className="row" style={{width:"400px"}}>
+                    <div className="input-group">
+                        <input type="text" className="form-control" placeholder="输入车牌号查询"  />
+                    <span className="input-group-btn">
+                        <button className="btn btn-default" type="button" onClick={this.handleClick} >查询</button>
+                    </span>
+                    </div>
+                </div>
+                <div className="row" style={{marginTop:"10px"}}>
+                    <div className="col-sm-12">
+                        <div className="panel panel-primary">
+                            <div className="panel-heading">查询结果</div>
+                            <table className="table table-striped table-hover">
+                                <thead>
+                                <tr>
+                                    <th>车牌号</th>
+                                    <th>扫描事件</th>
+                                    <th>地址</th>
+                                    <th>MAC列表</th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1037,7 +1081,7 @@ var items=[{text:'概览',link:Home},
     {text:'轨迹吻合度分析',link:SearchPage},
     {text:'电子围栏',link:SearchPage},
     {text:'视频关联分析',link:DetectorPage2},
-    {text:'车牌号关联分析',link:SearchPage},
+    {text:'车牌号关联分析',link:SimpleSearchPage},
     {text:'上网行为分析',link:BehavePage},
     {text:'特征库管理',link:FeaturePage},
     {text:'用户管理',link:UserPage}
