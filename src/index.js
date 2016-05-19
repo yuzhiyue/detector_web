@@ -164,7 +164,7 @@ var MyChart = React.createClass({
 
 var VideoAnalyser = React.createClass({
     loadData: function () {
-        url = 'http://112.74.90.113:8080/video?request={"start_time":1, "end_time":1}'
+        url = 'http://112.74.90.113:8080/video?request={"mac":"868120137840424", "start_time":1, "end_time":1}'
         $.ajax({
             url: url,
             dataType: 'json',
