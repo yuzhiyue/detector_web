@@ -1,6 +1,7 @@
 /**
  * Created by Cosine on 2016/5/7.
  */
+import React from 'react';
 
 function addCookie(name,value,expiresHours){
     var cookieString=name+"="+escape(value);
@@ -261,12 +262,12 @@ var TraceTable = React.createClass({
             <div data-spy="scroll" >
                 <table className="table table-striped table-hover">
                     <thead>
-                        <tr>
-                            <th>设备MAC</th>
-                            <th>经纬</th>
-                            <th>时间</th>
-                            <th>影像</th>
-                        </tr>
+                    <tr>
+                        <th>设备MAC</th>
+                        <th>经纬</th>
+                        <th>时间</th>
+                        <th>影像</th>
+                    </tr>
                     </thead>
                     <tbody>{rows}</tbody>
                 </table>
@@ -320,12 +321,12 @@ var DetectorDetailBox = React.createClass({
                             <div className="panel-heading">附近的设备</div>
                             <table className="table table-striped table-hover">
                                 <thead>
-                                    <tr>
-                                        <th>设备MAC</th>
-                                        <th>经纬</th>
-                                        <th>时间</th>
-                                        <th>影像</th>
-                                    </tr>
+                                <tr>
+                                    <th>设备MAC</th>
+                                    <th>经纬</th>
+                                    <th>时间</th>
+                                    <th>影像</th>
+                                </tr>
                                 </thead>
                                 <tbody>{rows}</tbody>
                             </table>
@@ -643,7 +644,7 @@ var LoginPage = React.createClass({
 
 
 
-var Page = React.createClass({
+var MainPage = React.createClass({
     loadDetectorsFromServer: function() {
         //console.log("loadDetectorsFromServer")
         $.ajax({
@@ -701,7 +702,4 @@ var Page = React.createClass({
     }
 });
 
-React.render(
-    <Page></Page>,
-    document.getElementById("warpper")
-);
+export default MainPage;
