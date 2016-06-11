@@ -1,70 +1,28 @@
 /**
  * Created by Cosine on 2016/5/7.
  */
+
+
 import React from 'react';
+import ReactDOM from 'react-dom';
+import UserPage from './userpage.jsx'
+import LoginPage from './login_page.jsx'
+import Comm from './comm.jsx'
 
-function addCookie(name,value,expiresHours){
-    var cookieString=name+"="+escape(value);
-//判断是否设置过期时间
-    if(expiresHours>0){
-        var date=new Date();
-        date.setTime(date.getTime+expiresHours*3600*1000);
-        cookieString=cookieString+"; expires="+date.toGMTString();
-    }
-    document.cookie=cookieString;
-}
 
-function getCookie(name){
-    var strCookie=document.cookie;
-    var arrCookie=strCookie.split("; ");
-    for(var i=0;i<arrCookie.length;i++){
-        var arr=arrCookie[i].split("=");
-        if(arr[0]==name)return arr[1];
-    }
-    return "";
-}
 
-function deleteCookie(name){
-    var date=new Date();
-    date.setTime(date.getTime()-10000);
-    document.cookie=name+"=v; expires="+date.toGMTString();
-}
-
-function  randomChar(l) {
-    var x = "0123456789qwertyuioplkjhgfdsazxcvbnm";
-    var tmp = "";
-    var timestamp = new Date().getTime();
-    for (var i = 0; i < l; i++) {
-        tmp += x.charAt(Math.ceil(Math.random() * 100000000) % x.length);
-    }
-    return timestamp + tmp;
-}
-pictures = ["video/1.jpg", "video/2.jpg", "video/3.jpg", "video/4.jpg", "video/5.jpg"]
+var pictures = ["video/1.jpg", "video/2.jpg", "video/3.jpg", "video/4.jpg", "video/5.jpg"]
 var PictureList = React.createClass({
     render: function () {
-        var componentId = randomChar(6)
+        var componentId = Comm.randomChar(6)
         var target = "#"+componentId
-        var indicators = [];
-        var carousel = []
-        var idx = 0
+        var picList = []
         this.props.pictures.forEach(function(picture) {
-            indicators.push(<li data-target={target} data-slide-to={idx}></li>);
-            if(idx == 0) {
-                carousel.push(<div className="item active"><img src={picture}/></div>)
-            } else {
-                carousel.push(<div className="item"><img src={picture}/></div>)
-            }
-
-            idx++
+            picList.push(<li className="list-group-item"><img style={{width:"600px"}} src={picture}/></li>)
         });
         return (
-            <div id={componentId} className="carousel slide">
-                <ol className="carousel-indicators">{indicators}</ol>
-                <div className="carousel-inner">{carousel}</div>
-                <a className="carousel-control left" href={target}
-                   data-slide="prev">&lsaquo;</a>
-                <a className="carousel-control right" href={target}
-                   data-slide="next">&rsaquo;</a>
+            <div id={componentId}>
+                <ul className="list-group">{picList}</ul>
             </div>
         );
     }
@@ -75,14 +33,14 @@ var TopNavbarItem = React.createClass({
     },
     render: function () {
         return (
-            <li onClick={this.handleClick}><a>{this.props.children}</a></li>
+            <li onClick={this.handleClick} ><a href={this.props.link}>{this.props.children}</a></li>
         );
     }
 });
 
 var TopNavbar = React.createClass({
     handleClick:function () {
-        deleteCookie("username")
+        Comm.deleteCookie("username")
     },
     render: function(){
         var menu = this.props.items.map(function(item){
@@ -106,7 +64,7 @@ var TopNavbar = React.createClass({
 
 var LeftNavbar = React.createClass({
     render: function () {
-        changePageHandler = this.props.changePageHandler
+        var changePageHandler = this.props.changePageHandler
         var items = this.props.items.map(function(item){
             return (
                 <LeftNavbarItem changePageHandler={changePageHandler} link={item.link}>{item.text}</LeftNavbarItem>
@@ -126,7 +84,7 @@ var LeftNavbarItem = React.createClass({
     },
     render: function () {
         return (
-            <li onClick={this.handleClick}><a>{this.props.children}</a></li>
+            <li onClick={this.handleClick}><a href="#">{this.props.children}</a></li>
         );
     }
 });
@@ -167,9 +125,70 @@ var MyChart = React.createClass({
     }
 });
 
+var VideoAnalyser = React.createClass({
+    loadData: function () {
+        var url = 'http://112.74.90.113:8080/video?request={"mac":"868120137840424", "start_time":1, "end_time":1}'
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            cache: false,
+            success: function(rsp) {
+                console.log("loadDetectorInfoFromServer response", rsp)
+                this.setState({picture_list: rsp.picture_list});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(url, status, err.toString());
+            }.bind(this)
+        });
+    },
+    componentDidMount: function() {
+        this.loadData()
+    },
+    getInitialState: function() {
+        return  {picture_list:[]}
+    },
+    render: function () {
+        var picList = []
+        this.state.picture_list.forEach(function(picture) {
+            var macList = []
+            picture.device_list.forEach(function (device) {
+                macList.push(<li className="list-group-item">{device.mac}</li>)
+            })
+            var date = new Date()
+            date.setTime(picture.time * 1000)
+            var dateString = date.toLocaleString()
+            picList.push(
+                <li className="list-group-item">
+                    <div className="container-fluid page-content">
+                        <div className="row">
+                            <div className="col-sm-6">
+                                <div className="panel panel-default">
+                                    <div className="panel-heading">{dateString}</div>
+                                    <img style={{width:"385px"}} src={picture.url}/>
+                                </div>
+                            </div>
+                            <div className="col-sm-6">
+                                <div className="panel panel-default">
+                                    <div className="panel-heading">周边设备</div>
+                                    <ul className="list-group">{macList}</ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            )
+        });
+        return (
+            <div>
+                <ul className="list-group">{picList}</ul>
+            </div>
+        );
+    }
+});
+
 var Home = React.createClass({
     render: function () {
-        apCount = this.props.commData.detector_list.length
+        var apCount = this.props.commData.detector_list.length
         var data1 = {
             labels : ["13:00","14:00","15:00","16:00","17:00","18:00","19:00"],
             datasets : [
@@ -238,6 +257,18 @@ var TraceRow = React.createClass({
     }
 });
 
+var TraceRowWithoutMac = React.createClass({
+    render: function() {
+        return (
+            <tr>
+                <td>{this.props.longitude},{this.props.latitude}</td>
+                <td>{this.props.time}</td>
+                <td><div><button type="button" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#pictureModal">查看影像</button></div></td>
+            </tr>
+        );
+    }
+})
+
 var TraceTable = React.createClass({
     render: function() {
         var rows = [];
@@ -250,20 +281,19 @@ var TraceTable = React.createClass({
             if (time == null) {
                 time = point.time
             }
-            date = new Date()
+            var date = new Date()
             date.setTime(time * 1000)
-            dateString = date.toLocaleString()
+            var dateString = date.toLocaleString()
             if (point.mac == null) {
                 point.mac = mac
             }
-            rows.push(<TraceRow mac={point.mac} longitude={point.longitude} latitude={point.latitude} time={dateString} />);
+            rows.push(<TraceRowWithoutMac mac={point.mac} longitude={point.longitude} latitude={point.latitude} time={dateString} />);
         });
         return (
-            <div data-spy="scroll" >
+            <div>
                 <table className="table table-striped table-hover">
                     <thead>
                     <tr>
-                        <th>设备MAC</th>
                         <th>经纬</th>
                         <th>时间</th>
                         <th>影像</th>
@@ -283,19 +313,27 @@ var DetectorDetailBox = React.createClass({
         if (mac == null) {
             mac = ""
         }
+        var idx = 0
         this.props.trace.forEach(function(point) {
+            if (idx > 30 ) {
+                return
+            }
+            idx++
             var time = point.enter_time
             if (time == null) {
                 time = point.time
             }
             date = new Date()
             date.setTime(time * 1000)
-            dateString = date.toLocaleString()
+            var dateString = date.toLocaleString()
             if (point.mac == null) {
                 point.mac = mac
             }
             rows.push(<TraceRow mac={point.mac} longitude={point.longitude} latitude={point.latitude} time={dateString} />);
         });
+        var date = new Date()
+        date.setTime(this.props.detector.last_login_time * 1000)
+        var dateString = date.toLocaleString()
         return (
             <div className="container-fluid page-content">
                 <div className="row">
@@ -307,11 +345,11 @@ var DetectorDetailBox = React.createClass({
                                 <tbody><tr>
                                     <td>{this.props.detector.mac}</td>
                                     <td>{this.props.detector.longitude},{this.props.detector.latitude}</td>
-                                    <td>{this.props.detector.last_login_time}</td>
+                                    <td>{dateString}</td>
                                     <td>{this.props.trace.length}</td>
                                 </tr></tbody>
                             </table>
-                            <div><button type="button" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#pictureModal">视频联动分析</button></div>
+                            <div><button type="button" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#video_analyser">视频联动分析</button></div>
                         </div>
                     </div>
                 </div>
@@ -333,6 +371,7 @@ var DetectorDetailBox = React.createClass({
                         </div>
                     </div>
                 </div>
+                <ModalBox boxId="video_analyser" body={<VideoAnalyser />} title="视频关联分析"/>
             </div>
         );
     }
@@ -382,10 +421,10 @@ var SearchBar = React.createClass({
                         <button className="btn btn-default" type="button" onClick={this.handleClick} >查询</button>
                     </span>
                 </div>
-                <div className="button-group" role="group">
-                    <input type="button" className="button" value="开始动画" id={this.props.startId}/>
-                    <input type="button" className="button" value="停止动画" id={this.props.stopId}/>
-                </div>
+                {/*<div className="button-group" role="group">
+                 <input type="button" className="button" value="开始动画" id={this.props.startId}/>
+                 <input type="button" className="button" value="停止动画" id={this.props.stopId}/>
+                 </div>*/}
             </div>
         );
     }
@@ -427,7 +466,7 @@ var SearchPage = React.createClass({
         this.search_value = value
         console.log("handleSearch:" + value)
         console.log("loadTraceFromServer")
-        url = 'http://112.74.90.113:8080/trace?request={"mac":"' + value + '","query_type":"01","start_time":1}'
+        var url = 'http://112.74.90.113:8080/trace?request={"mac":"' + value + '","query_type":"01","start_time":1}'
         $.ajax({
             url: url,
             dataType: 'json',
@@ -461,37 +500,97 @@ var SearchPage = React.createClass({
         myMap.plugin(["AMap.ToolBar"], function() {
             myMap.addControl(new AMap.ToolBar());
         });
-        start_id = "start"+this.props.No;
-        stop_id = "stop"+this.props.No
-        AMap.event.addDomListener(document.getElementById(start_id), 'click', function () {
-            console.log("start draw", lineArr)
-            marker.moveAlong(lineArr, 1000);
-        }, false);
-        AMap.event.addDomListener(document.getElementById(stop_id), 'click', function () {
-            marker.stopMove();
-        }, false);
+        var start_id = "start"+this.props.No;
+        var stop_id = "stop"+this.props.No
+        {/*AMap.event.addDomListener(document.getElementById(start_id), 'click', function () {
+         console.log("start draw", lineArr)
+         marker.moveAlong(lineArr, 1000);
+         }, false);
+         AMap.event.addDomListener(document.getElementById(stop_id), 'click', function () {
+         marker.stopMove();
+         }, false);*/}
     },
     render: function () {
-        start_id = "start"+this.props.No;
-        stop_id = "stop"+this.props.No
+        var start_id = "start"+this.props.No;
+        var stop_id = "stop"+this.props.No
         return(
             <div className="container-fluid page-content">
-                <div className="row">
+                <div className="row" style={{width:"300px"}}>
                     <SearchBar handleSearch={this.handleSearch} startId={start_id} stopId={stop_id}></SearchBar>
                 </div>
-                <div className="row">
+                <div className="row" style={{marginTop:"10px"}}>
                     <div className="col-sm-8">
                         <div className="panel panel-primary">
-                            <div className="panel-heading">轨迹分布</div>
+                            <div className="panel-heading">分布</div>
                             <div id="map_search" className="map" />
                         </div>
                     </div>
                     <div className="col-sm-4">
                         <div className="panel panel-primary">
-                            <div className="panel-heading">轨迹查询结果</div>
+                            <div className="panel-heading">查询结果</div>
                             <TraceTable mac={this.search_value} trace={this.state.rsp.trace}></TraceTable>
                         </div>
 
+                    </div>
+                </div>
+            </div>
+        );
+    }
+});
+
+var SimpleSearchPage = React.createClass({
+    handleSearch: function (value) {
+
+    },
+    getInitialState: function () {
+        console.log("getInitialState")
+        return {rsp: {trace: []}};
+    },
+    componentDidMount: function () {
+
+    },
+    render: function () {
+        return(
+            <div className="container-fluid page-content">
+                <div className="row" style={{width:"400px"}}>
+                    <div className="input-group">
+                        <input type="text" className="form-control" placeholder="输入车牌号查询"  />
+                    <span className="input-group-btn">
+                        <button className="btn btn-default" type="button" onClick={this.handleClick} >查询</button>
+                    </span>
+                    </div>
+                </div>
+                <div className="row" style={{marginTop:"10px"}}>
+                    <div className="col-sm-12">
+                        <div className="panel panel-primary">
+                            <div className="panel-heading">查询结果</div>
+                            <table className="table table-striped table-hover">
+                                <thead>
+                                <tr>
+                                    <th>车牌号</th>
+                                    <th>扫描事件</th>
+                                    <th>地址</th>
+                                    <th>MAC列表</th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+});
+
+var BehavePage = React.createClass({
+    render: function () {
+        var thirdNum = this.props.commData.third_part_detector_list.length
+        return(
+            <div className="container-fluid page-content">
+                <div className="row">
+                    <div className="panel panel-primary">
+                        <div className="panel-heading">上网行为数据：{thirdNum}</div>
+                        <DetectorList data={this.props.commData.third_part_detector_list}  showBoxHandler={this.showDeviceListBox}/>
                     </div>
                 </div>
             </div>
@@ -525,7 +624,7 @@ var DetectorPage = React.createClass({
         })
     },
     showDeviceListBox: function (apData) {
-        url = 'http://112.74.90.113:8080/detector_info?request={"mac":"' + apData.mac + '","start_time":1}'
+        var url = 'http://112.74.90.113:8080/detector_info?request={"mac":"' + apData.mac + '","start_time":1}'
         $.ajax({
             url: url,
             dataType: 'json',
@@ -596,18 +695,98 @@ var DetectorItem = React.createClass({
         this.props.showBoxHandler(this.props.data)
     },
     render: function () {
-        state = this.props.data.status === "01" ? "在线" : "离线";
-        div_class = this.props.data.status === "01" ? "online" : "offline";
-        mac_count = 0;
+        var state = this.props.data.status === "01" ? "在线" : "离线";
+        var div_class = this.props.data.status === "01" ? "online" : "offline";
+        var mac_count = 0;
         if (this.props.data.today_mac_count != null) {
             mac_count = this.props.data.today_mac_count;
         }
-        company = "广晟"
+        var company = "广晟"
         if(this.props.data.company == "02") {
             company = "百米"
         }
         return (
-            <a className="list-group-item" onClick={this.handleClick} data-toggle="modal" data-target="#device_list_box">
+            <a className="list-group-item" onClick={this.handleClick} href="#" data-toggle="modal" data-target="#device_list_box">
+                <span className="badge">{mac_count}</span>
+                <div>{this.props.idx}号 {company}</div>
+                {/*<div>{this.props.data.mac}</div>*/}
+                <div className={div_class}><b>状态：</b>{state}</div>
+            </a>
+        );
+    }
+});
+
+var DetectorPage2 = React.createClass({
+    componentDidMount: function() {
+    },
+    showDeviceListBox: function (apData) {
+
+    },
+    getInitialState: function() {
+        return  {deviceList:{device_list:[]}, current_detector:{mac:"", longitude:0, latitude:0,last_login_time:0}}
+    },
+    render: function () {
+        var modalBody =  <VideoAnalyser />
+        var FixData = {detector_list:[{mac:"353419033412758",today_mac_count:0,status:"01",longitude:116.10483,latitude:24.28942,company:"01",last_login_time:1463583123,login_count:0}]}
+        return(
+            <div className="container-fluid page-content">
+                <div className="row">
+                    {/*<div className="col-sm-8">
+                     <div className="panel panel-primary">
+                     <div className="panel-heading">探测器分布</div>
+                     <div id="map_detector2" className="map"/>
+                     </div>
+                     </div>*/}
+                    <div className="col-sm-8">
+                        <div className="panel panel-primary">
+                            <div className="panel-heading">视频关联探针列表</div>
+                            <DetectorList2 data={FixData.detector_list}  showBoxHandler={this.showDeviceListBox}/>
+                        </div>
+                    </div>
+                </div>
+                <ModalBox boxId="video_box" body={modalBody} title="视频关联分析"/>
+            </div>
+        );
+    }
+});
+
+var DetectorList2 = React.createClass({
+    render: function () {
+        var idx = 0;
+        var showBoxHandler = this.props.showBoxHandler
+        var nodes = this.props.data.map(function (detector) {
+                idx += 1;
+                return (
+                    <DetectorItem2 key={detector.mac} data={detector} idx={idx} showBoxHandler={showBoxHandler}></DetectorItem2>
+                );
+            }
+        );
+        return (
+            <div className="detector_list">
+                <ul className="list-group">{nodes}</ul>
+            </div>
+        );
+    }
+});
+
+var DetectorItem2 = React.createClass({
+    handleClick: function(event) {
+        console.log("click on " + this.props.data.mac)
+        this.props.showBoxHandler(this.props.data)
+    },
+    render: function () {
+        var state = this.props.data.status === "01" ? "在线" : "离线";
+        var div_class = this.props.data.status === "01" ? "online" : "offline";
+        var mac_count = 0;
+        if (this.props.data.today_mac_count != null) {
+            mac_count = this.props.data.today_mac_count;
+        }
+        var company = "广晟"
+        if(this.props.data.company == "02") {
+            company = "百米"
+        }
+        return (
+            <a className="list-group-item" onClick={this.handleClick}  href="#" data-toggle="modal" data-target="#video_box">
                 <span className="badge">{mac_count}</span>
                 <div>{this.props.idx}号 {company}</div>
                 <div>{this.props.data.mac}</div>
@@ -617,26 +796,85 @@ var DetectorItem = React.createClass({
     }
 });
 
-var LoginPage = React.createClass({
-    handleChange:function (e) {
-        this.username = e.target.value
+var DetectorRow = React.createClass({
+    render: function () {
+        var date = new Date()
+        date.setTime(this.props.last_login_time * 1000)
+        var dateString = date.toLocaleString()
+        return (
+            <tr>
+                <td>{this.props.mac}</td>
+                <td>{this.props.longitude},{this.props.latitude}</td>
+                <td>{dateString}</td>
+                <td>在线</td>
+                <td>陈工</td>
+                <td>18554374756</td>
+                <td>{this.props.region}</td>
+            </tr>
+        );
+    }
+});
+
+var RegionPage = React.createClass({
+    detector:[{mac:"admin",longitude:116.101728,latitude:24.286132, last_login_time:1463591175, region:"梅县区"},
+        {mac:"admin",longitude:116.101628,latitude:24.286432, last_login_time:1463592175, region:"梅县区"},
+        {mac:"admin",longitude:116.101458,latitude:24.286872, last_login_time:1463594175, region:"梅县区"},
+        {mac:"admin",longitude:116.101458,latitude:24.286332, last_login_time:1463581175, region:"梅县区"},
+        {mac:"admin",longitude:116.101125,latitude:24.286052, last_login_time:1463596175, region:"梅县区"},
+        {mac:"admin",longitude:116.101526,latitude:24.285933, last_login_time:1463598176, region:"梅县区"},
+        {mac:"admin",longitude:116.101628,latitude:24.281432, last_login_time:1463592175, region:"梅江区"},
+        {mac:"admin",longitude:116.103458,latitude:24.283872, last_login_time:1463598175, region:"梅江区"},
+        {mac:"admin",longitude:116.101758,latitude:24.288332, last_login_time:1463581475, region:"梅江区"},
+        {mac:"admin",longitude:116.101125,latitude:24.286052, last_login_time:1463596135, region:"梅江区"},
+        {mac:"admin",longitude:116.103526,latitude:24.296933, last_login_time:1463599115, region:"梅江区"}
+    ],
+    getInitialState: function () {
+        return {region:"梅县区"}
     },
-    handleClick: function () {
-        console.log("input:" + this.username)
-        addCookie("username", this.username)
+    handleClick:function (e) {
+        console.log("on click", e.targe.value)
+        this.setState({region:e.target.value})
     },
-    render:function () {
-        return(
-            <div className="container" style={{width:"400px"}}>
-                <form className="form-signin" role="form">
-                    <h2 className="form-signin-heading">请登陆</h2>
-                    <input type="text" className="form-control" placeholder="用户名" onChange={this.handleChange} required autofocus></input>
-                    <input type="password" className="form-control" placeholder="密码" required></input>
-                    <label className="checkbox">
-                        <input type="checkbox" value="remember-me"> Remember me</input>
-                    </label>
-                    <button className="btn btn-lg btn-primary btn-block" type="submit" onClick={this.handleClick}>登陆</button>
-                </form>
+    render: function () {
+        var region = this.state.region
+        var rows = []
+        this.detector.forEach(function (detector) {
+            rows.push(<DetectorRow mac={Comm.randomCharWithoutTime(15)} longitude={detector.longitude} latitude={detector.latitude} last_login_time={detector.last_login_time}  region={detector.region} />)
+        });
+        return (
+            <div className="container-fluid page-container">
+                <div className="row">
+                    {/*<div className="dropdown">
+                     <button className="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                     {region}
+                     <span className="caret"></span>
+                     </button>
+                     <ul className="dropdown-menu" aria-labelledby="dropdownMenu1">
+                     <li><a href="#" value="梅县区" OnClick={this.handleClick}>梅县区</a></li>
+                     <li><a href="#" value="梅江区" OnClick={this.handleClick}>梅江区</a></li>
+                     <li><a href="#" value="大埔县" OnClick={this.handleClick}>大埔县</a></li>
+                     <li><a href="#" value="丰顺县" OnClick={this.handleClick}>丰顺县</a></li>
+                     <li><a href="#" value="五华县" OnClick={this.handleClick}>五华县</a></li>
+                     <li><a href="#" value="平远县" OnClick={this.handleClick}>平远县</a></li>
+                     <li><a href="#" value="蕉岭县" OnClick={this.handleClick}>蕉岭县</a></li>
+                     <li><a href="#" value="兴宁县" OnClick={this.handleClick}>兴宁县</a></li>
+                     </ul>
+                     </div>*/}
+                    <table className="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>MAC</th>
+                            <th>经纬</th>
+                            <th>上线时间</th>
+                            <th>状态</th>
+                            <th>责任人</th>
+                            <th>联系电话</th>
+                            <th>区域</th>
+                        </tr>
+                        </thead>
+                        <tbody>{rows}</tbody>
+                    </table>
+                </div>
             </div>
         );
     }
@@ -644,7 +882,102 @@ var LoginPage = React.createClass({
 
 
 
-var MainPage = React.createClass({
+var FeatureRow = React.createClass({
+    render: function () {
+        return (
+            <tr>
+                <td>{this.props.mac}</td>
+                <td>{this.props.phone}</td>
+                <td>{this.props.idType}</td>
+                <td>{this.props.idNo}</td>
+                <td>{this.props.time}</td>
+                <td><button type="button" className="btn btn-warning btn-sm" data-container="body" data-toggle="popover" data-placement="top" data-content="无操作权限">保存</button>
+                    <button type="button" className="btn btn-danger btn-sm" >删除</button>
+                </td>
+            </tr>
+        );
+    }
+});
+
+var FeaturePage = React.createClass({
+    getInitialState: function () {
+        return {data:[]}
+    },
+    componentDidMount: function () {
+        var url = 'http://112.74.90.113:8080/device_user?request={"mac":["b8bc1b9e6d19","94d8592cb3c0","b4ef39251d7a","3480b3243fa4","a018282b2738","2c5bb834155c"]}'
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            cache: false,
+            success: function(rsp) {
+                console.log("loadDetectorInfoFromServer response", rsp)
+                this.setState({data: rsp.result});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(url, status, err.toString());
+            }.bind(this)
+        });
+    },
+    render: function () {
+        var rows = []
+        this.state.data.forEach(function (feature) {
+            if (feature.person_list.length > 0){
+                var persion_info = feature.person_list[0]
+                var phone = ""
+                var dateString = ""
+                if (persion_info.phone_list.length > 0){
+                    phone = persion_info.phone_list[0].phone_no
+                    time = persion_info.phone_list[0].time
+                    date = new Date()
+                    date.setTime(time * 1000)
+                    dateString = date.toLocaleString()
+                }
+
+                rows.push(<FeatureRow mac={feature.mac} phone={phone} idType="" idNo="" time={dateString} />)
+            }
+        });
+        return (
+            <div className="container-fluid page-container">
+                <div className="row">
+                    <table className="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>MAC地址</th>
+                            <th>电话号码</th>
+                            <th>证件类型</th>
+                            <th>证件号</th>
+                            <th>时间</th>
+                            <th>编辑</th>
+                        </tr>
+                        </thead>
+                        <tbody>{rows}</tbody>
+                    </table>
+                    <button type="button" className="btn btn-info btn-sm">添加特征</button>
+                    <div style={{marginTop:'5px'}} ><button type="button" style={{float:'left'}} className="btn btn-info btn-sm">上一页</button>
+                        <button type="button" style={{float:'right'}} className="btn btn-info btn-sm">下一页</button>
+                    </div>
+
+                </div>
+            </div>
+        );
+    }
+});
+
+var items=[{text:'概览',link:Home},
+    {text:'探针管理',link:DetectorPage},
+    {text:'辖区管理',link:RegionPage},
+    {text:'轨迹查询',link:SearchPage},
+    {text:'区域扫描',link:SearchPage},
+    {text:'轨迹吻合度分析',link:SearchPage},
+    {text:'电子围栏',link:SearchPage},
+    {text:'视频关联分析',link:DetectorPage2},
+    {text:'车牌号关联分析',link:SimpleSearchPage},
+    {text:'上网行为分析',link:BehavePage},
+    {text:'特征库管理',link:FeaturePage},
+    {text:'用户管理',link:UserPage}
+]
+
+var Page = React.createClass({
     loadDetectorsFromServer: function() {
         //console.log("loadDetectorsFromServer")
         $.ajax({
@@ -665,7 +998,7 @@ var MainPage = React.createClass({
     componentDidMount: function() {
         console.log("componentDidMount")
         this.loadDetectorsFromServer();
-        setInterval(this.loadDetectorsFromServer, 5000);
+        setInterval(this.loadDetectorsFromServer, 20000);
     },
     changePageHandler : function (dst) {
         this.setState({page:dst})
@@ -674,8 +1007,8 @@ var MainPage = React.createClass({
         return  {page:Home,commData:{today_mac_count:0 ,detector_list:[{mac:""}]}};
     },
     render:function () {
-        Child = this.state.page
-        username = getCookie("username")
+        var Child = this.state.page
+        var username = Comm.getCookie("username")
         console.log("username:" + username)
         if (username == "") {
             return (
@@ -684,11 +1017,11 @@ var MainPage = React.createClass({
         } else {
             return (
                 <div>
-                    <TopNavbar items={[{text:'首页',link:""}]} username={username}></TopNavbar>
+                    <TopNavbar items={[{text:'首页',link:"#"},{text:'下载手机版',link:"apk/app.apk"}]} username={username}></TopNavbar>
                     <div className="container-fluid page-container">
                         <div className="row">
                             <div className="col-sm-2">
-                                <LeftNavbar changePageHandler={this.changePageHandler} items={[{text:'概览',link:Home},{text:'探测器信息',link:DetectorPage},{text:'轨迹查询',link:SearchPage}, {text:'相似轨迹',link:SearchPage}]} />
+                                <LeftNavbar changePageHandler={this.changePageHandler} items={items} />
                             </div>
                             <div className="col-sm-10">
                                 <Child commData={this.state.commData}/>
@@ -702,4 +1035,7 @@ var MainPage = React.createClass({
     }
 });
 
-export default MainPage;
+ReactDOM.render(
+    <Page></Page>,
+    document.getElementById("warpper")
+);
