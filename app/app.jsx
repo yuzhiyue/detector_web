@@ -8,7 +8,7 @@ import ReactDOM from 'react-dom';
 import UserPage from './userpage.jsx'
 import LoginPage from './login_page.jsx'
 import Comm from './comm.jsx'
-
+import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router'
 
 
 var pictures = ["video/1.jpg", "video/2.jpg", "video/3.jpg", "video/4.jpg", "video/5.jpg"]
@@ -84,7 +84,7 @@ var LeftNavbarItem = React.createClass({
     },
     render: function () {
         return (
-            <li onClick={this.handleClick}><a href="#">{this.props.children}</a></li>
+            <li><Link to={this.props.link}>{this.props.children}</Link></li>
         );
     }
 });
@@ -127,7 +127,7 @@ var MyChart = React.createClass({
 
 var VideoAnalyser = React.createClass({
     loadData: function () {
-        var url = 'http://112.74.90.113:8080/video?request={"mac":"868120137840424", "start_time":1, "end_time":1}'
+        var url = Comm.server_addr + '/video?request={"mac":"868120137840424", "start_time":1, "end_time":1}'
         $.ajax({
             url: url,
             dataType: 'json',
@@ -187,8 +187,32 @@ var VideoAnalyser = React.createClass({
 });
 
 var Home = React.createClass({
+    loadDetectorsFromServer: function() {
+        //console.log("loadDetectorsFromServer")
+        $.ajax({
+            url: Comm.server_addr + "/detector_list?request={}",
+            dataType: 'json',
+            cache: false,
+            success: function(rsp) {
+                if (this.isMounted()) {
+                    this.setState({commData:rsp});
+                }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+    },
+    componentDidMount: function() {
+        console.log("componentDidMount")
+        this.loadDetectorsFromServer();
+        setInterval(this.loadDetectorsFromServer, 10000);
+    },
+    getInitialState: function() {
+        return  {commData:{today_mac_count:0 ,detector_list:[{mac:""}]}};
+    },
     render: function () {
-        var apCount = this.props.commData.detector_list.length
+        var apCount = this.state.commData.detector_list.length
         var data1 = {
             labels : ["13:00","14:00","15:00","16:00","17:00","18:00","19:00"],
             datasets : [
@@ -231,8 +255,8 @@ var Home = React.createClass({
         return (
             <div className="container-fluid page-content">
                 <div className="row">
-                    <div className="col-sm-4"><Panel title="今日探测MAC次数" body={this.props.commData.discovermac} linkText="查看列表"></Panel></div>
-                    <div className="col-sm-4"><Panel title="今日探测人数" body={this.props.commData.people} linkText="查看列表"></Panel></div>
+                    <div className="col-sm-4"><Panel title="今日探测MAC次数" body={this.state.commData.discovermac} linkText="查看列表"></Panel></div>
+                    <div className="col-sm-4"><Panel title="今日探测人数" body={this.state.commData.people} linkText="查看列表"></Panel></div>
                     <div className="col-sm-4"><Panel title="探测器数" body={apCount} linkText="查看列表"></Panel></div>
                 </div>
                 <div className="row">
@@ -466,7 +490,7 @@ var SearchPage = React.createClass({
         this.search_value = value
         console.log("handleSearch:" + value)
         console.log("loadTraceFromServer")
-        var url = 'http://112.74.90.113:8080/trace?request={"mac":"' + value + '","query_type":"01","start_time":1}'
+        var url = Comm.server_addr + '/trace?request={"mac":"' + value + '","query_type":"01","start_time":1}'
         $.ajax({
             url: url,
             dataType: 'json',
@@ -599,32 +623,51 @@ var BehavePage = React.createClass({
 });
 
 var DetectorPage = React.createClass({
+    loadDetectorsFromServer: function() {
+        //console.log("loadDetectorsFromServer")
+        $.ajax({
+            url: Comm.server_addr + "/detector_list?request={}",
+            dataType: 'json',
+            cache: false,
+            success: function(rsp) {
+                if (this.isMounted()) {
+                    this.setState({commData:rsp});
+                    var idx = 1;
+                    this.state.commData.detector_list.forEach(function (e) {
+                        var text = '<div class="marker-route marker-marker-bus-from"><b>探:'+ idx.toString() +'号</b></div>'
+                        new AMap.Marker({
+                            map: self.myMap,
+                            position: [e.longitude, e.latitude],
+                            offset: new AMap.Pixel(-17, -42), //相对于基点的偏移位置
+                            draggable: false,  //是否可拖动
+                            content: text
+                        });
+                        idx = idx + 1
+                    })
+                }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+    },
     componentDidMount: function() {
-        var myMap = new AMap.Map('map_detector', {
+        self.myMap = new AMap.Map('map_detector', {
             resizeEnable: true,
             zoom:14,
             center: [116.109095,24.296806]
 
         });
-        myMap.plugin(["AMap.ToolBar"], function() {
-            myMap.addControl(new AMap.ToolBar());
+        self.myMap.plugin(["AMap.ToolBar"], function() {
+            self.myMap.addControl(new AMap.ToolBar());
         });
+        
 
-        var idx = 1;
-        this.props.commData.detector_list.forEach(function (e) {
-            var text = '<div class="marker-route marker-marker-bus-from"><b>探:'+ idx.toString() +'号</b></div>'
-            new AMap.Marker({
-                map: myMap,
-                position: [e.longitude, e.latitude],
-                offset: new AMap.Pixel(-17, -42), //相对于基点的偏移位置
-                draggable: false,  //是否可拖动
-                content: text
-            });
-            idx = idx + 1
-        })
+        this.loadDetectorsFromServer();
+        setInterval(this.loadDetectorsFromServer, 10000);
     },
     showDeviceListBox: function (apData) {
-        var url = 'http://112.74.90.113:8080/detector_info?request={"mac":"' + apData.mac + '","start_time":1}'
+        var url = Comm.server_addr + '/detector_info?request={"mac":"' + apData.mac + '","start_time":1}'
         $.ajax({
             url: url,
             dataType: 'json',
@@ -639,11 +682,11 @@ var DetectorPage = React.createClass({
         });
     },
     getInitialState: function() {
-        return  {deviceList:{device_list:[]}, current_detector:{mac:"", longitude:0, latitude:0,last_login_time:0}}
+        return  {deviceList:{device_list:[]}, current_detector:{mac:"", longitude:0, latitude:0,last_login_time:0},commData:{today_mac_count:0 ,third_part_detector_list:[], detector_list:[{mac:""}]}}
     },
     render: function () {
         var modalBody =  <DetectorDetailBox trace={this.state.deviceList.device_list} detector={this.state.current_detector}/>
-        var thirdNum = this.props.commData.third_part_detector_list.length
+        var thirdNum = this.state.commData.third_part_detector_list.length
         return(
             <div className="container-fluid page-content">
                 <div className="row">
@@ -655,12 +698,12 @@ var DetectorPage = React.createClass({
                     </div>
                     <div className="col-sm-4">
                         <div className="panel panel-primary">
-                            <div className="panel-heading">今日探测人数：{this.props.commData.people}</div>
-                            <DetectorList data={this.props.commData.detector_list}  showBoxHandler={this.showDeviceListBox}/>
+                            <div className="panel-heading">今日探测人数：{this.state.commData.people}</div>
+                            <DetectorList data={this.state.commData.detector_list}  showBoxHandler={this.showDeviceListBox}/>
                         </div>
                         <div className="panel panel-primary">
                             <div className="panel-heading">第三方探测器数量：{thirdNum}</div>
-                            <DetectorList data={this.props.commData.third_part_detector_list}  showBoxHandler={this.showDeviceListBox}/>
+                            <DetectorList data={this.state.commData.third_part_detector_list}  showBoxHandler={this.showDeviceListBox}/>
                         </div>
                     </div>
                 </div>
@@ -904,7 +947,7 @@ var FeaturePage = React.createClass({
         return {data:[]}
     },
     componentDidMount: function () {
-        var url = 'http://112.74.90.113:8080/device_user?request={"mac":["b8bc1b9e6d19","94d8592cb3c0","b4ef39251d7a","3480b3243fa4","a018282b2738","2c5bb834155c"]}'
+        var url = Comm.server_addr + '/device_user?request={"mac":["b8bc1b9e6d19","94d8592cb3c0","b4ef39251d7a","3480b3243fa4","a018282b2738","2c5bb834155c"]}'
         $.ajax({
             url: url,
             dataType: 'json',
@@ -963,51 +1006,21 @@ var FeaturePage = React.createClass({
     }
 });
 
-var items=[{text:'概览',link:Home},
-    {text:'探针管理',link:DetectorPage},
-    {text:'辖区管理',link:RegionPage},
-    {text:'轨迹查询',link:SearchPage},
-    {text:'区域扫描',link:SearchPage},
-    {text:'轨迹吻合度分析',link:SearchPage},
-    {text:'电子围栏',link:SearchPage},
-    {text:'视频关联分析',link:DetectorPage2},
-    {text:'车牌号关联分析',link:SimpleSearchPage},
-    {text:'上网行为分析',link:BehavePage},
-    {text:'特征库管理',link:FeaturePage},
-    {text:'用户管理',link:UserPage}
+var items=[{text:'概览',link:"/home"},
+    {text:'探针管理',link:"/detector"},
+    {text:'轨迹查询',link:"/search"},
+    // {text:'区域扫描',link:SearchPage},
+    {text:'轨迹吻合度分析',link:"/search"},
+    {text:'电子围栏',link:"/search"},
+    {text:'视频关联分析',link:"detector2"},
+    {text:'车牌号关联分析',link:"/car"},
+    {text:'上网行为分析',link:"/behave"},
+    {text:'特征库管理',link:"/feature"},
+    {text:'用户管理',link:"/user"}
 ]
 
 var Page = React.createClass({
-    loadDetectorsFromServer: function() {
-        //console.log("loadDetectorsFromServer")
-        $.ajax({
-            url: "http://112.74.90.113:8080/detector_list?request={}",
-            dataType: 'json',
-            cache: false,
-            success: function(rsp) {
-                rsp.detector_list.sort(function (a, b) {
-                    return a.mac > b.mac
-                })
-                this.setState({commData:rsp});
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-            }.bind(this)
-        });
-    },
-    componentDidMount: function() {
-        console.log("componentDidMount")
-        this.loadDetectorsFromServer();
-        setInterval(this.loadDetectorsFromServer, 20000);
-    },
-    changePageHandler : function (dst) {
-        this.setState({page:dst})
-    },
-    getInitialState: function() {
-        return  {page:Home,commData:{today_mac_count:0 ,detector_list:[{mac:""}]}};
-    },
     render:function () {
-        var Child = this.state.page
         var username = Comm.getCookie("username")
         console.log("username:" + username)
         if (username == "") {
@@ -1024,7 +1037,7 @@ var Page = React.createClass({
                                 <LeftNavbar changePageHandler={this.changePageHandler} items={items} />
                             </div>
                             <div className="col-sm-10">
-                                <Child commData={this.state.commData}/>
+                                {this.props.children}
                             </div>
                         </div>
                     </div>
@@ -1035,7 +1048,17 @@ var Page = React.createClass({
     }
 });
 
+
+
 ReactDOM.render(
-    <Page></Page>,
+    <Router history={hashHistory}>
+        <Route path="/" component={Page} >
+            <IndexRoute component={Home} />
+            <Route path="home" component={Home}  />
+            <Route path="detector" component={DetectorPage}  />
+            <Route path="search" component={SearchPage}  />
+            <Route path="user" component={UserPage}  />
+        </Route>
+    </Router>,
     document.getElementById("warpper")
 );

@@ -9,8 +9,6 @@ function addCookie(name,value,expiresHours){
     document.cookie=cookieString;
 }
 
-module.exports.addCookie = addCookie;
-
 function getCookie(name){
     var strCookie=document.cookie;
     var arrCookie=strCookie.split("; ");
@@ -21,15 +19,11 @@ function getCookie(name){
     return "";
 }
 
-module.exports.getCookie = getCookie;
-
 function deleteCookie(name){
     var date=new Date();
     date.setTime(date.getTime()-10000);
     document.cookie=name+"=v; expires="+date.toGMTString();
 }
-
-module.exports.deleteCookie = deleteCookie;
 
 function  randomChar(l) {
     var x = "0123456789qwertyuioplkjhgfdsazxcvbnm";
@@ -41,9 +35,6 @@ function  randomChar(l) {
     return timestamp + tmp;
 }
 
-module.exports.randomChar = randomChar;
-
-
 function  randomCharWithoutTime(l) {
     var x = "0123456789";
     var tmp = "";
@@ -53,4 +44,9 @@ function  randomCharWithoutTime(l) {
     return tmp;
 }
 
+module.exports.addCookie = addCookie;
+module.exports.getCookie = getCookie;
+module.exports.deleteCookie = deleteCookie;
+module.exports.randomChar = randomChar;
 module.exports.randomCharWithoutTime = randomCharWithoutTime;
+module.exports.server_addr = "http://192.168.31.149:8080"

@@ -1,4 +1,5 @@
 import React from 'react';
+import Comm from './comm.jsx'
 
 var UserRow = React.createClass({
     render: function () {
@@ -16,16 +17,32 @@ var UserRow = React.createClass({
     }
 });
 
-var UserPage = React.createClass({
-    users:[{username:"admin",group:"管理员",desc:"系统管理员", phone:"15870002521"},
-        {username:"mzadmin",group:"管理员",desc:"梅州管理员", phone:"18667843244"},
-        {username:"mxadmin",group:"区域管理员",desc:"梅县管理员", phone:"18664214241"},
-        {username:"mjadmin",group:"区域管理员",desc:"梅江管理员", phone:"18642145641"},
-        {username:"user",group:"普通用户",desc:"普通用户", phone:"18665425432"}
-    ],
-    render: function () {
+class UserPage extends React.Component {
+    constructor() {
+        super();
+        this.state = {users:[]}
+    }
+    loadData () {
+        var url = Comm.server_addr + '/sys_user/list'
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            cache: false,
+            success: function(rsp) {
+                console.log("load sys user response", rsp)
+                this.setState({users: rsp.user_list});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(url, status, err.toString());
+            }.bind(this)
+        });
+    }
+    componentDidMount() {
+        this.loadData()
+    }
+    render() {
         var rows = []
-        this.users.forEach(function (user) {
+        this.state.users.forEach(function (user) {
             rows.push(<UserRow username={user.username} phone={user.phone} group={user.group} desc={user.desc} />)
         });
         return (
@@ -48,6 +65,6 @@ var UserPage = React.createClass({
             </div>
         );
     }
-});
+}
 
 module.exports = UserPage;

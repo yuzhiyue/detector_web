@@ -4,16 +4,22 @@ var webpack = require('webpack');
 module.exports = {
     entry: './app/main.js',
     output: { path: __dirname, filename: 'bundle.js' },
+    devServer: {
+        historyApiFallback: true,
+        hot: true,
+        inline: true,
+        progress: true,
+    },
     module: {
         loaders: [
             {
                 test: /.jsx?$/,
                 loader: 'babel-loader',
-                exclude: /node_modules/,
-                query: {
-                    presets: ['es2015', 'react']
-                }
+                exclude: /node_modules/
             }
         ]
+    },
+    resolve: {
+        extensions: ['', '.js', '.jsx']
     },
 };

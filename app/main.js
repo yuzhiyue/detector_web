@@ -1,3 +1,3 @@
 
-import MainPage from './component.jsx';
+import MainPage from './app.jsx';
 
