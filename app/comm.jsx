@@ -49,4 +49,4 @@ module.exports.getCookie = getCookie;
 module.exports.deleteCookie = deleteCookie;
 module.exports.randomChar = randomChar;
 module.exports.randomCharWithoutTime = randomCharWithoutTime;
-module.exports.server_addr = "http://192.168.31.149:8080"
+module.exports.server_addr = "http://112.74.90.113:8080"

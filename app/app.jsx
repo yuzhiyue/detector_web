@@ -8,6 +8,7 @@ import ReactDOM from 'react-dom';
 import UserPage from './userpage.jsx'
 import LoginPage from './login_page.jsx'
 import FeaturePage from './feature_page.jsx'
+import SearchPage from './search_page.jsx'
 import Comm from './comm.jsx'
 import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router'
 
@@ -282,55 +283,6 @@ var TraceRow = React.createClass({
     }
 });
 
-var TraceRowWithoutMac = React.createClass({
-    render: function() {
-        return (
-            <tr>
-                <td>{this.props.longitude},{this.props.latitude}</td>
-                <td>{this.props.time}</td>
-                <td><div><button type="button" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#pictureModal">查看影像</button></div></td>
-            </tr>
-        );
-    }
-})
-
-var TraceTable = React.createClass({
-    render: function() {
-        var rows = [];
-        var mac = this.props.mac
-        if (mac == null) {
-            mac = ""
-        }
-        this.props.trace.forEach(function(point) {
-            var time = point.enter_time
-            if (time == null) {
-                time = point.time
-            }
-            var date = new Date()
-            date.setTime(time * 1000)
-            var dateString = date.toLocaleString()
-            if (point.mac == null) {
-                point.mac = mac
-            }
-            rows.push(<TraceRowWithoutMac mac={point.mac} longitude={point.longitude} latitude={point.latitude} time={dateString} />);
-        });
-        return (
-            <div>
-                <table className="table table-striped table-hover">
-                    <thead>
-                    <tr>
-                        <th>经纬</th>
-                        <th>时间</th>
-                        <th>影像</th>
-                    </tr>
-                    </thead>
-                    <tbody>{rows}</tbody>
-                </table>
-            </div>
-        );
-    }
-});
-
 var DetectorDetailBox = React.createClass({
     render: function() {
         var rows = [];
@@ -425,143 +377,6 @@ var ModalBox = React.createClass({
     }
 });
 
-var SearchBar = React.createClass({
-    handleChange: function (e) {
-        console.log("handleChange:"+e.target.value)
-        this.setState({input:e.target.value});
-    },
-    handleClick:function () {
-        this.props.handleSearch(this.state.input)
-    },
-    getInitialState: function() {
-        console.log("getInitialState")
-        return  {input:"246968653c74"};
-    },
-    render: function() {
-        return (
-            <div>
-                <div className="input-group">
-                    <input type="text" className="form-control" placeholder="246968653c74"  onChange={this.handleChange} />
-                    <span className="input-group-btn">
-                        <button className="btn btn-default" type="button" onClick={this.handleClick} >查询</button>
-                    </span>
-                </div>
-                {/*<div className="button-group" role="group">
-                 <input type="button" className="button" value="开始动画" id={this.props.startId}/>
-                 <input type="button" className="button" value="停止动画" id={this.props.stopId}/>
-                 </div>*/}
-            </div>
-        );
-    }
-});
-var marker;
-var lineArr=[];
-
-// 地图图块加载完毕后执行函数
-function drawPath(myMap){
-    console.log("drawPath", lineArr)
-    if (lineArr.length == 0)
-    {
-        return;
-    }
-    marker = new AMap.Marker({
-        map: myMap,
-        position: lineArr[0],
-        icon: "http://webapi.amap.com/images/car.png",
-        offset: new AMap.Pixel(-26, -13),
-        autoRotation: true
-    });
-
-    // 绘制轨迹
-    var polyline = new AMap.Polyline({
-        map: myMap,
-        path: lineArr,
-        strokeColor: "#00A",  //线颜色
-        strokeOpacity: 1,     //线透明度
-        strokeWeight: 3,      //线宽
-        strokeStyle: "solid"  //线样式
-    });
-    myMap.setFitView();
-    myMap.setZoomAndCenter(14, lineArr[0]);
-}
-
-var SearchPage = React.createClass({
-    /*traceTable: <TraceTable />,*/
-    handleSearch: function (value) {
-        this.search_value = value
-        console.log("handleSearch:" + value)
-        console.log("loadTraceFromServer")
-        var url = Comm.server_addr + '/trace?request={"mac":"' + value + '","query_type":"01","start_time":1}'
-        $.ajax({
-            url: url,
-            dataType: 'json',
-            cache: false,
-            success: function (rsp) {
-                console.log("loadTraceFromServer response", rsp)
-                lineArr = []
-                rsp.trace.forEach(function (e) {
-                    lineArr.push([e.longitude, e.latitude])
-                })
-                drawPath(this.myMap)
-                this.setState({rsp: rsp});
-            }.bind(this),
-            error: function (xhr, status, err) {
-                console.error(url, status, err.toString());
-            }.bind(this)
-        });
-    },
-    getInitialState: function () {
-        console.log("getInitialState")
-        return {rsp: {trace: []}};
-    },
-    componentDidMount: function () {
-        var myMap = new AMap.Map('map_search', {
-            resizeEnable: true,
-            zoom:14,
-            center: [116.109095,24.296806]
-
-        });
-        this.myMap = myMap
-        myMap.plugin(["AMap.ToolBar"], function() {
-            myMap.addControl(new AMap.ToolBar());
-        });
-        var start_id = "start"+this.props.No;
-        var stop_id = "stop"+this.props.No
-        {/*AMap.event.addDomListener(document.getElementById(start_id), 'click', function () {
-         console.log("start draw", lineArr)
-         marker.moveAlong(lineArr, 1000);
-         }, false);
-         AMap.event.addDomListener(document.getElementById(stop_id), 'click', function () {
-         marker.stopMove();
-         }, false);*/}
-    },
-    render: function () {
-        var start_id = "start"+this.props.No;
-        var stop_id = "stop"+this.props.No
-        return(
-            <div className="container-fluid page-content">
-                <div className="row" style={{width:"300px"}}>
-                    <SearchBar handleSearch={this.handleSearch} startId={start_id} stopId={stop_id}></SearchBar>
-                </div>
-                <div className="row" style={{marginTop:"10px"}}>
-                    <div className="col-sm-8">
-                        <div className="panel panel-primary">
-                            <div className="panel-heading">分布</div>
-                            <div id="map_search" className="map" />
-                        </div>
-                    </div>
-                    <div className="col-sm-4">
-                        <div className="panel panel-primary">
-                            <div className="panel-heading">查询结果</div>
-                            <TraceTable mac={this.search_value} trace={this.state.rsp.trace}></TraceTable>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        );
-    }
-});
 
 var SimpleSearchPage = React.createClass({
     handleSearch: function (value) {
