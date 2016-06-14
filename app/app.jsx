@@ -9,6 +9,7 @@ import UserPage from './userpage.jsx'
 import LoginPage from './login_page.jsx'
 import FeaturePage from './feature_page.jsx'
 import SearchPage from './search_page.jsx'
+import SimilarPage from './similar_page.jsx'
 import Comm from './comm.jsx'
 import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router'
 
@@ -743,7 +744,7 @@ var items=[{text:'概览',link:"/home"},
     {text:'探针管理',link:"/detector"},
     {text:'轨迹查询',link:"/search"},
     // {text:'区域扫描',link:SearchPage},
-    {text:'轨迹吻合度分析',link:"/search"},
+    {text:'轨迹吻合度分析',link:"/similar"},
     {text:'电子围栏',link:"/search"},
     {text:'视频关联分析',link:"detector2"},
     {text:'车牌号关联分析',link:"/car"},
@@ -792,6 +793,8 @@ ReactDOM.render(
             <Route path="search" component={SearchPage}  />
             <Route path="feature" component={FeaturePage}  />
             <Route path="user" component={UserPage}  />
+            <Route path="similar" component={SimilarPage}  />
+            
         </Route>
     </Router>,
     document.getElementById("warpper")
