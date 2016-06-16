@@ -54,17 +54,13 @@ var TraceRowWithoutMac = React.createClass({
 var TraceTable = React.createClass({
     render: function() {
         var rows = [];
-        if(this.props.trace_list.length == 0) {
-            this.props.trace_list.forEach(function(e) {
-                var mac = e.mac
-                var score = e.score
-                var trace = e.trace
-                rows.push(<TraceRowWithoutMac mac={mac} latitude={score} trace={trace} />);
-            });
-        } else {
-            rows = [{mac:"无相似轨迹", score:0, trace:[]}]
-        }
-
+        this.props.trace_list.forEach(function(e) {
+            var mac = e.mac
+            var score = e.score
+            var trace = e.trace
+            rows.push(<TraceRowWithoutMac mac={mac} score={score} trace={trace} />);
+        });
+        
         return (
             <div>
                 <table className="table table-striped table-hover">
