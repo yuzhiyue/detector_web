@@ -10,6 +10,7 @@ import LoginPage from './login_page.jsx'
 import FeaturePage from './feature_page.jsx'
 import SearchPage from './search_page.jsx'
 import SimilarPage from './similar_page.jsx'
+import BehaviorPage from './behavior_page.jsx'
 import Comm from './comm.jsx'
 import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router'
 
@@ -748,7 +749,7 @@ var items=[{text:'概览',link:"/home"},
     // {text:'电子围栏',link:"/search"},
     // {text:'视频关联分析',link:"detector2"},
     // {text:'车牌号关联分析',link:"/car"},
-    {text:'上网行为分析',link:"/behave"},
+    {text:'上网行为查询',link:"/behavior"},
     {text:'特征库管理',link:"/feature"},
     {text:'用户管理',link:"/user"}
 ]
@@ -792,6 +793,7 @@ ReactDOM.render(
             <Route path="detector" component={DetectorPage}  />
             <Route path="search" component={SearchPage}  />
             <Route path="feature" component={FeaturePage}  />
+            <Route path="behavior" component={BehaviorPage}  />
             <Route path="user" component={UserPage}  />
             <Route path="similar" component={SimilarPage}  />
             
