@@ -21905,6 +21905,7 @@
 	module.exports.deleteCookie = deleteCookie;
 	module.exports.randomChar = randomChar;
 	module.exports.randomCharWithoutTime = randomCharWithoutTime;
+	$.support.cors = true;
 	module.exports.server_addr = "http://112.74.90.113:8080";
 
 /***/ },
