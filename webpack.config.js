@@ -15,7 +15,12 @@ module.exports = {
             {
                 test: /.jsx?$/,
                 loader: 'babel-loader',
-                exclude: /node_modules/
+                exclude: /node_modules/,
+                "env": {
+                    "development": {
+                        "presets": ["react-hmre"]
+                    }
+                }
             }
         ]
     },

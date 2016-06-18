@@ -23,7 +23,7 @@
   },
   "scripts": {
     "dev": "webpack-dev-server --progress --profile --colors --hot --port 8088 --host 0.0.0.0",
-    "build": "webpack --progress --profile --colors",
+    "build": "set NODE_ENV=production&&webpack --progress --profile --colors",
     "test": "karma start"
   },
   "repository": {
