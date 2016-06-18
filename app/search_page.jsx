@@ -123,8 +123,10 @@ var SearchPage = React.createClass({
         return(
             <div className="container-fluid page-content">
                 <div className="row" style={{width:"300px"}}>
-                <SearchBar handleSearch={this.handleSearch} ></SearchBar>
-            </div>
+                    <div className="col-sm-12">
+                        <SearchBar handleSearch={this.handleSearch} ></SearchBar>
+                    </div>
+                </div>
                 <div className="row" style={{marginTop:"10px"}}>
                     <div className="col-sm-12">
                         <div className="panel panel-primary">

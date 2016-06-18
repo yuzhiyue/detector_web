@@ -21699,6 +21699,137 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+	var UserEdit = function (_React$Component) {
+	    _inherits(UserEdit, _React$Component);
+
+	    function UserEdit() {
+	        _classCallCheck(this, UserEdit);
+
+	        return _possibleConstructorReturn(this, Object.getPrototypeOf(UserEdit).call(this));
+	    }
+
+	    _createClass(UserEdit, [{
+	        key: 'render',
+	        value: function render() {
+	            return _react2.default.createElement(
+	                'div',
+	                { className: 'modal fade', id: 'user_edit' },
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'modal-dialog modal-lg' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'modal-content' },
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'modal-header' },
+	                            _react2.default.createElement(
+	                                'button',
+	                                { type: 'button', className: 'close', 'data-dismiss': 'modal', 'aria-label': 'Close' },
+	                                _react2.default.createElement(
+	                                    'span',
+	                                    { 'aria-hidden': 'true' },
+	                                    '×'
+	                                )
+	                            ),
+	                            _react2.default.createElement(
+	                                'h4',
+	                                { className: 'modal-title' },
+	                                '编辑用户信息'
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'modal-body' },
+	                            _react2.default.createElement(
+	                                'div',
+	                                null,
+	                                _react2.default.createElement(
+	                                    'form',
+	                                    { className: 'form-horizontal' },
+	                                    _react2.default.createElement(
+	                                        'div',
+	                                        { className: 'form-group' },
+	                                        _react2.default.createElement(
+	                                            'label',
+	                                            { 'for': 'username', className: 'col-sm-2 control-label' },
+	                                            '用户名'
+	                                        ),
+	                                        _react2.default.createElement(
+	                                            'div',
+	                                            { className: 'col-sm-10' },
+	                                            _react2.default.createElement('input', { type: 'email', className: 'form-control', id: 'username' })
+	                                        )
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'div',
+	                                        { className: 'form-group' },
+	                                        _react2.default.createElement(
+	                                            'label',
+	                                            { 'for': 'password', className: 'col-sm-2 control-label' },
+	                                            '密码'
+	                                        ),
+	                                        _react2.default.createElement(
+	                                            'div',
+	                                            { className: 'col-sm-10' },
+	                                            _react2.default.createElement('input', { type: 'email', className: 'form-control', id: 'password' })
+	                                        )
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'div',
+	                                        { className: 'form-group' },
+	                                        _react2.default.createElement(
+	                                            'label',
+	                                            { 'for': 'group', className: 'col-sm-2 control-label' },
+	                                            '用户组'
+	                                        ),
+	                                        _react2.default.createElement(
+	                                            'div',
+	                                            { className: 'col-sm-10' },
+	                                            _react2.default.createElement('input', { type: 'email', className: 'form-control', id: 'group' })
+	                                        )
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'div',
+	                                        { className: 'form-group' },
+	                                        _react2.default.createElement(
+	                                            'label',
+	                                            { 'for': 'phone', className: 'col-sm-2 control-label' },
+	                                            '电话'
+	                                        ),
+	                                        _react2.default.createElement(
+	                                            'div',
+	                                            { className: 'col-sm-10' },
+	                                            _react2.default.createElement('input', { type: 'email', className: 'form-control', id: 'phone' })
+	                                        )
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'div',
+	                                        { className: 'form-group' },
+	                                        _react2.default.createElement(
+	                                            'label',
+	                                            { 'for': 'desc', className: 'col-sm-2 control-label' },
+	                                            '描述'
+	                                        ),
+	                                        _react2.default.createElement(
+	                                            'div',
+	                                            { className: 'col-sm-10' },
+	                                            _react2.default.createElement('input', { type: 'email', className: 'form-control', id: 'desc' })
+	                                        )
+	                                    )
+	                                )
+	                            )
+	                        ),
+	                        _react2.default.createElement('div', { className: 'modal-footer' })
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+
+	    return UserEdit;
+	}(_react2.default.Component);
+
 	var UserRow = _react2.default.createClass({
 	    displayName: 'UserRow',
 
@@ -21731,7 +21862,7 @@
 	                null,
 	                _react2.default.createElement(
 	                    'button',
-	                    { type: 'button', className: 'btn btn-warning btn-sm', 'data-container': 'body', 'data-toggle': 'popover', 'data-placement': 'top', 'data-content': '无操作权限' },
+	                    { type: 'button', className: 'btn btn-warning btn-sm', 'data-container': 'body', 'data-toggle': 'modal', 'data-target': '#user_edit' },
 	                    '修改'
 	                ),
 	                _react2.default.createElement(
@@ -21744,16 +21875,16 @@
 	    }
 	});
 
-	var UserPage = function (_React$Component) {
-	    _inherits(UserPage, _React$Component);
+	var UserPage = function (_React$Component2) {
+	    _inherits(UserPage, _React$Component2);
 
 	    function UserPage() {
 	        _classCallCheck(this, UserPage);
 
-	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(UserPage).call(this));
+	        var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(UserPage).call(this));
 
-	        _this.state = { users: [] };
-	        return _this;
+	        _this2.state = { users: [] };
+	        return _this2;
 	    }
 
 	    _createClass(UserPage, [{
@@ -21835,10 +21966,11 @@
 	                    ),
 	                    _react2.default.createElement(
 	                        'button',
-	                        { type: 'button', className: 'btn btn-info btn-sm' },
+	                        { type: 'button', className: 'btn btn-info btn-sm', 'data-toggle': 'modal', 'data-target': '#user_edit' },
 	                        '添加用户'
 	                    )
-	                )
+	                ),
+	                _react2.default.createElement(UserEdit, null)
 	            );
 	        }
 	    }]);
@@ -22158,64 +22290,72 @@
 	            _react2.default.createElement(
 	                'div',
 	                { className: 'row', style: { width: "300px" } },
-	                _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'col-sm-12' },
+	                    _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
+	                )
 	            ),
 	            _react2.default.createElement(
 	                'div',
-	                { className: 'row' },
+	                { className: 'row', style: { marginTop: "10px" } },
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: 'panel panel-primary' },
+	                    { className: 'col-sm-12' },
 	                    _react2.default.createElement(
 	                        'div',
-	                        { className: 'panel-heading' },
-	                        '特征库搜索结果'
-	                    ),
-	                    _react2.default.createElement(
-	                        'table',
-	                        { className: 'table table-striped' },
+	                        { className: 'panel panel-primary' },
 	                        _react2.default.createElement(
-	                            'thead',
-	                            null,
-	                            _react2.default.createElement(
-	                                'tr',
-	                                null,
-	                                _react2.default.createElement(
-	                                    'th',
-	                                    null,
-	                                    'MAC地址'
-	                                ),
-	                                _react2.default.createElement(
-	                                    'th',
-	                                    null,
-	                                    '电话号码'
-	                                ),
-	                                _react2.default.createElement(
-	                                    'th',
-	                                    null,
-	                                    '证件类型'
-	                                ),
-	                                _react2.default.createElement(
-	                                    'th',
-	                                    null,
-	                                    '证件号'
-	                                ),
-	                                _react2.default.createElement(
-	                                    'th',
-	                                    null,
-	                                    '时间'
-	                                ),
-	                                _react2.default.createElement(
-	                                    'th',
-	                                    null,
-	                                    '数据来源'
-	                                )
-	                            )
+	                            'div',
+	                            { className: 'panel-heading' },
+	                            '特征库搜索结果'
 	                        ),
 	                        _react2.default.createElement(
-	                            'tbody',
-	                            null,
-	                            rows
+	                            'table',
+	                            { className: 'table table-striped' },
+	                            _react2.default.createElement(
+	                                'thead',
+	                                null,
+	                                _react2.default.createElement(
+	                                    'tr',
+	                                    null,
+	                                    _react2.default.createElement(
+	                                        'th',
+	                                        null,
+	                                        'MAC地址'
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'th',
+	                                        null,
+	                                        '电话号码'
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'th',
+	                                        null,
+	                                        '证件类型'
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'th',
+	                                        null,
+	                                        '证件号'
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'th',
+	                                        null,
+	                                        '时间'
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'th',
+	                                        null,
+	                                        '数据来源'
+	                                    )
+	                                )
+	                            ),
+	                            _react2.default.createElement(
+	                                'tbody',
+	                                null,
+	                                rows
+	                            )
 	                        )
 	                    )
 	                )
@@ -22473,7 +22613,11 @@
 	            _react2.default.createElement(
 	                'div',
 	                { className: 'row', style: { width: "300px" } },
-	                _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'col-sm-12' },
+	                    _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
+	                )
 	            ),
 	            _react2.default.createElement(
 	                'div',
@@ -22716,7 +22860,11 @@
 	            _react2.default.createElement(
 	                'div',
 	                { className: 'row', style: { width: "300px" } },
-	                _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'col-sm-12' },
+	                    _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
+	                )
 	            ),
 	            _react2.default.createElement(
 	                'div',
@@ -22952,7 +23100,11 @@
 	            _react2.default.createElement(
 	                'div',
 	                { className: 'row', style: { width: "300px" } },
-	                _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'col-sm-12' },
+	                    _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
+	                )
 	            ),
 	            _react2.default.createElement(
 	                'div',

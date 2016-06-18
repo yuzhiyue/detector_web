@@ -110,7 +110,9 @@ var BehaviorPage = React.createClass({
         return(
             <div className="container-fluid page-content">
                 <div className="row" style={{width:"300px"}}>
-                    <SearchBar handleSearch={this.handleSearch} ></SearchBar>
+                    <div className="col-sm-12">
+                        <SearchBar handleSearch={this.handleSearch} ></SearchBar>
+                    </div>
                 </div>
                 <div className="row" style={{marginTop:"10px"}}>
                     <div className="col-sm-12">
@@ -118,7 +120,6 @@ var BehaviorPage = React.createClass({
                             <div className="panel-heading">查询结果</div>
                             <TraceTable behavior_log_list={this.state.data.behavior_log_list}></TraceTable>
                         </div>
-
                     </div>
                 </div>
             </div>

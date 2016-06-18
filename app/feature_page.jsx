@@ -111,24 +111,28 @@ var FeaturePage = React.createClass({
                     <div className="col-sm-6"><Panel title="今日更新数" body={this.state.data.today_update_feature_num} linkText="查看列表"></Panel></div>
                 </div>
                 <div className="row" style={{width:"300px"}}>
-                    <SearchBar handleSearch={this.handleSearch} ></SearchBar>
+                    <div className="col-sm-12">
+                        <SearchBar handleSearch={this.handleSearch} ></SearchBar>
+                    </div>
                 </div>
-                <div className="row">
-                    <div className="panel panel-primary">
-                        <div className="panel-heading">特征库搜索结果</div>
-                        <table className="table table-striped">
-                            <thead>
-                            <tr>
-                                <th>MAC地址</th>
-                                <th>电话号码</th>
-                                <th>证件类型</th>
-                                <th>证件号</th>
-                                <th>时间</th>
-                                <th>数据来源</th>
-                            </tr>
-                            </thead>
-                            <tbody>{rows}</tbody>
-                        </table>
+                <div className="row" style={{marginTop:"10px"}}>
+                    <div className="col-sm-12">
+                        <div className="panel panel-primary">
+                            <div className="panel-heading">特征库搜索结果</div>
+                            <table className="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th>MAC地址</th>
+                                    <th>电话号码</th>
+                                    <th>证件类型</th>
+                                    <th>证件号</th>
+                                    <th>时间</th>
+                                    <th>数据来源</th>
+                                </tr>
+                                </thead>
+                                <tbody>{rows}</tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

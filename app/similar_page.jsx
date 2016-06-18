@@ -113,7 +113,9 @@ var SimilarPage = React.createClass({
         return(
             <div className="container-fluid page-content">
                 <div className="row" style={{width:"300px"}}>
-                    <SearchBar handleSearch={this.handleSearch} ></SearchBar>
+                    <div className="col-sm-12">
+                        <SearchBar handleSearch={this.handleSearch} ></SearchBar>
+                    </div>
                 </div>
                 <div className="row" style={{marginTop:"10px"}}>
                     <div className="col-sm-12">
@@ -121,7 +123,6 @@ var SimilarPage = React.createClass({
                             <div className="panel-heading">轨迹匹配结果</div>
                             <TraceTable trace_list={this.state.rsp.trace_list}></TraceTable>
                         </div>
-
                     </div>
                 </div>
             </div>
