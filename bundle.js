@@ -22038,7 +22038,7 @@
 	module.exports.randomChar = randomChar;
 	module.exports.randomCharWithoutTime = randomCharWithoutTime;
 	$.support.cors = true;
-	module.exports.server_addr = "http://112.74.90.113:8080";
+	module.exports.server_addr = "http://112.74.90.113/server_interface";
 
 /***/ },
 /* 171 */
@@ -22245,6 +22245,7 @@
 	        return { data: { total_feature_num: 0, today_update_feature_num: 0, last_update_feature: [] }, search_data: { feature_list: [] } };
 	    },
 	    componentDidMount: function componentDidMount() {
+	        $.support.Cors = true;
 	        var url = _comm2.default.server_addr + '/feature/summary';
 	        $.ajax({
 	            url: url,
