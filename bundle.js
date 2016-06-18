@@ -21681,8 +21681,6 @@
 
 	'use strict';
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 	var _react = __webpack_require__(2);
 
 	var _react2 = _interopRequireDefault(_react);
@@ -21693,146 +21691,141 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	var UserEdit = _react2.default.createClass({
+	    displayName: 'UserEdit',
 
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var UserEdit = function (_React$Component) {
-	    _inherits(UserEdit, _React$Component);
-
-	    function UserEdit() {
-	        _classCallCheck(this, UserEdit);
-
-	        return _possibleConstructorReturn(this, Object.getPrototypeOf(UserEdit).call(this));
-	    }
-
-	    _createClass(UserEdit, [{
-	        key: 'render',
-	        value: function render() {
-	            return _react2.default.createElement(
+	    render: function render() {
+	        console.log("etit user:" + this.props.user.username);
+	        return _react2.default.createElement(
+	            'div',
+	            { className: 'modal fade', id: 'user_edit' },
+	            _react2.default.createElement(
 	                'div',
-	                { className: 'modal fade', id: 'user_edit' },
+	                { className: 'modal-dialog modal-lg' },
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: 'modal-dialog modal-lg' },
+	                    { className: 'modal-content' },
 	                    _react2.default.createElement(
 	                        'div',
-	                        { className: 'modal-content' },
+	                        { className: 'modal-header' },
 	                        _react2.default.createElement(
-	                            'div',
-	                            { className: 'modal-header' },
+	                            'button',
+	                            { type: 'button', className: 'close', 'data-dismiss': 'modal', 'aria-label': 'Close' },
 	                            _react2.default.createElement(
-	                                'button',
-	                                { type: 'button', className: 'close', 'data-dismiss': 'modal', 'aria-label': 'Close' },
-	                                _react2.default.createElement(
-	                                    'span',
-	                                    { 'aria-hidden': 'true' },
-	                                    '×'
-	                                )
-	                            ),
-	                            _react2.default.createElement(
-	                                'h4',
-	                                { className: 'modal-title' },
-	                                '编辑用户信息'
+	                                'span',
+	                                { 'aria-hidden': 'true' },
+	                                '×'
 	                            )
 	                        ),
 	                        _react2.default.createElement(
+	                            'h4',
+	                            { className: 'modal-title' },
+	                            '编辑用户信息'
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'modal-body' },
+	                        _react2.default.createElement(
 	                            'div',
-	                            { className: 'modal-body' },
+	                            null,
 	                            _react2.default.createElement(
-	                                'div',
-	                                null,
+	                                'form',
+	                                { className: 'form-horizontal' },
 	                                _react2.default.createElement(
-	                                    'form',
-	                                    { className: 'form-horizontal' },
+	                                    'div',
+	                                    { className: 'form-group' },
 	                                    _react2.default.createElement(
-	                                        'div',
-	                                        { className: 'form-group' },
-	                                        _react2.default.createElement(
-	                                            'label',
-	                                            { 'for': 'username', className: 'col-sm-2 control-label' },
-	                                            '用户名'
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            'div',
-	                                            { className: 'col-sm-10' },
-	                                            _react2.default.createElement('input', { type: 'email', className: 'form-control', id: 'username' })
-	                                        )
+	                                        'label',
+	                                        { 'for': 'username', className: 'col-sm-2 control-label' },
+	                                        '用户名'
 	                                    ),
 	                                    _react2.default.createElement(
 	                                        'div',
-	                                        { className: 'form-group' },
-	                                        _react2.default.createElement(
-	                                            'label',
-	                                            { 'for': 'password', className: 'col-sm-2 control-label' },
-	                                            '密码'
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            'div',
-	                                            { className: 'col-sm-10' },
-	                                            _react2.default.createElement('input', { type: 'email', className: 'form-control', id: 'password' })
-	                                        )
+	                                        { className: 'col-sm-10' },
+	                                        _react2.default.createElement('input', { type: 'email', className: 'form-control', id: 'username', value: this.props.user.username })
+	                                    )
+	                                ),
+	                                _react2.default.createElement(
+	                                    'div',
+	                                    { className: 'form-group' },
+	                                    _react2.default.createElement(
+	                                        'label',
+	                                        { 'for': 'password', className: 'col-sm-2 control-label' },
+	                                        '密码'
 	                                    ),
 	                                    _react2.default.createElement(
 	                                        'div',
-	                                        { className: 'form-group' },
-	                                        _react2.default.createElement(
-	                                            'label',
-	                                            { 'for': 'group', className: 'col-sm-2 control-label' },
-	                                            '用户组'
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            'div',
-	                                            { className: 'col-sm-10' },
-	                                            _react2.default.createElement('input', { type: 'email', className: 'form-control', id: 'group' })
-	                                        )
+	                                        { className: 'col-sm-10' },
+	                                        _react2.default.createElement('input', { type: 'email', className: 'form-control', id: 'password' })
+	                                    )
+	                                ),
+	                                _react2.default.createElement(
+	                                    'div',
+	                                    { className: 'form-group' },
+	                                    _react2.default.createElement(
+	                                        'label',
+	                                        { 'for': 'group', className: 'col-sm-2 control-label' },
+	                                        '用户组'
 	                                    ),
 	                                    _react2.default.createElement(
 	                                        'div',
-	                                        { className: 'form-group' },
-	                                        _react2.default.createElement(
-	                                            'label',
-	                                            { 'for': 'phone', className: 'col-sm-2 control-label' },
-	                                            '电话'
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            'div',
-	                                            { className: 'col-sm-10' },
-	                                            _react2.default.createElement('input', { type: 'email', className: 'form-control', id: 'phone' })
-	                                        )
+	                                        { className: 'col-sm-10' },
+	                                        _react2.default.createElement('input', { type: 'email', className: 'form-control', id: 'group', value: this.props.user.group })
+	                                    )
+	                                ),
+	                                _react2.default.createElement(
+	                                    'div',
+	                                    { className: 'form-group' },
+	                                    _react2.default.createElement(
+	                                        'label',
+	                                        { 'for': 'phone', className: 'col-sm-2 control-label' },
+	                                        '电话'
 	                                    ),
 	                                    _react2.default.createElement(
 	                                        'div',
-	                                        { className: 'form-group' },
-	                                        _react2.default.createElement(
-	                                            'label',
-	                                            { 'for': 'desc', className: 'col-sm-2 control-label' },
-	                                            '描述'
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            'div',
-	                                            { className: 'col-sm-10' },
-	                                            _react2.default.createElement('input', { type: 'email', className: 'form-control', id: 'desc' })
-	                                        )
+	                                        { className: 'col-sm-10' },
+	                                        _react2.default.createElement('input', { type: 'email', className: 'form-control', id: 'phone', value: this.props.user.phone })
+	                                    )
+	                                ),
+	                                _react2.default.createElement(
+	                                    'div',
+	                                    { className: 'form-group' },
+	                                    _react2.default.createElement(
+	                                        'label',
+	                                        { 'for': 'desc', className: 'col-sm-2 control-label' },
+	                                        '描述'
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'div',
+	                                        { className: 'col-sm-10' },
+	                                        _react2.default.createElement('input', { type: 'email', className: 'form-control', id: 'desc', value: this.props.user.desc })
 	                                    )
 	                                )
 	                            )
-	                        ),
-	                        _react2.default.createElement('div', { className: 'modal-footer' })
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'modal-footer' },
+	                        _react2.default.createElement(
+	                            'button',
+	                            { type: 'button', className: 'btn btn-danger btn-sm' },
+	                            '保存'
+	                        )
 	                    )
 	                )
-	            );
-	        }
-	    }]);
-
-	    return UserEdit;
-	}(_react2.default.Component);
+	            )
+	        );
+	    }
+	});
 
 	var UserRow = _react2.default.createClass({
 	    displayName: 'UserRow',
 
+	    handleClick: function handleClick(e) {
+	        this.props.setUserEditData(this.props.user);
+	    },
 	    render: function render() {
 	        return _react2.default.createElement(
 	            'tr',
@@ -21840,29 +21833,29 @@
 	            _react2.default.createElement(
 	                'td',
 	                null,
-	                this.props.username
+	                this.props.user.username
 	            ),
 	            _react2.default.createElement(
 	                'td',
 	                null,
-	                this.props.group
+	                this.props.user.group
 	            ),
 	            _react2.default.createElement(
 	                'td',
 	                null,
-	                this.props.phone
+	                this.props.user.phone
 	            ),
 	            _react2.default.createElement(
 	                'td',
 	                null,
-	                this.props.desc
+	                this.props.user.desc
 	            ),
 	            _react2.default.createElement(
 	                'td',
 	                null,
 	                _react2.default.createElement(
 	                    'button',
-	                    { type: 'button', className: 'btn btn-warning btn-sm', 'data-container': 'body', 'data-toggle': 'modal', 'data-target': '#user_edit' },
+	                    { type: 'button', className: 'btn btn-warning btn-sm', onClick: this.handleClick, 'data-container': 'body', 'data-toggle': 'modal', 'data-target': '#user_edit' },
 	                    '修改'
 	                ),
 	                _react2.default.createElement(
@@ -21875,108 +21868,102 @@
 	    }
 	});
 
-	var UserPage = function (_React$Component2) {
-	    _inherits(UserPage, _React$Component2);
+	var UserPage = _react2.default.createClass({
+	    displayName: 'UserPage',
 
-	    function UserPage() {
-	        _classCallCheck(this, UserPage);
-
-	        var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(UserPage).call(this));
-
-	        _this2.state = { users: [] };
-	        return _this2;
-	    }
-
-	    _createClass(UserPage, [{
-	        key: 'loadData',
-	        value: function loadData() {
-	            var url = _comm2.default.server_addr + '/sys_user/list';
-	            $.ajax({
-	                url: url,
-	                dataType: 'json',
-	                cache: false,
-	                success: function (rsp) {
-	                    console.log("load sys user response", rsp);
-	                    this.setState({ users: rsp.user_list });
-	                }.bind(this),
-	                error: function (xhr, status, err) {
-	                    console.error(url, status, err.toString());
-	                }.bind(this)
-	            });
-	        }
-	    }, {
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
-	            this.loadData();
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            var rows = [];
-	            this.state.users.forEach(function (user) {
-	                rows.push(_react2.default.createElement(UserRow, { username: user.username, phone: user.phone, group: user.group, desc: user.desc }));
-	            });
-	            return _react2.default.createElement(
+	    getInitialState: function getInitialState() {
+	        return { users: [], user_edit: { username: "", password: "", group: "", phone: "", desc: "" } };
+	    },
+	    setUserEditData: function setUserEditData(user) {
+	        console.log("setUserEditData:" + user);
+	        this.setState({ user_edit: user });
+	    },
+	    loadData: function loadData() {
+	        var url = _comm2.default.server_addr + '/sys_user/list';
+	        $.ajax({
+	            url: url,
+	            dataType: 'json',
+	            cache: false,
+	            success: function (rsp) {
+	                console.log("load sys user response", rsp);
+	                this.setState({ users: rsp.user_list });
+	            }.bind(this),
+	            error: function (xhr, status, err) {
+	                console.error(url, status, err.toString());
+	            }.bind(this)
+	        });
+	    },
+	    componentDidMount: function componentDidMount() {
+	        this.loadData();
+	    },
+	    resetEditUserData: function resetEditUserData() {
+	        this.setState({ user_edit: { username: "", password: "", group: "", phone: "", desc: "" } });
+	    },
+	    render: function render() {
+	        var rows = [];
+	        var fn = this.setUserEditData;
+	        this.state.users.forEach(function (user) {
+	            rows.push(_react2.default.createElement(UserRow, { setUserEditData: fn, user: user }));
+	        });
+	        console.log("render" + this.state.user_edit);
+	        return _react2.default.createElement(
+	            'div',
+	            { className: 'container-fluid page-container' },
+	            _react2.default.createElement(
 	                'div',
-	                { className: 'container-fluid page-container' },
+	                { className: 'row' },
 	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'row' },
+	                    'table',
+	                    { className: 'table table-striped' },
 	                    _react2.default.createElement(
-	                        'table',
-	                        { className: 'table table-striped' },
+	                        'thead',
+	                        null,
 	                        _react2.default.createElement(
-	                            'thead',
+	                            'tr',
 	                            null,
 	                            _react2.default.createElement(
-	                                'tr',
+	                                'th',
 	                                null,
-	                                _react2.default.createElement(
-	                                    'th',
-	                                    null,
-	                                    '用户名'
-	                                ),
-	                                _react2.default.createElement(
-	                                    'th',
-	                                    null,
-	                                    '用户组'
-	                                ),
-	                                _react2.default.createElement(
-	                                    'th',
-	                                    null,
-	                                    '联系电话'
-	                                ),
-	                                _react2.default.createElement(
-	                                    'th',
-	                                    null,
-	                                    '描述'
-	                                ),
-	                                _react2.default.createElement(
-	                                    'th',
-	                                    null,
-	                                    '编辑'
-	                                )
+	                                '用户名'
+	                            ),
+	                            _react2.default.createElement(
+	                                'th',
+	                                null,
+	                                '用户组'
+	                            ),
+	                            _react2.default.createElement(
+	                                'th',
+	                                null,
+	                                '联系电话'
+	                            ),
+	                            _react2.default.createElement(
+	                                'th',
+	                                null,
+	                                '描述'
+	                            ),
+	                            _react2.default.createElement(
+	                                'th',
+	                                null,
+	                                '编辑'
 	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            'tbody',
-	                            null,
-	                            rows
 	                        )
 	                    ),
 	                    _react2.default.createElement(
-	                        'button',
-	                        { type: 'button', className: 'btn btn-info btn-sm', 'data-toggle': 'modal', 'data-target': '#user_edit' },
-	                        '添加用户'
+	                        'tbody',
+	                        null,
+	                        rows
 	                    )
 	                ),
-	                _react2.default.createElement(UserEdit, null)
-	            );
-	        }
-	    }]);
-
-	    return UserPage;
-	}(_react2.default.Component);
+	                _react2.default.createElement(
+	                    'button',
+	                    { type: 'button', className: 'btn btn-info btn-sm', onClick: this.resetEditUserData, 'data-toggle': 'modal', 'data-target': '#user_edit' },
+	                    '添加用户'
+	                )
+	            ),
+	            _react2.default.createElement(UserEdit, { user: this.state.user_edit })
+	        );
+	    }
+	});
 
 	module.exports = UserPage;
 
