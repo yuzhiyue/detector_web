@@ -1,9 +1,46 @@
 import React from 'react';
 import Comm from './comm.jsx'
+import md5 from 'blueimp-md5'
 
 var UserEdit = React.createClass({
+    saveUser:function (e) {
+        var user = {
+            username:   this.refs.username.value,
+            group:      this.refs.group.value.split(","),
+            phone:      this.refs.phone.value,
+            desc:       this.refs.desc.value,
+        }
+        if (this.refs.password.value != "") {
+            user.password =  md5(this.refs.password.value)
+        }
+        var url = Comm.server_addr + '/sys_user/update?request=' + JSON.stringify(user);
+        console.log("save user ", url)
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            cache: false,
+            success: function(rsp) {
+                console.log("save user response", rsp)
+                this.setState({users: rsp.user_list});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(url, status, err.toString());
+            }.bind(this)
+        });
+    },
+    handleChange: function (e) {
+        var user = {
+            username:   this.refs.username.value,
+            password:   this.refs.password.value,
+            group:      this.refs.group.value,
+            phone:      this.refs.phone.value,
+            desc:       this.refs.desc.value,
+        }
+        this.props.handleUserEditInputData(user)
+    },
     render: function () {
         console.log("etit user:" + this.props.user.username)
+        var readOnly="readonly"
         return (
         <div className="modal fade" id="user_edit">
             <div className="modal-dialog modal-lg">
@@ -18,38 +55,38 @@ var UserEdit = React.createClass({
                                 <div className="form-group">
                                     <label for="username" className="col-sm-2 control-label">用户名</label>
                                     <div className="col-sm-10">
-                                        <input type="email" className="form-control" id="username" value={this.props.user.username}/>
+                                        <input type="email" className="form-control" ref="username" onChange={this.handleChange} value={this.props.user.username} />
                                     </div>
                                 </div>
                                 <div className="form-group">
                                     <label for="password" className="col-sm-2 control-label">密码</label>
                                     <div className="col-sm-10">
-                                        <input type="email" className="form-control" id="password" />
+                                        <input type="email" className="form-control" ref="password" onChange={this.handleChange} />
                                     </div>
                                 </div>
                                 <div className="form-group">
                                     <label for="group" className="col-sm-2 control-label">用户组</label>
                                     <div className="col-sm-10">
-                                        <input type="email" className="form-control" id="group" value={this.props.user.group}/>
+                                        <input type="email" className="form-control" ref="group" onChange={this.handleChange} value={this.props.user.group}/>
                                     </div>
                                 </div>
                                 <div className="form-group">
                                     <label for="phone" className="col-sm-2 control-label">电话</label>
                                     <div className="col-sm-10">
-                                        <input type="email" className="form-control" id="phone" value={this.props.user.phone}/>
+                                        <input type="email" className="form-control" ref="phone" onChange={this.handleChange} value={this.props.user.phone}/>
                                     </div>
                                 </div>
                                 <div className="form-group">
                                     <label for="desc" className="col-sm-2 control-label">描述</label>
                                     <div className="col-sm-10">
-                                        <input type="email" className="form-control" id="desc" value={this.props.user.desc}/>
+                                        <input type="email" className="form-control" ref="desc" onChange={this.handleChange} value={this.props.user.desc}/>
                                     </div>
                                 </div>
                             </form>
                         </div>
                     </div>
                     <div className="modal-footer">
-                        <button type="button" className="btn btn-danger btn-sm" >保存</button>
+                        <button type="button" className="btn btn-danger btn-sm" onClick={this.saveUser} >保存</button>
                     </div>
                 </div>
             </div> 
@@ -79,11 +116,19 @@ var UserRow = React.createClass({
 
 var UserPage = React.createClass({
     getInitialState:function () {
-        return {users:[], user_edit:{username:"",password:"",group:"",phone:"",desc:""}}
+        return {users:[], edit_readonly:false, user_edit:{username:"",password:"",group:"",phone:"",desc:""}}
     },
     setUserEditData:function(user){
         console.log("setUserEditData:" + user)
         this.setState({user_edit:user})
+        this.setReadOnly(true)
+    },
+    handleUserEditInputData:function(user){
+        console.log("handleUserEditInputData:" + user)
+        this.setState({user_edit:user})
+    },
+    setReadOnly:function (value) {
+        this.setState({edit_readonly:value})
     },
     loadData: function() {
         var url = Comm.server_addr + '/sys_user/list'
@@ -105,6 +150,7 @@ var UserPage = React.createClass({
     },
     resetEditUserData:function () {
         this.setState({user_edit:{username:"",password:"",group:"",phone:"",desc:""}})
+        this.setReadOnly(false)
     },
     render:function() {
         var rows = []
@@ -130,7 +176,7 @@ var UserPage = React.createClass({
                     </table>
                     <button type="button" className="btn btn-info btn-sm" onClick={this.resetEditUserData} data-toggle="modal" data-target="#user_edit">添加用户</button>
                 </div>
-                <UserEdit user={this.state.user_edit} />
+                <UserEdit user={this.state.user_edit} readonly={this.state.readonly} handleUserEditInputData={this.handleUserEditInputData} />
             </div>
         );
     }
