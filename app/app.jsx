@@ -259,9 +259,9 @@ var Home = React.createClass({
         return (
             <div className="container-fluid page-content">
                 <div className="row">
-                    <div className="col-sm-4"><Panel title="今日探测MAC次数" body={this.state.commData.discovermac} linkText="查看列表"></Panel></div>
-                    <div className="col-sm-4"><Panel title="今日探测人数" body={this.state.commData.people} linkText="查看列表"></Panel></div>
-                    <div className="col-sm-4"><Panel title="探测器数" body={apCount} linkText="查看列表"></Panel></div>
+                    <div className="col-sm-4"><Panel title="今日探测MAC次数" body={this.state.commData.discovermac} linkText=""></Panel></div>
+                    <div className="col-sm-4"><Panel title="今日探测人数" body={this.state.commData.people} linkText=""></Panel></div>
+                    <div className="col-sm-4"><Panel title="探测器数" body={apCount} linkText=""></Panel></div>
                 </div>
                 <div className="row">
                     <div className="col-sm-6"><MyChart title="今日探测MAC数" chartId="chart1" data={data1}></MyChart></div>
@@ -519,10 +519,10 @@ var DetectorPage = React.createClass({
                             <div className="panel-heading">今日探测人数：{this.state.commData.people}</div>
                             <DetectorList data={this.state.commData.detector_list}  showBoxHandler={this.showDeviceListBox}/>
                         </div>
-                        <div className="panel panel-primary">
+                        /*<div className="panel panel-primary">
                             <div className="panel-heading">第三方探测器数量：{thirdNum}</div>
                             <DetectorList data={this.state.commData.third_part_detector_list}  showBoxHandler={this.showDeviceListBox}/>
-                        </div>
+                        </div>*/
                     </div>
                 </div>
                 <ModalBox boxId="device_list_box" body={modalBody} title="探测器详细信息"/>

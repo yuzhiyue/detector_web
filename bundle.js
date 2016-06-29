@@ -484,17 +484,17 @@
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'col-sm-4' },
-	                    _react2.default.createElement(Panel, { title: '今日探测MAC次数', body: this.state.commData.discovermac, linkText: '查看列表' })
+	                    _react2.default.createElement(Panel, { title: '今日探测MAC次数', body: this.state.commData.discovermac, linkText: '' })
 	                ),
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'col-sm-4' },
-	                    _react2.default.createElement(Panel, { title: '今日探测人数', body: this.state.commData.people, linkText: '查看列表' })
+	                    _react2.default.createElement(Panel, { title: '今日探测人数', body: this.state.commData.people, linkText: '' })
 	                ),
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'col-sm-4' },
-	                    _react2.default.createElement(Panel, { title: '探测器数', body: apCount, linkText: '查看列表' })
+	                    _react2.default.createElement(Panel, { title: '探测器数', body: apCount, linkText: '' })
 	                )
 	            ),
 	            _react2.default.createElement(
@@ -991,6 +991,7 @@
 	                        ),
 	                        _react2.default.createElement(DetectorList, { data: this.state.commData.detector_list, showBoxHandler: this.showDeviceListBox })
 	                    ),
+	                    '/*',
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'panel panel-primary' },
@@ -1001,7 +1002,8 @@
 	                            thirdNum
 	                        ),
 	                        _react2.default.createElement(DetectorList, { data: this.state.commData.third_part_detector_list, showBoxHandler: this.showDeviceListBox })
-	                    )
+	                    ),
+	                    '*/'
 	                )
 	            ),
 	            _react2.default.createElement(ModalBox, { boxId: 'device_list_box', body: modalBody, title: '探测器详细信息' })
@@ -1492,10 +1494,30 @@
 
 	var process = module.exports = {};
 
-	// cached from whatever global is present so that test runners that stub it don't break things.
-	var cachedSetTimeout = setTimeout;
-	var cachedClearTimeout = clearTimeout;
+	// cached from whatever global is present so that test runners that stub it
+	// don't break things.  But we need to wrap it in a try catch in case it is
+	// wrapped in strict mode code which doesn't define any globals.  It's inside a
+	// function because try/catches deoptimize in certain engines.
 
+	var cachedSetTimeout;
+	var cachedClearTimeout;
+
+	(function () {
+	  try {
+	    cachedSetTimeout = setTimeout;
+	  } catch (e) {
+	    cachedSetTimeout = function () {
+	      throw new Error('setTimeout is not defined');
+	    }
+	  }
+	  try {
+	    cachedClearTimeout = clearTimeout;
+	  } catch (e) {
+	    cachedClearTimeout = function () {
+	      throw new Error('clearTimeout is not defined');
+	    }
+	  }
+	} ())
 	var queue = [];
 	var draining = false;
 	var currentQueue;
@@ -22582,12 +22604,12 @@
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'col-sm-6' },
-	                    _react2.default.createElement(Panel, { title: '特征库总数', body: this.state.data.total_feature_num, linkText: '查看列表' })
+	                    _react2.default.createElement(Panel, { title: '特征库总数', body: this.state.data.total_feature_num, linkText: '' })
 	                ),
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'col-sm-6' },
-	                    _react2.default.createElement(Panel, { title: '今日更新数', body: this.state.data.today_update_feature_num, linkText: '查看列表' })
+	                    _react2.default.createElement(Panel, { title: '今日更新数', body: this.state.data.today_update_feature_num, linkText: '' })
 	                )
 	            ),
 	            _react2.default.createElement(
@@ -22803,6 +22825,11 @@
 	            _react2.default.createElement(
 	                'td',
 	                null,
+	                this.props.orgcode
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
 	                _react2.default.createElement(
 	                    'div',
 	                    null,
@@ -22837,7 +22864,10 @@
 	            if (point.mac == null) {
 	                point.mac = mac;
 	            }
-	            rows.push(_react2.default.createElement(TraceRowWithoutMac, { longitude: point.longitude, latitude: point.latitude, time: dateString }));
+	            if (point.org_code == null) {
+	                point.org_code = "0";
+	            }
+	            rows.push(_react2.default.createElement(TraceRowWithoutMac, { longitude: point.longitude, latitude: point.latitude, orgcode: point.org_code, time: dateString }));
 	        });
 	        return _react2.default.createElement(
 	            'div',
@@ -22860,6 +22890,11 @@
 	                            'th',
 	                            null,
 	                            '时间'
+	                        ),
+	                        _react2.default.createElement(
+	                            'th',
+	                            null,
+	                            '数据来源'
 	                        ),
 	                        _react2.default.createElement(
 	                            'th',
@@ -27584,11 +27619,11 @@
 	    arity: true
 	};
 
-	module.exports = function hoistNonReactStatics(targetComponent, sourceComponent) {
+	module.exports = function hoistNonReactStatics(targetComponent, sourceComponent, customStatics) {
 	    if (typeof sourceComponent !== 'string') { // don't hoist over string (html) components
 	        var keys = Object.getOwnPropertyNames(sourceComponent);
-	        for (var i=0; i<keys.length; ++i) {
-	            if (!REACT_STATICS[keys[i]] && !KNOWN_STATICS[keys[i]]) {
+	        for (var i = 0; i < keys.length; ++i) {
+	            if (!REACT_STATICS[keys[i]] && !KNOWN_STATICS[keys[i]] && (!customStatics || !customStatics[keys[i]])) {
 	                try {
 	                    targetComponent[keys[i]] = sourceComponent[keys[i]];
 	                } catch (error) {

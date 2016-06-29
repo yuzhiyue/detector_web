@@ -108,8 +108,8 @@ var FeaturePage = React.createClass({
         return (
             <div className="container-fluid page-container">
                 <div className="row">
-                    <div className="col-sm-6"><Panel title="特征库总数" body={this.state.data.total_feature_num} linkText="查看列表"></Panel></div>
-                    <div className="col-sm-6"><Panel title="今日更新数" body={this.state.data.today_update_feature_num} linkText="查看列表"></Panel></div>
+                    <div className="col-sm-6"><Panel title="特征库总数" body={this.state.data.total_feature_num} linkText=""></Panel></div>
+                    <div className="col-sm-6"><Panel title="今日更新数" body={this.state.data.today_update_feature_num} linkText=""></Panel></div>
                 </div>
                 <div className="row" style={{width:"300px"}}>
                     <div className="col-sm-12">
