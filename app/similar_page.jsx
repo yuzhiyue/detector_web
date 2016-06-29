@@ -37,7 +37,7 @@ var FuzzyResultRow = React.createClass({
                 <td>{this.props.phone}</td>
                 <td>{this.props.mac}</td>
                 <td>{this.props.trace_num}</td>
-                <td><div><button type="button" className="btn btn-primary btn-sm" onClick={this.handleClick}>查看轨迹</button></div></td>
+                <td><div><button type="button" className="btn btn-primary btn-sm" onClick={this.handleClick}>查询相似轨迹</button></div></td>
             </tr>
         );
     }
