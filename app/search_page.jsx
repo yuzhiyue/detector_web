@@ -27,17 +27,49 @@ var SearchBar = React.createClass({
     }
 });
 
-class SearchResultRow extends React.Component {
-    render() {
 
+var FuzzyResultRow = React.createClass({
+    handleClick:function (e) {
+        this.props.handleTraceSearch(this.props.mac)
+    },
+    render: function() {
+        return (
+            <tr>
+                <td>{this.props.phone}</td>
+                <td>{this.props.mac}</td>
+                <td>{this.props.trace_num}</td>
+                <td><div><button type="button" className="btn btn-primary btn-sm" onClick={this.handleClick}>查看轨迹</button></div></td>
+            </tr>
+        );
     }
-}
+})
 
-class SearchResult extends React.Component {
-    render() {
-        
+var FuzzySearchResult = React.createClass({
+    render: function() {
+        var handleTraceSearch = this.props.handleTraceSearch
+        var rows = []
+        if (this.props.data.feature_list != null) {
+            this.props.data.feature_list.forEach(function (feature) {
+                rows.push(<FuzzyResultRow mac={feature.mac} phone={feature.phone} trace_num={feature.trace_num} handleTraceSearch={handleTraceSearch}/>)
+            });
+        }
+        return (
+            <div>
+                <table className="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>电话号码</th>
+                        <th>MAC地址</th>
+                        <th>轨迹数量</th>
+                        <th>查看轨迹</th>
+                    </tr>
+                    </thead>
+                    <tbody>{rows}</tbody>
+                </table>
+            </div>
+        );
     }
-}
+})
 
 var TraceRowWithoutMac = React.createClass({
     render: function() {
@@ -46,7 +78,7 @@ var TraceRowWithoutMac = React.createClass({
                 <td>{this.props.longitude},{this.props.latitude}</td>
                 <td>{this.props.time}</td>
                 <td>{this.props.orgcode}</td>
-                <td><div><button type="button" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#pictureModal">查看影像</button></div></td>
+                <td><div><button type="button"  disabled="disabled" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#pictureModal">查看影像</button></div></td>
             </tr>
         );
     }
@@ -94,7 +126,34 @@ var TraceTable = React.createClass({
 });
 
 var SearchPage = React.createClass({
+    handleFuzzySearch:function (value) {
+        this.search_value = value
+        console.log("handleSearch:" + value)
+        console.log("loadTraceFromServer")
+        var url =  Comm.server_addr + '/feature/query?request={"get_trace_num":true, "phone":"' + value + '"}'
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            cache: false,
+            success: function (rsp) {
+                console.log("handleFuzzySearch response", rsp)
+                this.setState({result_type:2, fuzzy_search_data:rsp});
+            }.bind(this),
+            error: function (xhr, status, err) {
+                console.error(url, status, err.toString());
+            }.bind(this)
+        });
+    },
     handleSearch: function (value) {
+        if (/^\d+$/.test(value)) {
+            console.log("handleFuzzySearch")
+            this.handleFuzzySearch(value)
+        } else {
+            console.log("handleTraceSearch")
+            this.handleTraceSearch(value)
+        }
+    },
+    handleTraceSearch: function (value) {
         this.search_value = value
         console.log("handleSearch:" + value)
         console.log("loadTraceFromServer")
@@ -110,7 +169,7 @@ var SearchPage = React.createClass({
             cache: false,
             success: function (rsp) {
                 console.log("loadTraceFromServer response", rsp)
-                this.setState({rsp: rsp});
+                this.setState({result_type:1, rsp: rsp});
             }.bind(this),
             error: function (xhr, status, err) {
                 console.error(url, status, err.toString());
@@ -119,30 +178,51 @@ var SearchPage = React.createClass({
     },
     getInitialState: function () {
         console.log("getInitialState")
-        return {rsp: {trace: []}};
+        return {result_type:1, rsp: {trace: []}, fuzzy_search_data:{feature_list:[]}};
     },
     componentDidMount: function () {
 
     },
     render: function () {
-        return(
-            <div className="container-fluid page-content">
-                <div className="row" style={{width:"300px"}}>
-                    <div className="col-sm-12">
-                        <SearchBar handleSearch={this.handleSearch} ></SearchBar>
-                    </div>
-                </div>
-                <div className="row" style={{marginTop:"10px"}}>
-                    <div className="col-sm-12">
-                        <div className="panel panel-primary">
-                            <div className="panel-heading">查询结果</div>
-                            <TraceTable trace={this.state.rsp.trace}></TraceTable>
+        if(this.state.result_type == 1){
+            return(
+                <div className="container-fluid page-content">
+                    <div className="row" style={{width:"300px"}}>
+                        <div className="col-sm-12">
+                            <SearchBar handleSearch={this.handleSearch} ></SearchBar>
                         </div>
+                    </div>
+                    <div className="row" style={{marginTop:"10px"}}>
+                        <div className="col-sm-12">
+                            <div className="panel panel-primary">
+                                <div className="panel-heading">查询结果</div>
+                                <TraceTable trace={this.state.rsp.trace}></TraceTable>
+                            </div>
 
+                        </div>
                     </div>
                 </div>
-            </div>
-        );
+            );
+        } else {
+            return(
+                <div className="container-fluid page-content">
+                    <div className="row" style={{width:"300px"}}>
+                        <div className="col-sm-12">
+                            <SearchBar handleSearch={this.handleSearch} ></SearchBar>
+                        </div>
+                    </div>
+                    <div className="row" style={{marginTop:"10px"}}>
+                        <div className="col-sm-12">
+                            <div className="panel panel-primary">
+                                <div className="panel-heading">查询结果</div>
+                                <FuzzySearchResult data={this.state.fuzzy_search_data}  handleTraceSearch={this.handleTraceSearch} ></FuzzySearchResult>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
     }
 });
 

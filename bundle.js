@@ -547,7 +547,7 @@
 	                    null,
 	                    _react2.default.createElement(
 	                        'button',
-	                        { type: 'button', className: 'btn btn-primary btn-sm', 'data-toggle': 'modal', 'data-target': '#pictureModal' },
+	                        { type: 'button', disabled: 'disabled', className: 'btn btn-primary btn-sm', 'data-toggle': 'modal', 'data-target': '#pictureModal' },
 	                        '查看影像'
 	                    )
 	                )
@@ -990,20 +990,7 @@
 	                            this.state.commData.people
 	                        ),
 	                        _react2.default.createElement(DetectorList, { data: this.state.commData.detector_list, showBoxHandler: this.showDeviceListBox })
-	                    ),
-	                    '/*',
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'panel panel-primary' },
-	                        _react2.default.createElement(
-	                            'div',
-	                            { className: 'panel-heading' },
-	                            '第三方探测器数量：',
-	                            thirdNum
-	                        ),
-	                        _react2.default.createElement(DetectorList, { data: this.state.commData.third_part_detector_list, showBoxHandler: this.showDeviceListBox })
-	                    ),
-	                    '*/'
+	                    )
 	                )
 	            ),
 	            _react2.default.createElement(ModalBox, { boxId: 'device_list_box', body: modalBody, title: '探测器详细信息' })
@@ -22715,8 +22702,6 @@
 
 	'use strict';
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 	var _react = __webpack_require__(2);
 
 	var _react2 = _interopRequireDefault(_react);
@@ -22726,12 +22711,6 @@
 	var _comm2 = _interopRequireDefault(_comm);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var SearchBar = _react2.default.createClass({
 	    displayName: 'SearchBar',
@@ -22769,39 +22748,102 @@
 	    }
 	});
 
-	var SearchResultRow = function (_React$Component) {
-	    _inherits(SearchResultRow, _React$Component);
+	var FuzzyResultRow = _react2.default.createClass({
+	    displayName: 'FuzzyResultRow',
 
-	    function SearchResultRow() {
-	        _classCallCheck(this, SearchResultRow);
-
-	        return _possibleConstructorReturn(this, Object.getPrototypeOf(SearchResultRow).apply(this, arguments));
+	    handleClick: function handleClick(e) {
+	        this.props.handleTraceSearch(this.props.mac);
+	    },
+	    render: function render() {
+	        return _react2.default.createElement(
+	            'tr',
+	            null,
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                this.props.phone
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                this.props.mac
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                this.props.trace_num
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    _react2.default.createElement(
+	                        'button',
+	                        { type: 'button', className: 'btn btn-primary btn-sm', onClick: this.handleClick },
+	                        '查看轨迹'
+	                    )
+	                )
+	            )
+	        );
 	    }
+	});
 
-	    _createClass(SearchResultRow, [{
-	        key: 'render',
-	        value: function render() {}
-	    }]);
+	var FuzzySearchResult = _react2.default.createClass({
+	    displayName: 'FuzzySearchResult',
 
-	    return SearchResultRow;
-	}(_react2.default.Component);
-
-	var SearchResult = function (_React$Component2) {
-	    _inherits(SearchResult, _React$Component2);
-
-	    function SearchResult() {
-	        _classCallCheck(this, SearchResult);
-
-	        return _possibleConstructorReturn(this, Object.getPrototypeOf(SearchResult).apply(this, arguments));
+	    render: function render() {
+	        var handleTraceSearch = this.props.handleTraceSearch;
+	        var rows = [];
+	        if (this.props.data.feature_list != null) {
+	            this.props.data.feature_list.forEach(function (feature) {
+	                rows.push(_react2.default.createElement(FuzzyResultRow, { mac: feature.mac, phone: feature.phone, trace_num: feature.trace_num, handleTraceSearch: handleTraceSearch }));
+	            });
+	        }
+	        return _react2.default.createElement(
+	            'div',
+	            null,
+	            _react2.default.createElement(
+	                'table',
+	                { className: 'table table-striped' },
+	                _react2.default.createElement(
+	                    'thead',
+	                    null,
+	                    _react2.default.createElement(
+	                        'tr',
+	                        null,
+	                        _react2.default.createElement(
+	                            'th',
+	                            null,
+	                            '电话号码'
+	                        ),
+	                        _react2.default.createElement(
+	                            'th',
+	                            null,
+	                            'MAC地址'
+	                        ),
+	                        _react2.default.createElement(
+	                            'th',
+	                            null,
+	                            '轨迹数量'
+	                        ),
+	                        _react2.default.createElement(
+	                            'th',
+	                            null,
+	                            '查看轨迹'
+	                        )
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'tbody',
+	                    null,
+	                    rows
+	                )
+	            )
+	        );
 	    }
-
-	    _createClass(SearchResult, [{
-	        key: 'render',
-	        value: function render() {}
-	    }]);
-
-	    return SearchResult;
-	}(_react2.default.Component);
+	});
 
 	var TraceRowWithoutMac = _react2.default.createClass({
 	    displayName: 'TraceRowWithoutMac',
@@ -22835,7 +22877,7 @@
 	                    null,
 	                    _react2.default.createElement(
 	                        'button',
-	                        { type: 'button', className: 'btn btn-primary btn-sm', 'data-toggle': 'modal', 'data-target': '#pictureModal' },
+	                        { type: 'button', disabled: 'disabled', className: 'btn btn-primary btn-sm', 'data-toggle': 'modal', 'data-target': '#pictureModal' },
 	                        '查看影像'
 	                    )
 	                )
@@ -22916,7 +22958,34 @@
 	var SearchPage = _react2.default.createClass({
 	    displayName: 'SearchPage',
 
+	    handleFuzzySearch: function handleFuzzySearch(value) {
+	        this.search_value = value;
+	        console.log("handleSearch:" + value);
+	        console.log("loadTraceFromServer");
+	        var url = _comm2.default.server_addr + '/feature/query?request={"get_trace_num":true, "phone":"' + value + '"}';
+	        $.ajax({
+	            url: url,
+	            dataType: 'json',
+	            cache: false,
+	            success: function (rsp) {
+	                console.log("handleFuzzySearch response", rsp);
+	                this.setState({ result_type: 2, fuzzy_search_data: rsp });
+	            }.bind(this),
+	            error: function (xhr, status, err) {
+	                console.error(url, status, err.toString());
+	            }.bind(this)
+	        });
+	    },
 	    handleSearch: function handleSearch(value) {
+	        if (/^\d+$/.test(value)) {
+	            console.log("handleFuzzySearch");
+	            this.handleFuzzySearch(value);
+	        } else {
+	            console.log("handleTraceSearch");
+	            this.handleTraceSearch(value);
+	        }
+	    },
+	    handleTraceSearch: function handleTraceSearch(value) {
 	        this.search_value = value;
 	        console.log("handleSearch:" + value);
 	        console.log("loadTraceFromServer");
@@ -22932,7 +23001,7 @@
 	            cache: false,
 	            success: function (rsp) {
 	                console.log("loadTraceFromServer response", rsp);
-	                this.setState({ rsp: rsp });
+	                this.setState({ result_type: 1, rsp: rsp });
 	            }.bind(this),
 	            error: function (xhr, status, err) {
 	                console.error(url, status, err.toString());
@@ -22941,41 +23010,75 @@
 	    },
 	    getInitialState: function getInitialState() {
 	        console.log("getInitialState");
-	        return { rsp: { trace: [] } };
+	        return { result_type: 1, rsp: { trace: [] }, fuzzy_search_data: { feature_list: [] } };
 	    },
 	    componentDidMount: function componentDidMount() {},
 	    render: function render() {
-	        return _react2.default.createElement(
-	            'div',
-	            { className: 'container-fluid page-content' },
-	            _react2.default.createElement(
+	        if (this.state.result_type == 1) {
+	            return _react2.default.createElement(
 	                'div',
-	                { className: 'row', style: { width: "300px" } },
+	                { className: 'container-fluid page-content' },
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: 'col-sm-12' },
-	                    _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
-	                )
-	            ),
-	            _react2.default.createElement(
-	                'div',
-	                { className: 'row', style: { marginTop: "10px" } },
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'col-sm-12' },
+	                    { className: 'row', style: { width: "300px" } },
 	                    _react2.default.createElement(
 	                        'div',
-	                        { className: 'panel panel-primary' },
+	                        { className: 'col-sm-12' },
+	                        _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'row', style: { marginTop: "10px" } },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'col-sm-12' },
 	                        _react2.default.createElement(
 	                            'div',
-	                            { className: 'panel-heading' },
-	                            '查询结果'
-	                        ),
-	                        _react2.default.createElement(TraceTable, { trace: this.state.rsp.trace })
+	                            { className: 'panel panel-primary' },
+	                            _react2.default.createElement(
+	                                'div',
+	                                { className: 'panel-heading' },
+	                                '查询结果'
+	                            ),
+	                            _react2.default.createElement(TraceTable, { trace: this.state.rsp.trace })
+	                        )
 	                    )
 	                )
-	            )
-	        );
+	            );
+	        } else {
+	            return _react2.default.createElement(
+	                'div',
+	                { className: 'container-fluid page-content' },
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'row', style: { width: "300px" } },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'col-sm-12' },
+	                        _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'row', style: { marginTop: "10px" } },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'col-sm-12' },
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'panel panel-primary' },
+	                            _react2.default.createElement(
+	                                'div',
+	                                { className: 'panel-heading' },
+	                                '查询结果'
+	                            ),
+	                            _react2.default.createElement(FuzzySearchResult, { data: this.state.fuzzy_search_data, handleTraceSearch: this.handleTraceSearch })
+	                        )
+	                    )
+	                )
+	            );
+	        }
 	    }
 	});
 
@@ -22987,8 +23090,6 @@
 
 	'use strict';
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 	var _react = __webpack_require__(2);
 
 	var _react2 = _interopRequireDefault(_react);
@@ -22998,12 +23099,6 @@
 	var _comm2 = _interopRequireDefault(_comm);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var SearchBar = _react2.default.createClass({
 	    displayName: 'SearchBar',
@@ -23041,39 +23136,102 @@
 	    }
 	});
 
-	var SearchResultRow = function (_React$Component) {
-	    _inherits(SearchResultRow, _React$Component);
+	var FuzzyResultRow = _react2.default.createClass({
+	    displayName: 'FuzzyResultRow',
 
-	    function SearchResultRow() {
-	        _classCallCheck(this, SearchResultRow);
-
-	        return _possibleConstructorReturn(this, Object.getPrototypeOf(SearchResultRow).apply(this, arguments));
+	    handleClick: function handleClick(e) {
+	        this.props.handleSimSearch(this.props.mac);
+	    },
+	    render: function render() {
+	        return _react2.default.createElement(
+	            'tr',
+	            null,
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                this.props.phone
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                this.props.mac
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                this.props.trace_num
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    _react2.default.createElement(
+	                        'button',
+	                        { type: 'button', className: 'btn btn-primary btn-sm', onClick: this.handleClick },
+	                        '查看轨迹'
+	                    )
+	                )
+	            )
+	        );
 	    }
+	});
 
-	    _createClass(SearchResultRow, [{
-	        key: 'render',
-	        value: function render() {}
-	    }]);
+	var FuzzySearchResult = _react2.default.createClass({
+	    displayName: 'FuzzySearchResult',
 
-	    return SearchResultRow;
-	}(_react2.default.Component);
-
-	var SearchResult = function (_React$Component2) {
-	    _inherits(SearchResult, _React$Component2);
-
-	    function SearchResult() {
-	        _classCallCheck(this, SearchResult);
-
-	        return _possibleConstructorReturn(this, Object.getPrototypeOf(SearchResult).apply(this, arguments));
+	    render: function render() {
+	        var handleSimSearch = this.props.handleSimSearch;
+	        var rows = [];
+	        if (this.props.data.feature_list != null) {
+	            this.props.data.feature_list.forEach(function (feature) {
+	                rows.push(_react2.default.createElement(FuzzyResultRow, { mac: feature.mac, phone: feature.phone, trace_num: feature.trace_num, handleSimSearch: handleSimSearch }));
+	            });
+	        }
+	        return _react2.default.createElement(
+	            'div',
+	            null,
+	            _react2.default.createElement(
+	                'table',
+	                { className: 'table table-striped' },
+	                _react2.default.createElement(
+	                    'thead',
+	                    null,
+	                    _react2.default.createElement(
+	                        'tr',
+	                        null,
+	                        _react2.default.createElement(
+	                            'th',
+	                            null,
+	                            '电话号码'
+	                        ),
+	                        _react2.default.createElement(
+	                            'th',
+	                            null,
+	                            'MAC地址'
+	                        ),
+	                        _react2.default.createElement(
+	                            'th',
+	                            null,
+	                            '轨迹数量'
+	                        ),
+	                        _react2.default.createElement(
+	                            'th',
+	                            null,
+	                            '匹配相似轨迹'
+	                        )
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'tbody',
+	                    null,
+	                    rows
+	                )
+	            )
+	        );
 	    }
-
-	    _createClass(SearchResult, [{
-	        key: 'render',
-	        value: function render() {}
-	    }]);
-
-	    return SearchResult;
-	}(_react2.default.Component);
+	});
 
 	var TraceRowWithoutMac = _react2.default.createClass({
 	    displayName: 'TraceRowWithoutMac',
@@ -23163,7 +23321,34 @@
 	var SimilarPage = _react2.default.createClass({
 	    displayName: 'SimilarPage',
 
+	    handleFuzzySearch: function handleFuzzySearch(value) {
+	        this.search_value = value;
+	        console.log("handleSearch:" + value);
+	        console.log("loadTraceFromServer");
+	        var url = _comm2.default.server_addr + '/feature/query?request={"get_trace_num":true, "phone":"' + value + '"}';
+	        $.ajax({
+	            url: url,
+	            dataType: 'json',
+	            cache: false,
+	            success: function (rsp) {
+	                console.log("handleFuzzySearch response", rsp);
+	                this.setState({ result_type: 2, fuzzy_search_data: rsp });
+	            }.bind(this),
+	            error: function (xhr, status, err) {
+	                console.error(url, status, err.toString());
+	            }.bind(this)
+	        });
+	    },
 	    handleSearch: function handleSearch(value) {
+	        if (/^\d+$/.test(value)) {
+	            console.log("handleFuzzySearch");
+	            this.handleFuzzySearch(value);
+	        } else {
+	            console.log("handleTraceSearch");
+	            this.handleSimSearch(value);
+	        }
+	    },
+	    handleSimSearch: function handleSimSearch(value) {
 	        this.search_value = value;
 	        console.log("handleSearch:" + value);
 	        console.log("loadTraceFromServer");
@@ -23179,7 +23364,7 @@
 	            cache: false,
 	            success: function (rsp) {
 	                console.log("loadTraceFromServer response", rsp);
-	                this.setState({ rsp: rsp });
+	                this.setState({ result_type: 1, rsp: rsp });
 	            }.bind(this),
 	            error: function (xhr, status, err) {
 	                console.error(url, status, err.toString());
@@ -23188,41 +23373,75 @@
 	    },
 	    getInitialState: function getInitialState() {
 	        console.log("getInitialState");
-	        return { rsp: { trace_list: [] } };
+	        return { result_type: 1, rsp: { trace_list: [] }, fuzzy_search_data: { feature_list: [] } };
 	    },
 	    componentDidMount: function componentDidMount() {},
 	    render: function render() {
-	        return _react2.default.createElement(
-	            'div',
-	            { className: 'container-fluid page-content' },
-	            _react2.default.createElement(
+	        if (this.state.result_type == 1) {
+	            return _react2.default.createElement(
 	                'div',
-	                { className: 'row', style: { width: "300px" } },
+	                { className: 'container-fluid page-content' },
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: 'col-sm-12' },
-	                    _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
-	                )
-	            ),
-	            _react2.default.createElement(
-	                'div',
-	                { className: 'row', style: { marginTop: "10px" } },
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'col-sm-12' },
+	                    { className: 'row', style: { width: "300px" } },
 	                    _react2.default.createElement(
 	                        'div',
-	                        { className: 'panel panel-primary' },
+	                        { className: 'col-sm-12' },
+	                        _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'row', style: { marginTop: "10px" } },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'col-sm-12' },
 	                        _react2.default.createElement(
 	                            'div',
-	                            { className: 'panel-heading' },
-	                            '轨迹匹配结果'
-	                        ),
-	                        _react2.default.createElement(TraceTable, { trace_list: this.state.rsp.trace_list })
+	                            { className: 'panel panel-primary' },
+	                            _react2.default.createElement(
+	                                'div',
+	                                { className: 'panel-heading' },
+	                                '轨迹匹配结果'
+	                            ),
+	                            _react2.default.createElement(TraceTable, { trace_list: this.state.rsp.trace_list })
+	                        )
 	                    )
 	                )
-	            )
-	        );
+	            );
+	        } else {
+	            return _react2.default.createElement(
+	                'div',
+	                { className: 'container-fluid page-content' },
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'row', style: { width: "300px" } },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'col-sm-12' },
+	                        _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'row', style: { marginTop: "10px" } },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'col-sm-12' },
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'panel panel-primary' },
+	                            _react2.default.createElement(
+	                                'div',
+	                                { className: 'panel-heading' },
+	                                '模糊查询结果'
+	                            ),
+	                            _react2.default.createElement(FuzzySearchResult, { data: this.state.fuzzy_search_data, handleSimSearch: this.handleSimSearch })
+	                        )
+	                    )
+	                )
+	            );
+	        }
 	    }
 	});
 

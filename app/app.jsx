@@ -279,7 +279,7 @@ var TraceRow = React.createClass({
                 <td>{this.props.mac}</td>
                 <td>{this.props.longitude},{this.props.latitude}</td>
                 <td>{this.props.time}</td>
-                <td><div><button type="button" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#pictureModal">查看影像</button></div></td>
+                <td><div><button type="button" disabled="disabled" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#pictureModal">查看影像</button></div></td>
             </tr>
         );
     }
@@ -519,10 +519,6 @@ var DetectorPage = React.createClass({
                             <div className="panel-heading">今日探测人数：{this.state.commData.people}</div>
                             <DetectorList data={this.state.commData.detector_list}  showBoxHandler={this.showDeviceListBox}/>
                         </div>
-                        /*<div className="panel panel-primary">
-                            <div className="panel-heading">第三方探测器数量：{thirdNum}</div>
-                            <DetectorList data={this.state.commData.third_part_detector_list}  showBoxHandler={this.showDeviceListBox}/>
-                        </div>*/
                     </div>
                 </div>
                 <ModalBox boxId="device_list_box" body={modalBody} title="探测器详细信息"/>
