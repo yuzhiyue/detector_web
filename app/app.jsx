@@ -451,16 +451,23 @@ var DetectorPage = React.createClass({
                 if (this.isMounted()) {
                     this.setState({commData:rsp});
                     var idx = 1;
+                    var lnglatArr = []
                     this.state.commData.detector_list.forEach(function (e) {
-                        var text = '<div class="marker-route marker-marker-bus-from"><b>探:'+ idx.toString() +'号</b></div>'
-                        new AMap.Marker({
-                            map: self.myMap,
-                            position: [e.longitude, e.latitude],
-                            offset: new AMap.Pixel(-17, -42), //相对于基点的偏移位置
-                            draggable: false,  //是否可拖动
-                            content: text
-                        });
-                        idx = idx + 1
+                        lnglatArr.push(new AMap.LngLat(e.longitude, e.latitude))
+                    })
+                    AMap.convertFrom(lnglatArr, "gps", function (status, result) {
+                        console.log("convert geo", status, result)
+                        result.locations.forEach(function (pos) {
+                            var text = '<div class="marker-route marker-marker-bus-from"><b>探:'+ idx.toString() +'号</b></div>'
+                            new AMap.Marker({
+                                map: self.myMap,
+                                position: [pos.getLng(), pos.getLat()],
+                                offset: new AMap.Pixel(-17, -42), //相对于基点的偏移位置
+                                draggable: false,  //是否可拖动
+                                content: text
+                            });
+                            idx = idx + 1
+                        })
                     })
                 }
             }.bind(this),
