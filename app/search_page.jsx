@@ -1,6 +1,6 @@
 import React from 'react';
 import Comm from './comm.jsx'
-
+import {drawPath} from './trace_replay.jsx'
 var SearchBar = React.createClass({
     handleChange: function (e) {
         console.log("handleChange:"+e.target.value)
@@ -183,6 +183,20 @@ var SearchPage = React.createClass({
     componentDidMount: function () {
 
     },
+    traceReplay:function (e) {
+        var lnglatArr = []
+        var lineArr = []
+        this.state.rsp.trace.forEach(function (e) {
+            lnglatArr.push(new AMap.LngLat(e.longitude, e.latitude))
+        })
+        AMap.convertFrom(lnglatArr, "gps", function (status, result) {
+            console.log("convert geo", status, result)
+            result.locations.forEach(function (pos) {
+                lineArr.push([pos.getLng(), pos.getLat()])
+            })
+            drawPath(lineArr)
+        })
+    },
     render: function () {
         if(this.state.result_type == 1){
             return(
@@ -195,7 +209,9 @@ var SearchPage = React.createClass({
                     <div className="row" style={{marginTop:"10px"}}>
                         <div className="col-sm-12">
                             <div className="panel panel-primary">
-                                <div className="panel-heading">查询结果</div>
+                                <div className="panel-heading">查询结果
+                                    <button type="button"  style={{marginLeft:"20px"}} className="btn btn-warning  btn-sm" data-toggle="modal" data-target="#map_replay_box" onClick={this.traceReplay}>轨迹绘制</button>
+                                </div>
                                 <TraceTable trace={this.state.rsp.trace}></TraceTable>
                             </div>
 

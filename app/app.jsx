@@ -12,6 +12,8 @@ import SearchPage from './search_page.jsx'
 import SimilarPage from './similar_page.jsx'
 import BehaviorPage from './behavior_page.jsx'
 import Comm from './comm.jsx'
+import {TraceReplayBox} from "./trace_replay.jsx"
+
 import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router'
 
 
@@ -780,6 +782,7 @@ var Page = React.createClass({
                         </div>
                     </div>
                     <ModalBox title="影像" boxId="pictureModal" body={<PictureList pictures={pictures}/>} />
+                    <TraceReplayBox />
                 </div>
             );
         }
