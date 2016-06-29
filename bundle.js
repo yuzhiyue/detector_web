@@ -23177,7 +23177,7 @@
 	                    _react2.default.createElement(
 	                        'button',
 	                        { type: 'button', className: 'btn btn-primary btn-sm', onClick: this.handleClick },
-	                        '查看轨迹'
+	                        '查询相似轨迹'
 	                    )
 	                )
 	            )
