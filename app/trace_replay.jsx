@@ -37,7 +37,7 @@ function drawPath(lineArr){
         strokeStyle: "solid"  //线样式
     });
     map.setFitView();
-    map.setZoomAndCenter(14, lineArr[0]);
+    map.setZoomAndCenter(14, lineArr[lineArr.length - 1]);
 }
 
 var TraceReplayBox = React.createClass({

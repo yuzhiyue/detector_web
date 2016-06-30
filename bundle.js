@@ -23166,7 +23166,7 @@
 	        strokeStyle: "solid" //线样式
 	    });
 	    map.setFitView();
-	    map.setZoomAndCenter(14, lineArr[0]);
+	    map.setZoomAndCenter(14, lineArr[lineArr.length - 1]);
 	}
 
 	var TraceReplayBox = _react2.default.createClass({
