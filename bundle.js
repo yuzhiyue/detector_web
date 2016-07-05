@@ -1490,30 +1490,10 @@
 
 	var process = module.exports = {};
 
-	// cached from whatever global is present so that test runners that stub it
-	// don't break things.  But we need to wrap it in a try catch in case it is
-	// wrapped in strict mode code which doesn't define any globals.  It's inside a
-	// function because try/catches deoptimize in certain engines.
+	// cached from whatever global is present so that test runners that stub it don't break things.
+	var cachedSetTimeout = setTimeout;
+	var cachedClearTimeout = clearTimeout;
 
-	var cachedSetTimeout;
-	var cachedClearTimeout;
-
-	(function () {
-	  try {
-	    cachedSetTimeout = setTimeout;
-	  } catch (e) {
-	    cachedSetTimeout = function () {
-	      throw new Error('setTimeout is not defined');
-	    }
-	  }
-	  try {
-	    cachedClearTimeout = clearTimeout;
-	  } catch (e) {
-	    cachedClearTimeout = function () {
-	      throw new Error('clearTimeout is not defined');
-	    }
-	  }
-	} ())
 	var queue = [];
 	var draining = false;
 	var currentQueue;
@@ -22723,15 +22703,24 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	function formatDate(now) {
+	    var year = now.getFullYear();
+	    var month = now.getMonth() + 1;
+	    var date = now.getDate();
+	    var hour = now.getHours();
+	    var minute = now.getMinutes();
+	    var second = now.getSeconds();
+	    return year + "/" + month + "/" + date + " " + hour + ":" + minute + ":" + second;
+	}
+
 	var SearchBar = _react2.default.createClass({
 	    displayName: 'SearchBar',
 
 	    handleChange: function handleChange(e) {
-	        console.log("handleChange:" + e.target.value);
-	        this.setState({ input: e.target.value });
+	        this.props.updateTimeRange(this.refs.start_time.value, this.refs.end_time.value);
 	    },
 	    handleClick: function handleClick() {
-	        this.props.handleSearch(this.state.input);
+	        this.props.handleSearch(this.refs.value.value);
 	    },
 	    getInitialState: function getInitialState() {
 	        console.log("getInitialState");
@@ -22742,17 +22731,19 @@
 	            'div',
 	            null,
 	            _react2.default.createElement(
-	                'div',
-	                { className: 'input-group' },
-	                _react2.default.createElement('input', { type: 'text', className: 'form-control', placeholder: '输入MAC地址或手机号', onChange: this.handleChange }),
+	                'form',
+	                { className: 'form-inline', role: 'search' },
 	                _react2.default.createElement(
-	                    'span',
-	                    { className: 'input-group-btn' },
-	                    _react2.default.createElement(
-	                        'button',
-	                        { className: 'btn btn-default', type: 'button', onClick: this.handleClick },
-	                        '查询'
-	                    )
+	                    'div',
+	                    { className: 'form-group' },
+	                    _react2.default.createElement('input', { type: 'text', className: 'form-control', ref: 'value', placeholder: '输入MAC地址或手机号', onChange: this.handleChange }),
+	                    _react2.default.createElement('input', { type: 'text', className: 'form-control', ref: 'start_time', value: this.props.time_range.start, onChange: this.handleChange }),
+	                    _react2.default.createElement('input', { type: 'text', className: 'form-control', ref: 'end_time', value: this.props.time_range.end, onChange: this.handleChange })
+	                ),
+	                _react2.default.createElement(
+	                    'button',
+	                    { className: 'btn btn-default', type: 'button', onClick: this.handleClick },
+	                    '查询'
 	                )
 	            )
 	        );
@@ -22969,6 +22960,9 @@
 	var SearchPage = _react2.default.createClass({
 	    displayName: 'SearchPage',
 
+	    updateTimeRange: function updateTimeRange(start, end) {
+	        this.setState({ time_range: { start: start, end: end } });
+	    },
 	    handleFuzzySearch: function handleFuzzySearch(value) {
 	        this.search_value = value;
 	        console.log("handleSearch:" + value);
@@ -22997,15 +22991,16 @@
 	        }
 	    },
 	    handleTraceSearch: function handleTraceSearch(value) {
-	        this.search_value = value;
-	        console.log("handleSearch:" + value);
-	        console.log("loadTraceFromServer");
+	        var start_time = Date.parse(this.state.time_range.start) / 1000;
+	        var end_time = Date.parse(this.state.time_range.end) / 1000;
+	        console.log("handleSearch:", value, start_time, end_time);
 	        var url = "";
 	        if (value.length == 11) {
-	            url = _comm2.default.server_addr + '/trace?request={"phone":"' + value + '","query_type":"02","start_time":1}';
+	            url = _comm2.default.server_addr + '/trace?request={"phone":"' + value + '","query_type":"02","start_time":' + start_time + ',"end_time":' + end_time + '}';
 	        } else {
-	            url = _comm2.default.server_addr + '/trace?request={"mac":"' + value + '","query_type":"01","start_time":1}';
+	            url = _comm2.default.server_addr + '/trace?request={"mac":"' + value + '","query_type":"01","start_time":' + start_time + ',"end_time":' + end_time + '}';
 	        }
+	        console.log("url:", url);
 	        $.ajax({
 	            url: url,
 	            dataType: 'json',
@@ -23021,7 +23016,9 @@
 	    },
 	    getInitialState: function getInitialState() {
 	        console.log("getInitialState");
-	        return { result_type: 1, rsp: { trace: [] }, fuzzy_search_data: { feature_list: [] } };
+	        var start = formatDate(new Date(new Date().getTime() - 24 * 3600 * 1000));
+	        var end = formatDate(new Date(new Date().getTime()));
+	        return { result_type: 1, time_range: { start: start, end: end }, rsp: { trace: [] }, fuzzy_search_data: { feature_list: [] } };
 	    },
 	    componentDidMount: function componentDidMount() {},
 	    traceReplay: function traceReplay(e) {
@@ -23045,11 +23042,11 @@
 	                { className: 'container-fluid page-content' },
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: 'row', style: { width: "300px" } },
+	                    { className: 'row' },
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'col-sm-12' },
-	                        _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
+	                        _react2.default.createElement(SearchBar, { time_range: this.state.time_range, updateTimeRange: this.updateTimeRange, handleSearch: this.handleSearch })
 	                    )
 	                ),
 	                _react2.default.createElement(
@@ -23082,11 +23079,11 @@
 	                { className: 'container-fluid page-content' },
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: 'row', style: { width: "300px" } },
+	                    { className: 'row' },
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'col-sm-12' },
-	                        _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
+	                        _react2.default.createElement(SearchBar, { time_range: this.state.time_range, handleSearch: this.handleSearch })
 	                    )
 	                ),
 	                _react2.default.createElement(
@@ -27970,11 +27967,11 @@
 	    arity: true
 	};
 
-	module.exports = function hoistNonReactStatics(targetComponent, sourceComponent, customStatics) {
+	module.exports = function hoistNonReactStatics(targetComponent, sourceComponent) {
 	    if (typeof sourceComponent !== 'string') { // don't hoist over string (html) components
 	        var keys = Object.getOwnPropertyNames(sourceComponent);
-	        for (var i = 0; i < keys.length; ++i) {
-	            if (!REACT_STATICS[keys[i]] && !KNOWN_STATICS[keys[i]] && (!customStatics || !customStatics[keys[i]])) {
+	        for (var i=0; i<keys.length; ++i) {
+	            if (!REACT_STATICS[keys[i]] && !KNOWN_STATICS[keys[i]]) {
 	                try {
 	                    targetComponent[keys[i]] = sourceComponent[keys[i]];
 	                } catch (error) {
