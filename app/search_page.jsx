@@ -2,15 +2,7 @@ import React from 'react';
 import Comm from './comm.jsx'
 import {drawPath} from './trace_replay.jsx'
 
-function formatDate(now) {
-    var year=now.getFullYear();
-    var month=now.getMonth()+1;
-    var date=now.getDate();
-    var hour=now.getHours();
-    var minute=now.getMinutes();
-    var second=now.getSeconds();
-    return year+"/"+month+"/"+date+" "+hour+":"+minute+":"+second;
-}
+
 
 var SearchBar = React.createClass({
     handleChange: function (e) {
@@ -194,8 +186,8 @@ var SearchPage = React.createClass({
     },
     getInitialState: function () {
         console.log("getInitialState")
-        var start = formatDate(new Date(new Date().getTime() - 24 * 3600 * 1000))
-        var end = formatDate(new Date(new Date().getTime()))
+        var start = Comm.formatDate(new Date(new Date().getTime() - 24 * 3600 * 1000))
+        var end = Comm.formatDate(new Date(new Date().getTime()))
         return {result_type:1,time_range:{start:start, end:end}, rsp: {trace: []}, fuzzy_search_data:{feature_list:[]}};
     },
     componentDidMount: function () {
@@ -204,13 +196,18 @@ var SearchPage = React.createClass({
     traceReplay:function (e) {
         var lnglatArr = []
         var lineArr = []
-        this.state.rsp.trace.forEach(function (e) {
+        var trace_list = this.state.rsp.trace;
+        trace_list.forEach(function (e) {
             lnglatArr.push(new AMap.LngLat(e.longitude, e.latitude))
         })
+        var idx = 0;
         AMap.convertFrom(lnglatArr, "gps", function (status, result) {
             console.log("convert geo", status, result)
             result.locations.forEach(function (pos) {
-                lineArr.push([pos.getLng(), pos.getLat()])
+                var trace_point = trace_list[idx] 
+                var posNew = {gd_pos:[pos.getLng(), pos.getLat()], gws84:[trace_point.longitude, trace_point.latitude], time:trace_point.enter_time}
+                lineArr.push(posNew)
+                idx += 1;
             })
             drawPath(lineArr)
         })

@@ -39,6 +39,12 @@ body {
     cursor: pointer;
 }
 
+.map-marker {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+}
+
 .amap-marker .marker-marker-bus-from {
     background-position: 0px -60px;
 }

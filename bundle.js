@@ -1273,30 +1273,10 @@
 
 	var process = module.exports = {};
 
-	// cached from whatever global is present so that test runners that stub it
-	// don't break things.  But we need to wrap it in a try catch in case it is
-	// wrapped in strict mode code which doesn't define any globals.  It's inside a
-	// function because try/catches deoptimize in certain engines.
+	// cached from whatever global is present so that test runners that stub it don't break things.
+	var cachedSetTimeout = setTimeout;
+	var cachedClearTimeout = clearTimeout;
 
-	var cachedSetTimeout;
-	var cachedClearTimeout;
-
-	(function () {
-	  try {
-	    cachedSetTimeout = setTimeout;
-	  } catch (e) {
-	    cachedSetTimeout = function () {
-	      throw new Error('setTimeout is not defined');
-	    }
-	  }
-	  try {
-	    cachedClearTimeout = clearTimeout;
-	  } catch (e) {
-	    cachedClearTimeout = function () {
-	      throw new Error('clearTimeout is not defined');
-	    }
-	  }
-	} ())
 	var queue = [];
 	var draining = false;
 	var currentQueue;
@@ -21849,11 +21829,22 @@
 	    return tmp;
 	}
 
+	function formatDate(now) {
+	    var year = now.getFullYear();
+	    var month = now.getMonth() + 1;
+	    var date = now.getDate();
+	    var hour = now.getHours();
+	    var minute = now.getMinutes();
+	    var second = now.getSeconds();
+	    return year + "/" + month + "/" + date + " " + hour + ":" + minute + ":" + second;
+	}
+
 	module.exports.addCookie = addCookie;
 	module.exports.getCookie = getCookie;
 	module.exports.deleteCookie = deleteCookie;
 	module.exports.randomChar = randomChar;
 	module.exports.randomCharWithoutTime = randomCharWithoutTime;
+	module.exports.formatDate = formatDate;
 	$.support.cors = true;
 	module.exports.server_addr = "http://112.74.90.113/server_interface";
 	//module.exports.server_addr = "http://192.168.31.149:8080"
@@ -22506,16 +22497,6 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function formatDate(now) {
-	    var year = now.getFullYear();
-	    var month = now.getMonth() + 1;
-	    var date = now.getDate();
-	    var hour = now.getHours();
-	    var minute = now.getMinutes();
-	    var second = now.getSeconds();
-	    return year + "/" + month + "/" + date + " " + hour + ":" + minute + ":" + second;
-	}
-
 	var SearchBar = _react2.default.createClass({
 	    displayName: 'SearchBar',
 
@@ -22819,21 +22800,26 @@
 	    },
 	    getInitialState: function getInitialState() {
 	        console.log("getInitialState");
-	        var start = formatDate(new Date(new Date().getTime() - 24 * 3600 * 1000));
-	        var end = formatDate(new Date(new Date().getTime()));
+	        var start = _comm2.default.formatDate(new Date(new Date().getTime() - 24 * 3600 * 1000));
+	        var end = _comm2.default.formatDate(new Date(new Date().getTime()));
 	        return { result_type: 1, time_range: { start: start, end: end }, rsp: { trace: [] }, fuzzy_search_data: { feature_list: [] } };
 	    },
 	    componentDidMount: function componentDidMount() {},
 	    traceReplay: function traceReplay(e) {
 	        var lnglatArr = [];
 	        var lineArr = [];
-	        this.state.rsp.trace.forEach(function (e) {
+	        var trace_list = this.state.rsp.trace;
+	        trace_list.forEach(function (e) {
 	            lnglatArr.push(new AMap.LngLat(e.longitude, e.latitude));
 	        });
+	        var idx = 0;
 	        AMap.convertFrom(lnglatArr, "gps", function (status, result) {
 	            console.log("convert geo", status, result);
 	            result.locations.forEach(function (pos) {
-	                lineArr.push([pos.getLng(), pos.getLat()]);
+	                var trace_point = trace_list[idx];
+	                var posNew = { gd_pos: [pos.getLng(), pos.getLat()], gws84: [trace_point.longitude, trace_point.latitude], time: trace_point.enter_time };
+	                lineArr.push(posNew);
+	                idx += 1;
 	            });
 	            (0, _trace_replay.drawPath)(lineArr);
 	        });
@@ -22948,30 +22934,34 @@
 	    if (lineArr.length == 0) {
 	        return;
 	    }
-	    marker = new AMap.Marker({
-	        map: map,
-	        position: lineArr[0],
-	        icon: "http://webapi.amap.com/images/car.png",
-	        offset: new AMap.Pixel(-26, -13),
-	        autoRotation: true
-	    });
+	    // marker = new AMap.Marker({
+	    //     map: map,
+	    //     position: lineArr[0],
+	    //     icon: "http://webapi.amap.com/images/car.png",
+	    //     offset: new AMap.Pixel(-26, -13),
+	    //     autoRotation: true
+	    // });
+	    var line = [];
 	    var idx = 1;
 	    lineArr.forEach(function (pos) {
-	        var text = '<div class="marker-route marker-marker-bus-from"><b>' + idx.toString() + '</b></div>';
+	        var title = "序号：" + idx + "\n位置：" + pos.gws84[0] + "," + pos.gws84[1] + "\n时间：" + _comm2.default.formatDate(new Date(pos.time * 1000));
+	        var text = '<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>';
 	        var marker = new AMap.Marker({
 	            map: map,
-	            position: pos,
-	            offset: new AMap.Pixel(-17, -42), //相对于基点的偏移位置
+	            title: title,
+	            position: pos.gd_pos,
+	            offset: new AMap.Pixel(-7, -14), //相对于基点的偏移位置
 	            draggable: false, //是否可拖动
 	            content: text
 	        });
+	        line.push(pos.gd_pos);
 	        idx = idx + 1;
 	    });
 
 	    // 绘制轨迹
 	    var polyline = new AMap.Polyline({
 	        map: map,
-	        path: lineArr,
+	        path: line,
 	        strokeColor: "#00A", //线颜色
 	        strokeOpacity: 1, //线透明度
 	        strokeWeight: 3, //线宽
@@ -27782,11 +27772,11 @@
 	    arity: true
 	};
 
-	module.exports = function hoistNonReactStatics(targetComponent, sourceComponent, customStatics) {
+	module.exports = function hoistNonReactStatics(targetComponent, sourceComponent) {
 	    if (typeof sourceComponent !== 'string') { // don't hoist over string (html) components
 	        var keys = Object.getOwnPropertyNames(sourceComponent);
-	        for (var i = 0; i < keys.length; ++i) {
-	            if (!REACT_STATICS[keys[i]] && !KNOWN_STATICS[keys[i]] && (!customStatics || !customStatics[keys[i]])) {
+	        for (var i=0; i<keys.length; ++i) {
+	            if (!REACT_STATICS[keys[i]] && !KNOWN_STATICS[keys[i]]) {
 	                try {
 	                    targetComponent[keys[i]] = sourceComponent[keys[i]];
 	                } catch (error) {

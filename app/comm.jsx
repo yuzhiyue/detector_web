@@ -44,11 +44,22 @@ function  randomCharWithoutTime(l) {
     return tmp;
 }
 
+function formatDate(now) {
+    var year=now.getFullYear();
+    var month=now.getMonth()+1;
+    var date=now.getDate();
+    var hour=now.getHours();
+    var minute=now.getMinutes();
+    var second=now.getSeconds();
+    return year+"/"+month+"/"+date+" "+hour+":"+minute+":"+second;
+}
+
 module.exports.addCookie = addCookie;
 module.exports.getCookie = getCookie;
 module.exports.deleteCookie = deleteCookie;
 module.exports.randomChar = randomChar;
 module.exports.randomCharWithoutTime = randomCharWithoutTime;
+module.exports.formatDate = formatDate;
 $.support.cors = true;
 module.exports.server_addr = "http://112.74.90.113/server_interface"
 //module.exports.server_addr = "http://192.168.31.149:8080"
