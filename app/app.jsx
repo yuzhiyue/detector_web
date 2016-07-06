@@ -381,67 +381,7 @@ var ModalBox = React.createClass({
     }
 });
 
-
-var SimpleSearchPage = React.createClass({
-    handleSearch: function (value) {
-
-    },
-    getInitialState: function () {
-        console.log("getInitialState")
-        return {rsp: {trace: []}};
-    },
-    componentDidMount: function () {
-
-    },
-    render: function () {
-        return(
-            <div className="container-fluid page-content">
-                <div className="row" style={{width:"400px"}}>
-                    <div className="input-group">
-                        <input type="text" className="form-control" placeholder="输入车牌号查询"  />
-                    <span className="input-group-btn">
-                        <button className="btn btn-default" type="button" onClick={this.handleClick} >查询</button>
-                    </span>
-                    </div>
-                </div>
-                <div className="row" style={{marginTop:"10px"}}>
-                    <div className="col-sm-12">
-                        <div className="panel panel-primary">
-                            <div className="panel-heading">查询结果</div>
-                            <table className="table table-striped table-hover">
-                                <thead>
-                                <tr>
-                                    <th>车牌号</th>
-                                    <th>扫描事件</th>
-                                    <th>地址</th>
-                                    <th>MAC列表</th>
-                                </tr>
-                                </thead>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-});
-
-var BehavePage = React.createClass({
-    render: function () {
-        var thirdNum = this.props.commData.third_part_detector_list.length
-        return(
-            <div className="container-fluid page-content">
-                <div className="row">
-                    <div className="panel panel-primary">
-                        <div className="panel-heading">上网行为数据：{thirdNum}</div>
-                        <DetectorList data={this.props.commData.third_part_detector_list}  showBoxHandler={this.showDeviceListBox}/>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-});
-
+var g_MapMarks = []
 var DetectorPage = React.createClass({
     loadDetectorsFromServer: function() {
         //console.log("loadDetectorsFromServer")
@@ -459,15 +399,18 @@ var DetectorPage = React.createClass({
                     })
                     AMap.convertFrom(lnglatArr, "gps", function (status, result) {
                         console.log("convert geo", status, result)
+                        self.myMap.remove(self.markers)
+                        self.markers = []
                         result.locations.forEach(function (pos) {
                             var text = '<div class="marker-route marker-marker-bus-from"><b>探:'+ idx.toString() +'号</b></div>'
-                            new AMap.Marker({
+                            var marker = new AMap.Marker({
                                 map: self.myMap,
                                 position: [pos.getLng(), pos.getLat()],
                                 offset: new AMap.Pixel(-17, -42), //相对于基点的偏移位置
                                 draggable: false,  //是否可拖动
                                 content: text
                             });
+                            self.markers.push(marker)
                             idx = idx + 1
                         })
                     })
@@ -489,7 +432,7 @@ var DetectorPage = React.createClass({
             self.myMap.addControl(new AMap.ToolBar());
         });
         
-
+        self.markers = []
         this.loadDetectorsFromServer();
         setInterval(this.loadDetectorsFromServer, 10000);
     },
@@ -576,86 +519,6 @@ var DetectorItem = React.createClass({
                 <span className="badge">{mac_count}</span>
                 <div>{this.props.idx}号 {company}</div>
                 {/*<div>{this.props.data.mac}</div>*/}
-                <div className={div_class}><b>状态：</b>{state}</div>
-            </a>
-        );
-    }
-});
-
-var DetectorPage2 = React.createClass({
-    componentDidMount: function() {
-    },
-    showDeviceListBox: function (apData) {
-
-    },
-    getInitialState: function() {
-        return  {deviceList:{device_list:[]}, current_detector:{mac:"", longitude:0, latitude:0,last_login_time:0}}
-    },
-    render: function () {
-        var modalBody =  <VideoAnalyser />
-        var FixData = {detector_list:[{mac:"353419033412758",today_mac_count:0,status:"01",longitude:116.10483,latitude:24.28942,company:"01",last_login_time:1463583123,login_count:0}]}
-        return(
-            <div className="container-fluid page-content">
-                <div className="row">
-                    {/*<div className="col-sm-8">
-                     <div className="panel panel-primary">
-                     <div className="panel-heading">探测器分布</div>
-                     <div id="map_detector2" className="map"/>
-                     </div>
-                     </div>*/}
-                    <div className="col-sm-8">
-                        <div className="panel panel-primary">
-                            <div className="panel-heading">视频关联探针列表</div>
-                            <DetectorList2 data={FixData.detector_list}  showBoxHandler={this.showDeviceListBox}/>
-                        </div>
-                    </div>
-                </div>
-                <ModalBox boxId="video_box" body={modalBody} title="视频关联分析"/>
-            </div>
-        );
-    }
-});
-
-var DetectorList2 = React.createClass({
-    render: function () {
-        var idx = 0;
-        var showBoxHandler = this.props.showBoxHandler
-        var nodes = this.props.data.map(function (detector) {
-                idx += 1;
-                return (
-                    <DetectorItem2 key={detector.mac} data={detector} idx={idx} showBoxHandler={showBoxHandler}></DetectorItem2>
-                );
-            }
-        );
-        return (
-            <div className="detector_list">
-                <ul className="list-group">{nodes}</ul>
-            </div>
-        );
-    }
-});
-
-var DetectorItem2 = React.createClass({
-    handleClick: function(event) {
-        console.log("click on " + this.props.data.mac)
-        this.props.showBoxHandler(this.props.data)
-    },
-    render: function () {
-        var state = this.props.data.status === "01" ? "在线" : "离线";
-        var div_class = this.props.data.status === "01" ? "online" : "offline";
-        var mac_count = 0;
-        if (this.props.data.today_mac_count != null) {
-            mac_count = this.props.data.today_mac_count;
-        }
-        var company = "广晟"
-        if(this.props.data.company == "02") {
-            company = "百米"
-        }
-        return (
-            <a className="list-group-item" onClick={this.handleClick}  href="#" data-toggle="modal" data-target="#video_box">
-                <span className="badge">{mac_count}</span>
-                <div>{this.props.idx}号 {company}</div>
-                <div>{this.props.data.mac}</div>
                 <div className={div_class}><b>状态：</b>{state}</div>
             </a>
         );

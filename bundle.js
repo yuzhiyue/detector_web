@@ -781,117 +781,7 @@
 	    }
 	});
 
-	var SimpleSearchPage = _react2.default.createClass({
-	    displayName: 'SimpleSearchPage',
-
-	    handleSearch: function handleSearch(value) {},
-	    getInitialState: function getInitialState() {
-	        console.log("getInitialState");
-	        return { rsp: { trace: [] } };
-	    },
-	    componentDidMount: function componentDidMount() {},
-	    render: function render() {
-	        return _react2.default.createElement(
-	            'div',
-	            { className: 'container-fluid page-content' },
-	            _react2.default.createElement(
-	                'div',
-	                { className: 'row', style: { width: "400px" } },
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'input-group' },
-	                    _react2.default.createElement('input', { type: 'text', className: 'form-control', placeholder: '输入车牌号查询' }),
-	                    _react2.default.createElement(
-	                        'span',
-	                        { className: 'input-group-btn' },
-	                        _react2.default.createElement(
-	                            'button',
-	                            { className: 'btn btn-default', type: 'button', onClick: this.handleClick },
-	                            '查询'
-	                        )
-	                    )
-	                )
-	            ),
-	            _react2.default.createElement(
-	                'div',
-	                { className: 'row', style: { marginTop: "10px" } },
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'col-sm-12' },
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'panel panel-primary' },
-	                        _react2.default.createElement(
-	                            'div',
-	                            { className: 'panel-heading' },
-	                            '查询结果'
-	                        ),
-	                        _react2.default.createElement(
-	                            'table',
-	                            { className: 'table table-striped table-hover' },
-	                            _react2.default.createElement(
-	                                'thead',
-	                                null,
-	                                _react2.default.createElement(
-	                                    'tr',
-	                                    null,
-	                                    _react2.default.createElement(
-	                                        'th',
-	                                        null,
-	                                        '车牌号'
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'th',
-	                                        null,
-	                                        '扫描事件'
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'th',
-	                                        null,
-	                                        '地址'
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'th',
-	                                        null,
-	                                        'MAC列表'
-	                                    )
-	                                )
-	                            )
-	                        )
-	                    )
-	                )
-	            )
-	        );
-	    }
-	});
-
-	var BehavePage = _react2.default.createClass({
-	    displayName: 'BehavePage',
-
-	    render: function render() {
-	        var thirdNum = this.props.commData.third_part_detector_list.length;
-	        return _react2.default.createElement(
-	            'div',
-	            { className: 'container-fluid page-content' },
-	            _react2.default.createElement(
-	                'div',
-	                { className: 'row' },
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'panel panel-primary' },
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'panel-heading' },
-	                        '上网行为数据：',
-	                        thirdNum
-	                    ),
-	                    _react2.default.createElement(DetectorList, { data: this.props.commData.third_part_detector_list, showBoxHandler: this.showDeviceListBox })
-	                )
-	            )
-	        );
-	    }
-	});
-
+	var g_MapMarks = [];
 	var DetectorPage = _react2.default.createClass({
 	    displayName: 'DetectorPage',
 
@@ -911,15 +801,18 @@
 	                    });
 	                    AMap.convertFrom(lnglatArr, "gps", function (status, result) {
 	                        console.log("convert geo", status, result);
+	                        self.myMap.remove(self.markers);
+	                        self.markers = [];
 	                        result.locations.forEach(function (pos) {
 	                            var text = '<div class="marker-route marker-marker-bus-from"><b>探:' + idx.toString() + '号</b></div>';
-	                            new AMap.Marker({
+	                            var marker = new AMap.Marker({
 	                                map: self.myMap,
 	                                position: [pos.getLng(), pos.getLat()],
 	                                offset: new AMap.Pixel(-17, -42), //相对于基点的偏移位置
 	                                draggable: false, //是否可拖动
 	                                content: text
 	                            });
+	                            self.markers.push(marker);
 	                            idx = idx + 1;
 	                        });
 	                    });
@@ -941,6 +834,7 @@
 	            self.myMap.addControl(new AMap.ToolBar());
 	        });
 
+	        self.markers = [];
 	        this.loadDetectorsFromServer();
 	        setInterval(this.loadDetectorsFromServer, 10000);
 	    },
@@ -1060,117 +954,6 @@
 	                this.props.idx,
 	                '号 ',
 	                company
-	            ),
-	            _react2.default.createElement(
-	                'div',
-	                { className: div_class },
-	                _react2.default.createElement(
-	                    'b',
-	                    null,
-	                    '状态：'
-	                ),
-	                state
-	            )
-	        );
-	    }
-	});
-
-	var DetectorPage2 = _react2.default.createClass({
-	    displayName: 'DetectorPage2',
-
-	    componentDidMount: function componentDidMount() {},
-	    showDeviceListBox: function showDeviceListBox(apData) {},
-	    getInitialState: function getInitialState() {
-	        return { deviceList: { device_list: [] }, current_detector: { mac: "", longitude: 0, latitude: 0, last_login_time: 0 } };
-	    },
-	    render: function render() {
-	        var modalBody = _react2.default.createElement(VideoAnalyser, null);
-	        var FixData = { detector_list: [{ mac: "353419033412758", today_mac_count: 0, status: "01", longitude: 116.10483, latitude: 24.28942, company: "01", last_login_time: 1463583123, login_count: 0 }] };
-	        return _react2.default.createElement(
-	            'div',
-	            { className: 'container-fluid page-content' },
-	            _react2.default.createElement(
-	                'div',
-	                { className: 'row' },
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'col-sm-8' },
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'panel panel-primary' },
-	                        _react2.default.createElement(
-	                            'div',
-	                            { className: 'panel-heading' },
-	                            '视频关联探针列表'
-	                        ),
-	                        _react2.default.createElement(DetectorList2, { data: FixData.detector_list, showBoxHandler: this.showDeviceListBox })
-	                    )
-	                )
-	            ),
-	            _react2.default.createElement(ModalBox, { boxId: 'video_box', body: modalBody, title: '视频关联分析' })
-	        );
-	    }
-	});
-
-	var DetectorList2 = _react2.default.createClass({
-	    displayName: 'DetectorList2',
-
-	    render: function render() {
-	        var idx = 0;
-	        var showBoxHandler = this.props.showBoxHandler;
-	        var nodes = this.props.data.map(function (detector) {
-	            idx += 1;
-	            return _react2.default.createElement(DetectorItem2, { key: detector.mac, data: detector, idx: idx, showBoxHandler: showBoxHandler });
-	        });
-	        return _react2.default.createElement(
-	            'div',
-	            { className: 'detector_list' },
-	            _react2.default.createElement(
-	                'ul',
-	                { className: 'list-group' },
-	                nodes
-	            )
-	        );
-	    }
-	});
-
-	var DetectorItem2 = _react2.default.createClass({
-	    displayName: 'DetectorItem2',
-
-	    handleClick: function handleClick(event) {
-	        console.log("click on " + this.props.data.mac);
-	        this.props.showBoxHandler(this.props.data);
-	    },
-	    render: function render() {
-	        var state = this.props.data.status === "01" ? "在线" : "离线";
-	        var div_class = this.props.data.status === "01" ? "online" : "offline";
-	        var mac_count = 0;
-	        if (this.props.data.today_mac_count != null) {
-	            mac_count = this.props.data.today_mac_count;
-	        }
-	        var company = "广晟";
-	        if (this.props.data.company == "02") {
-	            company = "百米";
-	        }
-	        return _react2.default.createElement(
-	            'a',
-	            { className: 'list-group-item', onClick: this.handleClick, href: '#', 'data-toggle': 'modal', 'data-target': '#video_box' },
-	            _react2.default.createElement(
-	                'span',
-	                { className: 'badge' },
-	                mac_count
-	            ),
-	            _react2.default.createElement(
-	                'div',
-	                null,
-	                this.props.idx,
-	                '号 ',
-	                company
-	            ),
-	            _react2.default.createElement(
-	                'div',
-	                null,
-	                this.props.data.mac
 	            ),
 	            _react2.default.createElement(
 	                'div',
@@ -1490,10 +1273,30 @@
 
 	var process = module.exports = {};
 
-	// cached from whatever global is present so that test runners that stub it don't break things.
-	var cachedSetTimeout = setTimeout;
-	var cachedClearTimeout = clearTimeout;
+	// cached from whatever global is present so that test runners that stub it
+	// don't break things.  But we need to wrap it in a try catch in case it is
+	// wrapped in strict mode code which doesn't define any globals.  It's inside a
+	// function because try/catches deoptimize in certain engines.
 
+	var cachedSetTimeout;
+	var cachedClearTimeout;
+
+	(function () {
+	  try {
+	    cachedSetTimeout = setTimeout;
+	  } catch (e) {
+	    cachedSetTimeout = function () {
+	      throw new Error('setTimeout is not defined');
+	    }
+	  }
+	  try {
+	    cachedClearTimeout = clearTimeout;
+	  } catch (e) {
+	    cachedClearTimeout = function () {
+	      throw new Error('clearTimeout is not defined');
+	    }
+	  }
+	} ())
 	var queue = [];
 	var draining = false;
 	var currentQueue;
@@ -23152,6 +22955,18 @@
 	        offset: new AMap.Pixel(-26, -13),
 	        autoRotation: true
 	    });
+	    var idx = 1;
+	    lineArr.forEach(function (pos) {
+	        var text = '<div class="marker-route marker-marker-bus-from"><b>' + idx.toString() + '</b></div>';
+	        var marker = new AMap.Marker({
+	            map: map,
+	            position: pos,
+	            offset: new AMap.Pixel(-17, -42), //相对于基点的偏移位置
+	            draggable: false, //是否可拖动
+	            content: text
+	        });
+	        idx = idx + 1;
+	    });
 
 	    // 绘制轨迹
 	    var polyline = new AMap.Polyline({
@@ -23162,8 +22977,8 @@
 	        strokeWeight: 3, //线宽
 	        strokeStyle: "solid" //线样式
 	    });
-	    map.setFitView();
-	    map.setZoomAndCenter(14, lineArr[lineArr.length - 1]);
+	    //map.setZoomAndCenter(14, lineArr[lineArr.length - 1]);
+	    //map.setFitView();
 	}
 
 	var TraceReplayBox = _react2.default.createClass({
@@ -27967,11 +27782,11 @@
 	    arity: true
 	};
 
-	module.exports = function hoistNonReactStatics(targetComponent, sourceComponent) {
+	module.exports = function hoistNonReactStatics(targetComponent, sourceComponent, customStatics) {
 	    if (typeof sourceComponent !== 'string') { // don't hoist over string (html) components
 	        var keys = Object.getOwnPropertyNames(sourceComponent);
-	        for (var i=0; i<keys.length; ++i) {
-	            if (!REACT_STATICS[keys[i]] && !KNOWN_STATICS[keys[i]]) {
+	        for (var i = 0; i < keys.length; ++i) {
+	            if (!REACT_STATICS[keys[i]] && !KNOWN_STATICS[keys[i]] && (!customStatics || !customStatics[keys[i]])) {
 	                try {
 	                    targetComponent[keys[i]] = sourceComponent[keys[i]];
 	                } catch (error) {

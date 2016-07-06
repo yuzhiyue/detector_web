@@ -2,7 +2,7 @@ import React from 'react';
 import Comm from './comm.jsx'
 
 var marker;
-var map
+var map;
 
 // 地图图块加载完毕后执行函数
 function drawPath(lineArr){
@@ -26,6 +26,18 @@ function drawPath(lineArr){
         offset: new AMap.Pixel(-26, -13),
         autoRotation: true
     });
+    var idx = 1;
+    lineArr.forEach(function (pos) {
+        var text = '<div class="marker-route marker-marker-bus-from"><b>' + idx.toString() + '</b></div>'
+        var marker = new AMap.Marker({
+            map: map,
+            position: pos,
+            offset: new AMap.Pixel(-17, -42), //相对于基点的偏移位置
+            draggable: false,  //是否可拖动
+            content: text
+        });
+        idx = idx + 1
+    })
 
     // 绘制轨迹
     var polyline = new AMap.Polyline({
@@ -36,8 +48,9 @@ function drawPath(lineArr){
         strokeWeight: 3,      //线宽
         strokeStyle: "solid"  //线样式
     });
-    map.setFitView();
-    map.setZoomAndCenter(14, lineArr[lineArr.length - 1]);
+    //map.setZoomAndCenter(14, lineArr[lineArr.length - 1]);
+    //map.setFitView();
+
 }
 
 var TraceReplayBox = React.createClass({
