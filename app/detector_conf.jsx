@@ -17,7 +17,7 @@ var DetectorConfPage = React.createClass({
             success: function(rsp) {
                 console.log("save conf response", rsp)
                 if(rsp.ret_code == 0) {
-                    alert("修改成功！");
+                    alert("修改成功，10秒后生效！");
                 } else {
                     alert("MAC不存在！");
                 }
