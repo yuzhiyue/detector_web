@@ -44,14 +44,36 @@ function  randomCharWithoutTime(l) {
     return tmp;
 }
 
+function addZero(number, length) {
+    var buffer = "";
+    if (number ==  "") {
+        for (var i = 0; i < length; i ++) {
+            buffer += "0";
+        }
+    } else {
+        if (length < number.length) {
+            return "";
+        } else if (length == number.length) {
+            return number;
+        } else {
+            for (var i = 0; i < (length - number.length); i ++) {
+                buffer += "0";
+            }
+            buffer += number;
+        }
+    }
+    return buffer;
+}
+
+
 function formatDate(now) {
-    var year=now.getFullYear();
-    var month=now.getMonth()+1;
-    var date=now.getDate();
-    var hour=now.getHours();
-    var minute=now.getMinutes();
-    var second=now.getSeconds();
-    return year+"/"+month+"/"+date+" "+hour+":"+minute+":"+second;
+    var year = String(now.getFullYear());
+    var month = String(now.getMonth()+1);
+    var date = String(now.getDate());
+    var hour = String(now.getHours());
+    var minute = String(now.getMinutes());
+    var second = String(now.getSeconds());
+    return year+"/"+ addZero(month, 2) + "/" + addZero(date,2) + " " + addZero(hour,2) + ":" + addZero(minute,2) + ":" + addZero(second,2);
 }
 
 module.exports.addCookie = addCookie;

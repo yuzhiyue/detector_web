@@ -81,6 +81,7 @@ var TraceRowWithoutMac = React.createClass({
             <tr>
                 <td>{this.props.longitude},{this.props.latitude}</td>
                 <td>{this.props.time}</td>
+                <td>{this.props.duration}秒</td>
                 <td>{this.props.orgcode}</td>
                 <td><div><button type="button"  disabled="disabled" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#pictureModal">查看影像</button></div></td>
             </tr>
@@ -97,6 +98,7 @@ var TraceTable = React.createClass({
         }
         this.props.trace.forEach(function(point) {
             var time = point.enter_time
+            var duration = point.leave_time - point.enter_time;
             if (time == null) {
                 time = point.time
             }
@@ -109,7 +111,7 @@ var TraceTable = React.createClass({
             if (point.org_code == null) {
                 point.org_code = "0"
             }
-            rows.push(<TraceRowWithoutMac longitude={point.longitude} latitude={point.latitude} orgcode={point.org_code} time={dateString} />);
+            rows.push(<TraceRowWithoutMac longitude={point.longitude} latitude={point.latitude} orgcode={point.org_code} time={dateString} duration={duration}/>);
         });
         return (
             <div>
@@ -118,6 +120,7 @@ var TraceTable = React.createClass({
                     <tr>
                         <th>经纬</th>
                         <th>时间</th>
+                        <th>停留</th>
                         <th>数据来源</th>
                         <th>影像</th>
                     </tr>
@@ -166,9 +169,9 @@ var SearchPage = React.createClass({
         console.log("handleSearch:" , value, start_time, end_time)
         var url = ""
         if (value.length == 11){
-            url = Comm.server_addr + '/trace?request={"phone":"' + value + '","query_type":"02","start_time":' + start_time + ',"end_time":'+ end_time +'}'
+            url = Comm.server_addr + '/trace?request={"merge":true, "phone":"' + value + '","query_type":"02","start_time":' + start_time + ',"end_time":'+ end_time +'}'
         } else {
-            url = Comm.server_addr + '/trace?request={"mac":"' + value + '","query_type":"01","start_time":' + start_time + ',"end_time":'+ end_time +'}'
+            url = Comm.server_addr + '/trace?request={"merge":true, "mac":"' + value + '","query_type":"01","start_time":' + start_time + ',"end_time":'+ end_time +'}'
         }
         console.log("url:" , url)
         $.ajax({
@@ -187,8 +190,8 @@ var SearchPage = React.createClass({
     getInitialState: function () {
         console.log("getInitialState")
         var start = Comm.formatDate(new Date(new Date().getTime() - 24 * 3600 * 1000))
-        var end = Comm.formatDate(new Date(new Date().getTime()))
-        return {result_type:1,time_range:{start:start, end:end}, rsp: {trace: []}, fuzzy_search_data:{feature_list:[]}};
+        var end = Comm.formatDate(new Date(new Date().getTime() + 24 * 3600 * 1000))
+        return {result_type:1, time_range:{start:start, end:end}, rsp: {trace: []}, fuzzy_search_data:{feature_list:[]}};
     },
     componentDidMount: function () {
 
@@ -204,8 +207,9 @@ var SearchPage = React.createClass({
         AMap.convertFrom(lnglatArr, "gps", function (status, result) {
             console.log("convert geo", status, result)
             result.locations.forEach(function (pos) {
-                var trace_point = trace_list[idx] 
-                var posNew = {gd_pos:[pos.getLng(), pos.getLat()], gws84:[trace_point.longitude, trace_point.latitude], time:trace_point.enter_time}
+                var trace_point = trace_list[idx]
+                var duration = trace_point.leave_time - trace_point.enter_time;
+                var posNew = {gd_pos:[pos.getLng(), pos.getLat()], gws84:[trace_point.longitude, trace_point.latitude], time:trace_point.enter_time, duration:duration}
                 lineArr.push(posNew)
                 idx += 1;
             })

@@ -29,7 +29,7 @@ function drawPath(lineArr){
     var line = []
     var idx = 1;
     lineArr.forEach(function (pos) {
-        var title = "序号：" + idx + "\n位置：" + pos.gws84[0] + "," + pos.gws84[1] + "\n时间："  + Comm.formatDate(new Date(pos.time * 1000));
+        var title = "序号：" + idx + "\n位置：" + pos.gws84[0] + "," + pos.gws84[1] + "\n时间："  + Comm.formatDate(new Date(pos.time * 1000)) + "\n停留：" +  pos.duration + "秒";
         var text = '<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>'
         var marker = new AMap.Marker({
             map: map,

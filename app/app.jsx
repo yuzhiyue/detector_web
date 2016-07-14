@@ -11,6 +11,7 @@ import FeaturePage from './feature_page.jsx'
 import SearchPage from './search_page.jsx'
 import SimilarPage from './similar_page.jsx'
 import BehaviorPage from './behavior_page.jsx'
+import DetectorConfPage from './detector_conf.jsx'
 import Comm from './comm.jsx'
 import {TraceReplayBox} from "./trace_replay.jsx"
 
@@ -619,7 +620,8 @@ var items=[{text:'概览',link:"/home"},
     // {text:'车牌号关联分析',link:"/car"},
     {text:'上网行为查询',link:"/behavior"},
     {text:'特征库管理',link:"/feature"},
-    {text:'用户管理',link:"/user"}
+    {text:'用户管理',link:"/user"},
+    {text:'探针配置',link:"/detector_conf"}
 ]
 
 var Page = React.createClass({
@@ -665,7 +667,7 @@ ReactDOM.render(
             <Route path="behavior" component={BehaviorPage}  />
             <Route path="user" component={UserPage}  />
             <Route path="similar" component={SimilarPage}  />
-            
+            <Route path="detector_conf" component={DetectorConfPage}  />
         </Route>
     </Router>,
     document.getElementById("warpper")
