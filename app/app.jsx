@@ -316,6 +316,12 @@ var DetectorDetailBox = React.createClass({
         var date = new Date()
         date.setTime(this.props.detector.last_login_time * 1000)
         var dateString = date.toLocaleString()
+        var scanConf = ""
+        if (this.props.scan_conf != null) {
+            this.props.scan_conf.map(function (e) {
+                scanConf = scanConf + e.channel + ":" + e.interval + ","
+            })
+        }
         return (
             <div className="container-fluid page-content">
                 <div className="row">
@@ -323,10 +329,11 @@ var DetectorDetailBox = React.createClass({
                         <div className="panel panel-default">
                             <div className="panel-heading">探测器属性</div>
                             <table className="table table-striped table-hover">
-                                <thead><tr><th>设备MAC</th><th>经纬</th><th>最近登录时间</th><th>周边设备数</th></tr></thead>
+                                <thead><tr><th>设备MAC</th><th>经纬</th><th>扫描配置</th><th>最近登录时间</th><th>周边设备数</th></tr></thead>
                                 <tbody><tr>
                                     <td>{this.props.detector.mac}</td>
                                     <td>{this.props.detector.longitude},{this.props.detector.latitude}</td>
+                                    <td>{scanConf}</td>
                                     <td>{dateString}</td>
                                     <td>{this.props.trace.length}</td>
                                 </tr></tbody>
@@ -453,7 +460,7 @@ var DetectorPage = React.createClass({
         });
     },
     getInitialState: function() {
-        return  {deviceList:{device_list:[]}, current_detector:{mac:"", longitude:0, latitude:0,last_login_time:0},commData:{today_mac_count:0 ,third_part_detector_list:[], detector_list:[{mac:""}]}}
+        return  {deviceList:{device_list:[]}, current_detector:{mac:"", scan_conf:[] ,longitude:0, latitude:0,last_login_time:0},commData:{today_mac_count:0 ,third_part_detector_list:[], detector_list:[{mac:""}]}}
     },
     render: function () {
         var modalBody =  <DetectorDetailBox trace={this.state.deviceList.device_list} detector={this.state.current_detector}/>

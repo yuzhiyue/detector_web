@@ -592,6 +592,12 @@
 	        var date = new Date();
 	        date.setTime(this.props.detector.last_login_time * 1000);
 	        var dateString = date.toLocaleString();
+	        var scanConf = "";
+	        if (this.props.scan_conf != null) {
+	            this.props.scan_conf.map(function (e) {
+	                scanConf = scanConf + e.channel + ":" + e.interval + ",";
+	            });
+	        }
 	        return _react2.default.createElement(
 	            'div',
 	            { className: 'container-fluid page-content' },
@@ -631,6 +637,11 @@
 	                                    _react2.default.createElement(
 	                                        'th',
 	                                        null,
+	                                        '扫描配置'
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'th',
+	                                        null,
 	                                        '最近登录时间'
 	                                    ),
 	                                    _react2.default.createElement(
@@ -657,6 +668,11 @@
 	                                        this.props.detector.longitude,
 	                                        ',',
 	                                        this.props.detector.latitude
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'td',
+	                                        null,
+	                                        scanConf
 	                                    ),
 	                                    _react2.default.createElement(
 	                                        'td',
@@ -859,7 +875,7 @@
 	        });
 	    },
 	    getInitialState: function getInitialState() {
-	        return { deviceList: { device_list: [] }, current_detector: { mac: "", longitude: 0, latitude: 0, last_login_time: 0 }, commData: { today_mac_count: 0, third_part_detector_list: [], detector_list: [{ mac: "" }] } };
+	        return { deviceList: { device_list: [] }, current_detector: { mac: "", scan_conf: [], longitude: 0, latitude: 0, last_login_time: 0 }, commData: { today_mac_count: 0, third_part_detector_list: [], detector_list: [{ mac: "" }] } };
 	    },
 	    render: function render() {
 	        var modalBody = _react2.default.createElement(DetectorDetailBox, { trace: this.state.deviceList.device_list, detector: this.state.current_detector });
@@ -23681,10 +23697,19 @@
 	    displayName: 'DetectorConfPage',
 
 	    saveConf: function saveConf(e) {
+	        var scanConf = [];
+	        this.refs.scan_conf.value.split(",").map(function (e) {
+	            var channle_conf = e.split(":");
+	            if (channle_conf.length == 2) {
+	                scanConf.push({ channel: Number(channle_conf[0]), interval: Number(channle_conf[1]) });
+	            }
+	        });
+
 	        var conf = {
 	            mac: this.refs.mac.value,
 	            longitude: Number(this.refs.lng.value),
-	            latitude: Number(this.refs.lat.value)
+	            latitude: Number(this.refs.lat.value),
+	            scan_conf: scanConf
 	        };
 	        var url = _comm2.default.server_addr + '/detector/conf?request=' + JSON.stringify(conf);
 	        console.log("save conf ", url);
@@ -23757,6 +23782,20 @@
 	                            'div',
 	                            { className: 'col-sm-10' },
 	                            _react2.default.createElement('input', { type: 'email', className: 'form-control', ref: 'lat', onChange: this.handleChange })
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'form-group' },
+	                        _react2.default.createElement(
+	                            'label',
+	                            { 'for': 'group', className: 'col-sm-2 control-label' },
+	                            '扫描配置'
+	                        ),
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'col-sm-10' },
+	                            _react2.default.createElement('input', { type: 'email', className: 'form-control', ref: 'scan_conf', onChange: this.handleChange })
 	                        )
 	                    ),
 	                    _react2.default.createElement(

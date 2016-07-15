@@ -3,10 +3,19 @@ import Comm from './comm.jsx'
 
 var DetectorConfPage = React.createClass({
     saveConf:function (e) {
+        var scanConf = []
+        this.refs.scan_conf.value.split(",").map(function (e) {
+            var channle_conf = e.split(":")
+            if (channle_conf.length == 2) {
+                scanConf.push({channel:Number(channle_conf[0]), interval: Number(channle_conf[1])})
+            }
+        })
+
         var conf = {
             mac:   this.refs.mac.value,
             longitude: Number(this.refs.lng.value),
             latitude:  Number(this.refs.lat.value),
+            scan_conf: scanConf,
         }
         var url = Comm.server_addr + '/detector/conf?request=' + JSON.stringify(conf);
         console.log("save conf ", url)
@@ -51,6 +60,12 @@ var DetectorConfPage = React.createClass({
                             <label for="group" className="col-sm-2 control-label">纬度</label>
                             <div className="col-sm-10">
                                 <input type="email" className="form-control" ref="lat" onChange={this.handleChange} />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label for="group" className="col-sm-2 control-label">扫描配置</label>
+                            <div className="col-sm-10">
+                                <input type="email" className="form-control" ref="scan_conf" onChange={this.handleChange} />
                             </div>
                         </div>
                         <div className="form-group">
