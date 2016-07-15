@@ -593,9 +593,9 @@
 	        date.setTime(this.props.detector.last_login_time * 1000);
 	        var dateString = date.toLocaleString();
 	        var scanConf = "默认配置";
-	        if (this.props.scan_conf != null) {
+	        if (this.props.detector.scan_conf != null) {
 	            scanConf = "";
-	            this.props.scan_conf.map(function (e) {
+	            this.props.detector.scan_conf.map(function (e) {
 	                scanConf = scanConf + e.channel + ":" + e.interval + ",";
 	            });
 	        }
