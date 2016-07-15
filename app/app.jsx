@@ -400,6 +400,7 @@ var DetectorPage = React.createClass({
             cache: false,
             success: function(rsp) {
                 if (this.isMounted()) {
+                    console.log("detector list", rsp)
                     this.setState({commData:rsp});
                     var idx = 1;
                     var lnglatArr = []
