@@ -209,7 +209,7 @@ var SearchPage = React.createClass({
             result.locations.forEach(function (pos) {
                 var trace_point = trace_list[idx]
                 var duration = trace_point.leave_time - trace_point.enter_time;
-                var posNew = {gd_pos:[pos.getLng(), pos.getLat()], gws84:[trace_point.longitude, trace_point.latitude], time:trace_point.enter_time, duration:duration}
+                var posNew = {gd_pos:[pos.getLng(), pos.getLat()], gws84:[trace_point.longitude, trace_point.latitude], time:trace_point.enter_time, duration:duration, org_code:trace_point.org_code}
                 lineArr.push(posNew)
                 idx += 1;
             })
@@ -243,7 +243,7 @@ var SearchPage = React.createClass({
                 <div className="container-fluid page-content">
                     <div className="row">
                         <div className="col-sm-12">
-                            <SearchBar time_range={this.state.time_range} handleSearch={this.handleSearch} ></SearchBar>
+                            <SearchBar time_range={this.state.time_range} updateTimeRange={this.updateTimeRange} handleSearch={this.handleSearch} ></SearchBar>
                         </div>
                     </div>
                     <div className="row" style={{marginTop:"10px"}}>

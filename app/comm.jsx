@@ -76,12 +76,27 @@ function formatDate(now) {
     return year+"/"+ addZero(month, 2) + "/" + addZero(date,2) + " " + addZero(hour,2) + ":" + addZero(minute,2) + ":" + addZero(second,2);
 }
 
+var PageItems=[{text:'概览',link:"/home",group:"1"},
+    {text:'探针管理',link:"/detector",group:"2"},
+    {text:'轨迹查询',link:"/search",group:"3"},
+    // {text:'区域扫描',link:SearchPage},
+    {text:'轨迹吻合度分析',link:"/similar",group:"4"},
+    // {text:'电子围栏',link:"/search"},
+    // {text:'视频关联分析',link:"detector2"},
+    // {text:'车牌号关联分析',link:"/car"},
+    {text:'上网行为查询',link:"/behavior",group:"5"},
+    {text:'特征库管理',link:"/feature",group:"6"},
+    {text:'用户管理',link:"/user",group:"7"},
+    {text:'探针配置',link:"/detector_conf",group:"8"}
+]
+
 module.exports.addCookie = addCookie;
 module.exports.getCookie = getCookie;
 module.exports.deleteCookie = deleteCookie;
 module.exports.randomChar = randomChar;
 module.exports.randomCharWithoutTime = randomCharWithoutTime;
 module.exports.formatDate = formatDate;
+module.exports.PageItems = PageItems;
 $.support.cors = true;
 module.exports.server_addr = "http://112.74.90.113/server_interface"
 //module.exports.server_addr = "http://192.168.31.149:8080"

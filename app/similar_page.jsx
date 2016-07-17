@@ -4,10 +4,10 @@ import Comm from './comm.jsx'
 var SearchBar = React.createClass({
     handleChange: function (e) {
         console.log("handleChange:"+e.target.value)
-        this.setState({input:e.target.value});
+        this.props.updateTimeRange(this.refs.start_time.value, this.refs.end_time.value)
     },
     handleClick:function () {
-        this.props.handleSearch(this.state.input)
+        this.props.handleSearch(this.refs.value.value)
     },
     getInitialState: function() {
         console.log("getInitialState")
@@ -16,12 +16,14 @@ var SearchBar = React.createClass({
     render: function() {
         return (
             <div>
-                <div className="input-group">
-                    <input type="text" className="form-control" placeholder="输入MAC地址或手机号"  onChange={this.handleChange} />
-                    <span className="input-group-btn">
-                        <button className="btn btn-default" type="button" onClick={this.handleClick} >查询</button>
-                    </span>
-                </div>
+                <form className="form-inline" role="search">
+                    <div className="form-group">
+                        <input type="text" className="form-control" ref="value" placeholder="输入MAC地址或手机号"  onChange={this.handleChange} />
+                        <input type="text" className="form-control" ref="start_time" value={this.props.time_range.start}  onChange={this.handleChange} />
+                        <input type="text" className="form-control" ref="end_time" value={this.props.time_range.end}  onChange={this.handleChange} />
+                    </div>
+                    <button className="btn btn-default" type="button" onClick={this.handleClick} >查询</button>
+                </form>
             </div>
         );
     }
@@ -110,6 +112,9 @@ var TraceTable = React.createClass({
 });
 
 var SimilarPage = React.createClass({
+    updateTimeRange:function (start, end) {
+        this.setState({time_range:{start:start, end:end}})
+    },
     handleFuzzySearch:function (value) {
         this.search_value = value
         console.log("handleSearch:" + value)
@@ -139,14 +144,17 @@ var SimilarPage = React.createClass({
     },
     handleSimSearch: function (value) {
         this.search_value = value
-        console.log("handleSearch:" + value)
+        var start_time = Date.parse(this.state.time_range.start) / 1000
+        var end_time = Date.parse(this.state.time_range.end) / 1000
+        console.log("handleSearch:" , value, start_time, end_time)
         console.log("loadTraceFromServer")
         var url = ""
         if (value.length == 11){
-            url = Comm.server_addr + '/similar_trace?request={"phone":"' + value + '","query_type":"02","start_time":1}'
+            url = Comm.server_addr + '/similar_trace?request={"phone":"' + value + '","query_type":"02","start_time":' + start_time + ',"end_time":'+ end_time +'}'
         } else {
-            url = Comm.server_addr + '/similar_trace?request={"mac":"' + value + '","query_type":"01","start_time":1}'
+            url = Comm.server_addr + '/similar_trace?request={"mac":"' + value + '","query_type":"01","start_time":' + start_time + ',"end_time":'+ end_time +'}'
         }
+        console.log("url:", url)
         $.ajax({
             url: url,
             dataType: 'json',
@@ -162,7 +170,9 @@ var SimilarPage = React.createClass({
     },
     getInitialState: function () {
         console.log("getInitialState")
-        return {result_type:1, rsp: {trace_list: []}, fuzzy_search_data:{feature_list:[]}};
+        var start = Comm.formatDate(new Date(new Date().getTime() - 24 * 3600 * 1000))
+        var end = Comm.formatDate(new Date(new Date().getTime() + 24 * 3600 * 1000))
+        return {result_type:1, time_range:{start:start, end:end}, rsp: {trace_list: []}, fuzzy_search_data:{feature_list:[]}};
     },
     componentDidMount: function () {
 
@@ -171,9 +181,9 @@ var SimilarPage = React.createClass({
         if(this.state.result_type == 1) {
             return (
                 <div className="container-fluid page-content">
-                    <div className="row" style={{width:"300px"}}>
+                    <div className="row">
                         <div className="col-sm-12">
-                            <SearchBar handleSearch={this.handleSearch}></SearchBar>
+                            <SearchBar time_range={this.state.time_range} updateTimeRange={this.updateTimeRange} handleSearch={this.handleSearch}></SearchBar>
                         </div>
                     </div>
                     <div className="row" style={{marginTop:"10px"}}>
@@ -189,9 +199,9 @@ var SimilarPage = React.createClass({
         } else {
             return (
                 <div className="container-fluid page-content">
-                    <div className="row" style={{width:"300px"}}>
+                    <div className="row">
                         <div className="col-sm-12">
-                            <SearchBar handleSearch={this.handleSearch}></SearchBar>
+                            <SearchBar time_range={this.state.time_range} updateTimeRange={this.updateTimeRange} handleSearch={this.handleSearch}></SearchBar>
                         </div>
                     </div>
                     <div className="row" style={{marginTop:"10px"}}>

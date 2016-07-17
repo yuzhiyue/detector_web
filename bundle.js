@@ -1123,14 +1123,6 @@
 	    }
 	});
 
-	var items = [{ text: '概览', link: "/home" }, { text: '探针管理', link: "/detector" }, { text: '轨迹查询', link: "/search" },
-	// {text:'区域扫描',link:SearchPage},
-	{ text: '轨迹吻合度分析', link: "/similar" },
-	// {text:'电子围栏',link:"/search"},
-	// {text:'视频关联分析',link:"detector2"},
-	// {text:'车牌号关联分析',link:"/car"},
-	{ text: '上网行为查询', link: "/behavior" }, { text: '特征库管理', link: "/feature" }, { text: '用户管理', link: "/user" }, { text: '探针配置', link: "/detector_conf" }];
-
 	var Page = _react2.default.createClass({
 	    displayName: 'Page',
 
@@ -1153,7 +1145,7 @@
 	                        _react2.default.createElement(
 	                            'div',
 	                            { className: 'col-sm-2' },
-	                            _react2.default.createElement(LeftNavbar, { changePageHandler: this.changePageHandler, items: items })
+	                            _react2.default.createElement(LeftNavbar, { changePageHandler: this.changePageHandler, items: _comm2.default.PageItems })
 	                        ),
 	                        _react2.default.createElement(
 	                            'div',
@@ -21480,13 +21472,52 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	var PrivateItem = _react2.default.createClass({
+	    displayName: 'PrivateItem',
+
+	    render: function render() {
+	        var id = "group_checkbox" + this.props.group;
+	        var checkState = "";
+	        if (this.props.checked) {
+	            checkState = "checked";
+	        }
+	        return _react2.default.createElement(
+	            'label',
+	            { className: 'checkbox-inline' },
+	            _react2.default.createElement('input', { type: 'checkbox', onChange: this.props.handleChange, checked: this.props.checked, ref: id, value: this.props.group }),
+	            this.props.text
+	        );
+	    }
+	});
+
+	var Private = _react2.default.createClass({
+	    displayName: 'Private',
+
+	    render: function render() {
+	        var rows = _comm2.default.PageItems.map(function (e) {
+	            var checked = false;
+	            for (var i in this.props.group) {
+	                if (e.group === this.props.group[i]) {
+	                    checked = true;
+	                }
+	            }
+	            return _react2.default.createElement(PrivateItem, { group: e.group, text: e.text, checked: checked, handleChange: this.props.handleChange });
+	        }.bind(this));
+	        return _react2.default.createElement(
+	            'div',
+	            null,
+	            rows
+	        );
+	    }
+	});
+
 	var UserEdit = _react2.default.createClass({
 	    displayName: 'UserEdit',
 
 	    saveUser: function saveUser(e) {
 	        var user = {
 	            username: this.refs.username.value,
-	            group: this.refs.group.value.split(","),
+	            group: this.props.user.group,
 	            phone: this.refs.phone.value,
 	            desc: this.refs.desc.value
 	        };
@@ -21508,11 +21539,11 @@
 	            }.bind(this)
 	        });
 	    },
-	    handleChange: function handleChange(e) {
+	    handleChange: function handleChange() {
 	        var user = {
 	            username: this.refs.username.value,
 	            password: this.refs.password.value,
-	            group: this.refs.group.value,
+	            group: this.props.user.group,
 	            phone: this.refs.phone.value,
 	            desc: this.refs.desc.value
 	        };
@@ -21590,20 +21621,6 @@
 	                                    { className: 'form-group' },
 	                                    _react2.default.createElement(
 	                                        'label',
-	                                        { 'for': 'group', className: 'col-sm-2 control-label' },
-	                                        '用户组'
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'div',
-	                                        { className: 'col-sm-10' },
-	                                        _react2.default.createElement('input', { type: 'email', className: 'form-control', ref: 'group', onChange: this.handleChange, value: this.props.user.group })
-	                                    )
-	                                ),
-	                                _react2.default.createElement(
-	                                    'div',
-	                                    { className: 'form-group' },
-	                                    _react2.default.createElement(
-	                                        'label',
 	                                        { 'for': 'phone', className: 'col-sm-2 control-label' },
 	                                        '电话'
 	                                    ),
@@ -21625,6 +21642,20 @@
 	                                        'div',
 	                                        { className: 'col-sm-10' },
 	                                        _react2.default.createElement('input', { type: 'email', className: 'form-control', ref: 'desc', onChange: this.handleChange, value: this.props.user.desc })
+	                                    )
+	                                ),
+	                                _react2.default.createElement(
+	                                    'div',
+	                                    { className: 'form-group' },
+	                                    _react2.default.createElement(
+	                                        'label',
+	                                        { 'for': 'desc', className: 'col-sm-2 control-label' },
+	                                        '权限'
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'div',
+	                                        { className: 'col-sm-10' },
+	                                        _react2.default.createElement(Private, { group: this.props.user.group, handleChange: this.props.handleGroupChange })
 	                                    )
 	                                )
 	                            )
@@ -21697,7 +21728,7 @@
 	    displayName: 'UserPage',
 
 	    getInitialState: function getInitialState() {
-	        return { users: [], edit_readonly: false, user_edit: { username: "", password: "", group: "", phone: "", desc: "" } };
+	        return { users: [], edit_readonly: false, user_edit: { username: "", password: "", group: [], phone: "", desc: "" } };
 	    },
 	    setUserEditData: function setUserEditData(user) {
 	        console.log("setUserEditData:" + user);
@@ -21707,6 +21738,28 @@
 	    handleUserEditInputData: function handleUserEditInputData(user) {
 	        console.log("handleUserEditInputData:" + user);
 	        this.setState({ user_edit: user });
+	    },
+	    handleGroupChange: function handleGroupChange(e) {
+	        var user_edit = this.state.user_edit;
+	        var group = e.target.value;
+	        var checked = e.target.checked;
+	        var newGroup = [];
+	        if (checked) {
+	            newGroup.push(group);
+	        }
+	        user_edit.group.forEach(function (e) {
+	            if (!checked && group == e) {
+	                return;
+	            }
+	            for (var i in newGroup) {
+	                if (e === newGroup[i]) {
+	                    return;
+	                }
+	            }
+	            newGroup.push(e);
+	        });
+	        user_edit.group = newGroup;
+	        this.setState({ user_edit: user_edit });
 	    },
 	    setReadOnly: function setReadOnly(value) {
 	        this.setState({ edit_readonly: value });
@@ -21730,7 +21783,7 @@
 	        this.loadData();
 	    },
 	    resetEditUserData: function resetEditUserData() {
-	        this.setState({ user_edit: { username: "", password: "", group: "", phone: "", desc: "" } });
+	        this.setState({ user_edit: { username: "", password: "", group: [], phone: "", desc: "" } });
 	        this.setReadOnly(false);
 	    },
 	    render: function render() {
@@ -21794,7 +21847,7 @@
 	                    '添加用户'
 	                )
 	            ),
-	            _react2.default.createElement(UserEdit, { user: this.state.user_edit, readonly: this.state.readonly, handleUserEditInputData: this.handleUserEditInputData })
+	            _react2.default.createElement(UserEdit, { user: this.state.user_edit, readonly: this.state.readonly, handleUserEditInputData: this.handleUserEditInputData, handleGroupChange: this.handleGroupChange })
 	        );
 	    }
 	});
@@ -21884,12 +21937,21 @@
 	    return year + "/" + addZero(month, 2) + "/" + addZero(date, 2) + " " + addZero(hour, 2) + ":" + addZero(minute, 2) + ":" + addZero(second, 2);
 	}
 
+	var PageItems = [{ text: '概览', link: "/home", group: "1" }, { text: '探针管理', link: "/detector", group: "2" }, { text: '轨迹查询', link: "/search", group: "3" },
+	// {text:'区域扫描',link:SearchPage},
+	{ text: '轨迹吻合度分析', link: "/similar", group: "4" },
+	// {text:'电子围栏',link:"/search"},
+	// {text:'视频关联分析',link:"detector2"},
+	// {text:'车牌号关联分析',link:"/car"},
+	{ text: '上网行为查询', link: "/behavior", group: "5" }, { text: '特征库管理', link: "/feature", group: "6" }, { text: '用户管理', link: "/user", group: "7" }, { text: '探针配置', link: "/detector_conf", group: "8" }];
+
 	module.exports.addCookie = addCookie;
 	module.exports.getCookie = getCookie;
 	module.exports.deleteCookie = deleteCookie;
 	module.exports.randomChar = randomChar;
 	module.exports.randomCharWithoutTime = randomCharWithoutTime;
 	module.exports.formatDate = formatDate;
+	module.exports.PageItems = PageItems;
 	$.support.cors = true;
 	module.exports.server_addr = "http://112.74.90.113/server_interface";
 	//module.exports.server_addr = "http://192.168.31.149:8080"
@@ -22875,7 +22937,7 @@
 	            result.locations.forEach(function (pos) {
 	                var trace_point = trace_list[idx];
 	                var duration = trace_point.leave_time - trace_point.enter_time;
-	                var posNew = { gd_pos: [pos.getLng(), pos.getLat()], gws84: [trace_point.longitude, trace_point.latitude], time: trace_point.enter_time, duration: duration };
+	                var posNew = { gd_pos: [pos.getLng(), pos.getLat()], gws84: [trace_point.longitude, trace_point.latitude], time: trace_point.enter_time, duration: duration, org_code: trace_point.org_code };
 	                lineArr.push(posNew);
 	                idx += 1;
 	            });
@@ -22930,7 +22992,7 @@
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'col-sm-12' },
-	                        _react2.default.createElement(SearchBar, { time_range: this.state.time_range, handleSearch: this.handleSearch })
+	                        _react2.default.createElement(SearchBar, { time_range: this.state.time_range, updateTimeRange: this.updateTimeRange, handleSearch: this.handleSearch })
 	                    )
 	                ),
 	                _react2.default.createElement(
@@ -23004,6 +23066,9 @@
 	    lineArr.forEach(function (pos) {
 	        var title = "序号：" + idx + "\n位置：" + pos.gws84[0] + "," + pos.gws84[1] + "\n时间：" + _comm2.default.formatDate(new Date(pos.time * 1000)) + "\n停留：" + pos.duration + "秒";
 	        var text = '<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>';
+	        if (pos.org_code == null || pos.org_code == "0") {
+	            text = '<span class="glyphicon glyphicon-star" aria-hidden="true"></span>';
+	        }
 	        var marker = new AMap.Marker({
 	            map: map,
 	            title: title,
@@ -23097,10 +23162,10 @@
 
 	    handleChange: function handleChange(e) {
 	        console.log("handleChange:" + e.target.value);
-	        this.setState({ input: e.target.value });
+	        this.props.updateTimeRange(this.refs.start_time.value, this.refs.end_time.value);
 	    },
 	    handleClick: function handleClick() {
-	        this.props.handleSearch(this.state.input);
+	        this.props.handleSearch(this.refs.value.value);
 	    },
 	    getInitialState: function getInitialState() {
 	        console.log("getInitialState");
@@ -23111,17 +23176,19 @@
 	            'div',
 	            null,
 	            _react2.default.createElement(
-	                'div',
-	                { className: 'input-group' },
-	                _react2.default.createElement('input', { type: 'text', className: 'form-control', placeholder: '输入MAC地址或手机号', onChange: this.handleChange }),
+	                'form',
+	                { className: 'form-inline', role: 'search' },
 	                _react2.default.createElement(
-	                    'span',
-	                    { className: 'input-group-btn' },
-	                    _react2.default.createElement(
-	                        'button',
-	                        { className: 'btn btn-default', type: 'button', onClick: this.handleClick },
-	                        '查询'
-	                    )
+	                    'div',
+	                    { className: 'form-group' },
+	                    _react2.default.createElement('input', { type: 'text', className: 'form-control', ref: 'value', placeholder: '输入MAC地址或手机号', onChange: this.handleChange }),
+	                    _react2.default.createElement('input', { type: 'text', className: 'form-control', ref: 'start_time', value: this.props.time_range.start, onChange: this.handleChange }),
+	                    _react2.default.createElement('input', { type: 'text', className: 'form-control', ref: 'end_time', value: this.props.time_range.end, onChange: this.handleChange })
+	                ),
+	                _react2.default.createElement(
+	                    'button',
+	                    { className: 'btn btn-default', type: 'button', onClick: this.handleClick },
+	                    '查询'
 	                )
 	            )
 	        );
@@ -23313,6 +23380,9 @@
 	var SimilarPage = _react2.default.createClass({
 	    displayName: 'SimilarPage',
 
+	    updateTimeRange: function updateTimeRange(start, end) {
+	        this.setState({ time_range: { start: start, end: end } });
+	    },
 	    handleFuzzySearch: function handleFuzzySearch(value) {
 	        this.search_value = value;
 	        console.log("handleSearch:" + value);
@@ -23342,14 +23412,17 @@
 	    },
 	    handleSimSearch: function handleSimSearch(value) {
 	        this.search_value = value;
-	        console.log("handleSearch:" + value);
+	        var start_time = Date.parse(this.state.time_range.start) / 1000;
+	        var end_time = Date.parse(this.state.time_range.end) / 1000;
+	        console.log("handleSearch:", value, start_time, end_time);
 	        console.log("loadTraceFromServer");
 	        var url = "";
 	        if (value.length == 11) {
-	            url = _comm2.default.server_addr + '/similar_trace?request={"phone":"' + value + '","query_type":"02","start_time":1}';
+	            url = _comm2.default.server_addr + '/similar_trace?request={"phone":"' + value + '","query_type":"02","start_time":' + start_time + ',"end_time":' + end_time + '}';
 	        } else {
-	            url = _comm2.default.server_addr + '/similar_trace?request={"mac":"' + value + '","query_type":"01","start_time":1}';
+	            url = _comm2.default.server_addr + '/similar_trace?request={"mac":"' + value + '","query_type":"01","start_time":' + start_time + ',"end_time":' + end_time + '}';
 	        }
+	        console.log("url:", url);
 	        $.ajax({
 	            url: url,
 	            dataType: 'json',
@@ -23365,7 +23438,9 @@
 	    },
 	    getInitialState: function getInitialState() {
 	        console.log("getInitialState");
-	        return { result_type: 1, rsp: { trace_list: [] }, fuzzy_search_data: { feature_list: [] } };
+	        var start = _comm2.default.formatDate(new Date(new Date().getTime() - 24 * 3600 * 1000));
+	        var end = _comm2.default.formatDate(new Date(new Date().getTime() + 24 * 3600 * 1000));
+	        return { result_type: 1, time_range: { start: start, end: end }, rsp: { trace_list: [] }, fuzzy_search_data: { feature_list: [] } };
 	    },
 	    componentDidMount: function componentDidMount() {},
 	    render: function render() {
@@ -23375,11 +23450,11 @@
 	                { className: 'container-fluid page-content' },
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: 'row', style: { width: "300px" } },
+	                    { className: 'row' },
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'col-sm-12' },
-	                        _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
+	                        _react2.default.createElement(SearchBar, { time_range: this.state.time_range, updateTimeRange: this.updateTimeRange, handleSearch: this.handleSearch })
 	                    )
 	                ),
 	                _react2.default.createElement(
@@ -23407,11 +23482,11 @@
 	                { className: 'container-fluid page-content' },
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: 'row', style: { width: "300px" } },
+	                    { className: 'row' },
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'col-sm-12' },
-	                        _react2.default.createElement(SearchBar, { handleSearch: this.handleSearch })
+	                        _react2.default.createElement(SearchBar, { time_range: this.state.time_range, updateTimeRange: this.updateTimeRange, handleSearch: this.handleSearch })
 	                    )
 	                ),
 	                _react2.default.createElement(

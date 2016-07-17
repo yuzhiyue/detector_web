@@ -619,20 +619,6 @@ var RegionPage = React.createClass({
     }
 });
 
-var items=[{text:'概览',link:"/home"},
-    {text:'探针管理',link:"/detector"},
-    {text:'轨迹查询',link:"/search"},
-    // {text:'区域扫描',link:SearchPage},
-    {text:'轨迹吻合度分析',link:"/similar"},
-    // {text:'电子围栏',link:"/search"},
-    // {text:'视频关联分析',link:"detector2"},
-    // {text:'车牌号关联分析',link:"/car"},
-    {text:'上网行为查询',link:"/behavior"},
-    {text:'特征库管理',link:"/feature"},
-    {text:'用户管理',link:"/user"},
-    {text:'探针配置',link:"/detector_conf"}
-]
-
 var Page = React.createClass({
     render:function () {
         var username = Comm.getCookie("username")
@@ -648,7 +634,7 @@ var Page = React.createClass({
                     <div className="container-fluid page-container">
                         <div className="row">
                             <div className="col-sm-2">
-                                <LeftNavbar changePageHandler={this.changePageHandler} items={items} />
+                                <LeftNavbar changePageHandler={this.changePageHandler} items={Comm.PageItems} />
                             </div>
                             <div className="col-sm-10">
                                 {this.props.children}

@@ -2,11 +2,46 @@ import React from 'react';
 import Comm from './comm.jsx'
 import md5 from 'blueimp-md5'
 
+
+
+
+var PrivateItem = React.createClass({
+    render:function () {
+        var id = "group_checkbox" + this.props.group;
+        var checkState = ""
+        if (this.props.checked) {
+            checkState = "checked"
+        }
+        return(
+            <label className="checkbox-inline"><input type="checkbox" onChange={this.props.handleChange} checked={this.props.checked} ref={id} value={this.props.group}></input>{this.props.text}</label>
+        )
+    }
+});
+
+var Private = React.createClass({
+    render:function () {
+        var rows = Comm.PageItems.map(function (e) {
+            var checked = false
+            for(var i in this.props.group){
+                if(e.group === this.props.group[i]){
+                    checked = true
+                }
+            }
+            return (<PrivateItem group={e.group} text={e.text} checked={checked} handleChange={this.props.handleChange} />)
+        }.bind(this))
+        return(
+            <div>
+                {rows}
+            </div>
+        )
+    }
+});
+
 var UserEdit = React.createClass({
     saveUser:function (e) {
         var user = {
             username:   this.refs.username.value,
-            group:      this.refs.group.value.split(","),
+            group:      this.props.user.group,
             phone:      this.refs.phone.value,
             desc:       this.refs.desc.value,
         }
@@ -28,11 +63,11 @@ var UserEdit = React.createClass({
             }.bind(this)
         });
     },
-    handleChange: function (e) {
+    handleChange: function () {
         var user = {
             username:   this.refs.username.value,
             password:   this.refs.password.value,
-            group:      this.refs.group.value,
+            group:      this.props.user.group,
             phone:      this.refs.phone.value,
             desc:       this.refs.desc.value,
         }
@@ -65,12 +100,6 @@ var UserEdit = React.createClass({
                                     </div>
                                 </div>
                                 <div className="form-group">
-                                    <label for="group" className="col-sm-2 control-label">用户组</label>
-                                    <div className="col-sm-10">
-                                        <input type="email" className="form-control" ref="group" onChange={this.handleChange} value={this.props.user.group}/>
-                                    </div>
-                                </div>
-                                <div className="form-group">
                                     <label for="phone" className="col-sm-2 control-label">电话</label>
                                     <div className="col-sm-10">
                                         <input type="email" className="form-control" ref="phone" onChange={this.handleChange} value={this.props.user.phone}/>
@@ -80,6 +109,12 @@ var UserEdit = React.createClass({
                                     <label for="desc" className="col-sm-2 control-label">描述</label>
                                     <div className="col-sm-10">
                                         <input type="email" className="form-control" ref="desc" onChange={this.handleChange} value={this.props.user.desc}/>
+                                    </div>
+                                </div>
+                                <div className="form-group">
+                                    <label for="desc" className="col-sm-2 control-label">权限</label>
+                                    <div className="col-sm-10">
+                                        <Private group={this.props.user.group} handleChange={this.props.handleGroupChange} />
                                     </div>
                                 </div>
                             </form>
@@ -116,7 +151,7 @@ var UserRow = React.createClass({
 
 var UserPage = React.createClass({
     getInitialState:function () {
-        return {users:[], edit_readonly:false, user_edit:{username:"",password:"",group:"",phone:"",desc:""}}
+        return {users:[], edit_readonly:false, user_edit:{username:"",password:"",group:[],phone:"",desc:""}}
     },
     setUserEditData:function(user){
         console.log("setUserEditData:" + user)
@@ -126,6 +161,28 @@ var UserPage = React.createClass({
     handleUserEditInputData:function(user){
         console.log("handleUserEditInputData:" + user)
         this.setState({user_edit:user})
+    },
+    handleGroupChange: function (e) {
+        var user_edit = this.state.user_edit
+        var group = e.target.value
+        var checked = e.target.checked
+        var newGroup = []
+        if (checked) {
+            newGroup.push(group)
+        }
+        user_edit.group.forEach(function (e) {
+            if (!checked && group == e) {
+                return
+            }
+            for(var i in newGroup){
+                if(e === newGroup[i]){
+                    return
+                }
+            }
+            newGroup.push(e)
+        })
+        user_edit.group = newGroup
+        this.setState({user_edit:user_edit})
     },
     setReadOnly:function (value) {
         this.setState({edit_readonly:value})
@@ -149,7 +206,7 @@ var UserPage = React.createClass({
         this.loadData()
     },
     resetEditUserData:function () {
-        this.setState({user_edit:{username:"",password:"",group:"",phone:"",desc:""}})
+        this.setState({user_edit:{username:"",password:"",group:[],phone:"",desc:""}})
         this.setReadOnly(false)
     },
     render:function() {
@@ -176,7 +233,7 @@ var UserPage = React.createClass({
                     </table>
                     <button type="button" className="btn btn-info btn-sm" onClick={this.resetEditUserData} data-toggle="modal" data-target="#user_edit">添加用户</button>
                 </div>
-                <UserEdit user={this.state.user_edit} readonly={this.state.readonly} handleUserEditInputData={this.handleUserEditInputData} />
+                <UserEdit user={this.state.user_edit} readonly={this.state.readonly} handleUserEditInputData={this.handleUserEditInputData} handleGroupChange={this.handleGroupChange} />
             </div>
         );
     }
