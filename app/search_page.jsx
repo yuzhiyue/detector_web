@@ -209,7 +209,8 @@ var SearchPage = React.createClass({
             result.locations.forEach(function (pos) {
                 var trace_point = trace_list[idx]
                 var duration = trace_point.leave_time - trace_point.enter_time;
-                var posNew = {gd_pos:[pos.getLng(), pos.getLat()], gws84:[trace_point.longitude, trace_point.latitude], time:trace_point.enter_time, duration:duration, org_code:trace_point.org_code}
+                var org_code = trace_point.org_code
+                var posNew = {gd_pos:[pos.getLng(), pos.getLat()], gws84:[trace_point.longitude, trace_point.latitude], time:trace_point.enter_time, duration:duration, org_code:org_code}
                 lineArr.push(posNew)
                 idx += 1;
             })
