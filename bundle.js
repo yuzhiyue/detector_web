@@ -22255,17 +22255,38 @@
 
 	var _comm2 = _interopRequireDefault(_comm);
 
+	var _blueimpMd = __webpack_require__(171);
+
+	var _blueimpMd2 = _interopRequireDefault(_blueimpMd);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var LoginPage = _react2.default.createClass({
 	    displayName: 'LoginPage',
 
-	    handleChange: function handleChange(e) {
-	        this.username = e.target.value;
-	    },
 	    handleClick: function handleClick() {
-	        console.log("input:" + this.username);
-	        _comm2.default.addCookie("username", this.username);
+	        var username = this.refs.username.value;
+	        console.log("input:" + username);
+	        var password = (0, _blueimpMd2.default)(this.refs.password.value);
+	        var url = _comm2.default.server_addr + '/sys_user/login?request={"username":"' + username + '", "password":"' + password + '"}';
+	        console.log("login ", url);
+	        $.ajax({
+	            url: url,
+	            dataType: 'json',
+	            cache: false,
+	            success: function (rsp) {
+	                console.log("login response", rsp);
+	                if (rsp.ret_code == "0") {
+	                    _comm2.default.addCookie("username", username);
+	                    window.location.reload();
+	                } else {
+	                    alert("用户名或密码错误！");
+	                }
+	            }.bind(this),
+	            error: function (xhr, status, err) {
+	                console.error(url, status, err.toString());
+	            }.bind(this)
+	        });
 	    },
 	    render: function render() {
 	        return _react2.default.createElement(
@@ -22279,8 +22300,8 @@
 	                    { className: 'form-signin-heading' },
 	                    '请登陆'
 	                ),
-	                _react2.default.createElement('input', { type: 'text', className: 'form-control', placeholder: '用户名', onChange: this.handleChange, required: true, autofocus: true }),
-	                _react2.default.createElement('input', { type: 'password', className: 'form-control', placeholder: '密码', required: true }),
+	                _react2.default.createElement('input', { type: 'text', className: 'form-control', placeholder: '用户名', ref: 'username', required: true, autofocus: true }),
+	                _react2.default.createElement('input', { type: 'password', className: 'form-control', placeholder: '密码', ref: 'password', required: true }),
 	                _react2.default.createElement(
 	                    'label',
 	                    { className: 'checkbox' },
