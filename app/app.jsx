@@ -163,7 +163,7 @@ var VideoAnalyser = React.createClass({
             })
             var date = new Date()
             date.setTime(picture.time * 1000)
-            var dateString = date.toLocaleString()
+            var dateString = Comm.formatDate(date)
             picList.push(
                 <li className="list-group-item">
                     <div className="container-fluid page-content">
@@ -307,7 +307,7 @@ var DetectorDetailBox = React.createClass({
             }
             date = new Date()
             date.setTime(time * 1000)
-            var dateString = date.toLocaleString()
+            var dateString = Comm.formatDate(date)
             if (point.mac == null) {
                 point.mac = mac
             }
@@ -315,7 +315,7 @@ var DetectorDetailBox = React.createClass({
         });
         var date = new Date()
         date.setTime(this.props.detector.last_login_time * 1000)
-        var dateString = date.toLocaleString()
+        var dateString = Comm.formatDate(date)
         var scanConf = "默认配置"
         if (this.props.detector.scan_conf != null) {
             scanConf = ""
@@ -539,7 +539,7 @@ var DetectorRow = React.createClass({
     render: function () {
         var date = new Date()
         date.setTime(this.props.last_login_time * 1000)
-        var dateString = date.toLocaleString()
+        var dateString = Comm.formatDate(date)
         return (
             <tr>
                 <td>{this.props.mac}</td>

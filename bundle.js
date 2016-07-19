@@ -359,7 +359,7 @@
 	            });
 	            var date = new Date();
 	            date.setTime(picture.time * 1000);
-	            var dateString = date.toLocaleString();
+	            var dateString = _comm2.default.formatDate(date);
 	            picList.push(_react2.default.createElement(
 	                'li',
 	                { className: 'list-group-item' },
@@ -583,7 +583,7 @@
 	            }
 	            date = new Date();
 	            date.setTime(time * 1000);
-	            var dateString = date.toLocaleString();
+	            var dateString = _comm2.default.formatDate(date);
 	            if (point.mac == null) {
 	                point.mac = mac;
 	            }
@@ -591,7 +591,7 @@
 	        });
 	        var date = new Date();
 	        date.setTime(this.props.detector.last_login_time * 1000);
-	        var dateString = date.toLocaleString();
+	        var dateString = _comm2.default.formatDate(date);
 	        var scanConf = "默认配置";
 	        if (this.props.detector.scan_conf != null) {
 	            scanConf = "";
@@ -998,7 +998,7 @@
 	    render: function render() {
 	        var date = new Date();
 	        date.setTime(this.props.last_login_time * 1000);
-	        var dateString = date.toLocaleString();
+	        var dateString = _comm2.default.formatDate(date);
 	        return _react2.default.createElement(
 	            'tr',
 	            null,
@@ -22309,7 +22309,7 @@
 	                ),
 	                _react2.default.createElement(
 	                    'button',
-	                    { className: 'btn btn-lg btn-primary btn-block', type: 'submit', onClick: this.handleClick },
+	                    { type: 'button', className: 'btn btn-lg btn-primary btn-block', onClick: this.handleClick },
 	                    '登陆'
 	                )
 	            )

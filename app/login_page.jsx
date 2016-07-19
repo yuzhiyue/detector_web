@@ -37,7 +37,7 @@ var LoginPage = React.createClass({
                     <label className="checkbox">
                         <input type="checkbox" value="remember-me"></input>
                     </label>
-                    <button className="btn btn-lg btn-primary btn-block" type="submit" onClick={this.handleClick}>登陆</button>
+                    <button type="button" className="btn btn-lg btn-primary btn-block" onClick={this.handleClick}>登陆</button>
                 </form>
             </div>
         );
