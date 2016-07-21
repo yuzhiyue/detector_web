@@ -17,6 +17,11 @@ var LoginPage = React.createClass({
                 console.log("login response", rsp)
                 if(rsp.ret_code == "0") {
                     Comm.addCookie("username", username)
+                    var group = ""
+                    rsp.user_info.group.forEach(function (e) {
+                        group += e + "_"
+                    })
+                    Comm.addCookie("group", group)
                     window.location.reload();
                 }else {
                     alert("用户名或密码错误！")

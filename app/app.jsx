@@ -628,13 +628,26 @@ var Page = React.createClass({
                 <LoginPage />
             )
         } else {
+            var group = Comm.getCookie("group")
+            console.log("group:" + group)
+            var groupList = group.split("_")
+            var pageItems = []
+            Comm.PageItems.forEach(function (e) {
+                groupList.forEach(function (group) {
+                    if (group == e.group) {
+                        pageItems.push(e)
+                        console.log("pageItem add", group)
+                        return;
+                    }
+                })
+            })
             return (
                 <div>
                     <TopNavbar items={[{text:'首页',link:"#"},{text:'下载手机版',link:"apk/app.apk"}]} username={username}></TopNavbar>
                     <div className="container-fluid page-container">
                         <div className="row">
                             <div className="col-sm-2">
-                                <LeftNavbar changePageHandler={this.changePageHandler} items={Comm.PageItems} />
+                                <LeftNavbar changePageHandler={this.changePageHandler} items={pageItems} />
                             </div>
                             <div className="col-sm-10">
                                 {this.props.children}

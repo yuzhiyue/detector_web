@@ -1132,6 +1132,19 @@
 	        if (username == "") {
 	            return _react2.default.createElement(_login_page2.default, null);
 	        } else {
+	            var group = _comm2.default.getCookie("group");
+	            console.log("group:" + group);
+	            var groupList = group.split("_");
+	            var pageItems = [];
+	            _comm2.default.PageItems.forEach(function (e) {
+	                groupList.forEach(function (group) {
+	                    if (group == e.group) {
+	                        pageItems.push(e);
+	                        console.log("pageItem add", group);
+	                        return;
+	                    }
+	                });
+	            });
 	            return _react2.default.createElement(
 	                'div',
 	                null,
@@ -1145,7 +1158,7 @@
 	                        _react2.default.createElement(
 	                            'div',
 	                            { className: 'col-sm-2' },
-	                            _react2.default.createElement(LeftNavbar, { changePageHandler: this.changePageHandler, items: _comm2.default.PageItems })
+	                            _react2.default.createElement(LeftNavbar, { changePageHandler: this.changePageHandler, items: pageItems })
 	                        ),
 	                        _react2.default.createElement(
 	                            'div',
@@ -22278,6 +22291,11 @@
 	                console.log("login response", rsp);
 	                if (rsp.ret_code == "0") {
 	                    _comm2.default.addCookie("username", username);
+	                    var group = "";
+	                    rsp.user_info.group.forEach(function (e) {
+	                        group += e + "_";
+	                    });
+	                    _comm2.default.addCookie("group", group);
 	                    window.location.reload();
 	                } else {
 	                    alert("用户名或密码错误！");
