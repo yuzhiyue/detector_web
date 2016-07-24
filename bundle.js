@@ -21545,7 +21545,7 @@
 	            cache: false,
 	            success: function (rsp) {
 	                console.log("save user response", rsp);
-	                this.setState({ users: rsp.user_list });
+	                window.location.reload();
 	            }.bind(this),
 	            error: function (xhr, status, err) {
 	                console.error(url, status, err.toString());
@@ -21695,6 +21695,22 @@
 	    handleClick: function handleClick(e) {
 	        this.props.setUserEditData(this.props.user);
 	    },
+	    handleRemoveUser: function handleRemoveUser(e) {
+	        var url = _comm2.default.server_addr + '/sys_user/remove?request={"username":"' + this.props.user.username + '"}';
+	        console.log(url);
+	        $.ajax({
+	            url: url,
+	            dataType: 'json',
+	            cache: false,
+	            success: function (rsp) {
+	                console.log("remove user response", rsp);
+	                window.location.reload();
+	            }.bind(this),
+	            error: function (xhr, status, err) {
+	                console.error(url, status, err.toString());
+	            }.bind(this)
+	        });
+	    },
 	    render: function render() {
 	        return _react2.default.createElement(
 	            'tr',
@@ -21729,7 +21745,7 @@
 	                ),
 	                _react2.default.createElement(
 	                    'button',
-	                    { type: 'button', className: 'btn btn-danger btn-sm' },
+	                    { type: 'button', className: 'btn btn-danger btn-sm', onClick: this.handleRemoveUser },
 	                    '删除'
 	                )
 	            )

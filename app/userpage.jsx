@@ -56,7 +56,7 @@ var UserEdit = React.createClass({
             cache: false,
             success: function(rsp) {
                 console.log("save user response", rsp)
-                this.setState({users: rsp.user_list});
+                window.location.reload();
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(url, status, err.toString());
@@ -134,6 +134,22 @@ var UserRow = React.createClass({
     handleClick: function (e) {
         this.props.setUserEditData(this.props.user)
     },
+    handleRemoveUser: function (e) {
+        var url = Comm.server_addr + '/sys_user/remove?request={"username":"' + this.props.user.username + '"}'
+        console.log(url)
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            cache: false,
+            success: function(rsp) {
+                console.log("remove user response", rsp)
+                window.location.reload();
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(url, status, err.toString());
+            }.bind(this)
+        });
+    },
     render: function () {
         return (
             <tr>
@@ -142,7 +158,7 @@ var UserRow = React.createClass({
                 <td>{this.props.user.phone}</td>
                 <td>{this.props.user.desc}</td>
                 <td><button type="button" className="btn btn-warning btn-sm" onClick={this.handleClick} data-container="body" data-toggle="modal" data-target="#user_edit">修改</button>
-                    <button type="button" className="btn btn-danger btn-sm" >删除</button>
+                    <button type="button" className="btn btn-danger btn-sm" onClick={this.handleRemoveUser} >删除</button>
                 </td>
             </tr>
         );
