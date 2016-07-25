@@ -76,6 +76,16 @@ function formatDate(now) {
     return year+"/"+ addZero(month, 2) + "/" + addZero(date,2) + " " + addZero(hour,2) + ":" + addZero(minute,2) + ":" + addZero(second,2);
 }
 
+function showWaiting() {
+    var query_hint = document.getElementById("waiting_box");
+    query_hint.style.display="block";
+}
+
+function hideWaiting() {
+    var query_hint = document.getElementById("waiting_box");
+    query_hint.style.display="none";
+}
+
 var PageItems=[{text:'概览',link:"/home",group:"1"},
     {text:'探针管理',link:"/detector",group:"2"},
     {text:'轨迹查询',link:"/search",group:"3"},
@@ -97,6 +107,8 @@ module.exports.randomChar = randomChar;
 module.exports.randomCharWithoutTime = randomCharWithoutTime;
 module.exports.formatDate = formatDate;
 module.exports.PageItems = PageItems;
+module.exports.showWaiting = showWaiting;
+module.exports.hideWaiting = hideWaiting;
 $.support.cors = true;
 module.exports.server_addr = "http://112.74.90.113/server_interface"
 //module.exports.server_addr = "http://192.168.31.149:8080"

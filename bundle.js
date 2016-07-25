@@ -1168,7 +1168,13 @@
 	                    )
 	                ),
 	                _react2.default.createElement(ModalBox, { title: '影像', boxId: 'pictureModal', body: _react2.default.createElement(PictureList, { pictures: pictures }) }),
-	                _react2.default.createElement(_trace_replay.TraceReplayBox, null)
+	                _react2.default.createElement(_trace_replay.TraceReplayBox, null),
+	                _react2.default.createElement(
+	                    'div',
+	                    { id: 'waiting_box', className: 'query_hint', style: { display: "none" } },
+	                    _react2.default.createElement('img', { src: 'pic/waiting.gif' }),
+	                    '正在查询，请稍等．．．'
+	                )
 	            );
 	        }
 	    }
@@ -21966,6 +21972,16 @@
 	    return year + "/" + addZero(month, 2) + "/" + addZero(date, 2) + " " + addZero(hour, 2) + ":" + addZero(minute, 2) + ":" + addZero(second, 2);
 	}
 
+	function showWaiting() {
+	    var query_hint = document.getElementById("waiting_box");
+	    query_hint.style.display = "block";
+	}
+
+	function hideWaiting() {
+	    var query_hint = document.getElementById("waiting_box");
+	    query_hint.style.display = "none";
+	}
+
 	var PageItems = [{ text: '概览', link: "/home", group: "1" }, { text: '探针管理', link: "/detector", group: "2" }, { text: '轨迹查询', link: "/search", group: "3" },
 	// {text:'区域扫描',link:SearchPage},
 	{ text: '轨迹吻合度分析', link: "/similar", group: "4" },
@@ -21981,6 +21997,8 @@
 	module.exports.randomCharWithoutTime = randomCharWithoutTime;
 	module.exports.formatDate = formatDate;
 	module.exports.PageItems = PageItems;
+	module.exports.showWaiting = showWaiting;
+	module.exports.hideWaiting = hideWaiting;
 	$.support.cors = true;
 	module.exports.server_addr = "http://112.74.90.113/server_interface";
 	//module.exports.server_addr = "http://192.168.31.149:8080"
@@ -22959,16 +22977,19 @@
 	            url = _comm2.default.server_addr + '/trace?request={"merge":true, "mac":"' + value + '","query_type":"01","start_time":' + start_time + ',"end_time":' + end_time + '}';
 	        }
 	        console.log("url:", url);
+	        _comm2.default.showWaiting();
 	        $.ajax({
 	            url: url,
 	            dataType: 'json',
 	            cache: false,
 	            success: function (rsp) {
 	                console.log("loadTraceFromServer response", rsp);
+	                _comm2.default.hideWaiting();
 	                this.setState({ result_type: 1, rsp: rsp });
 	            }.bind(this),
 	            error: function (xhr, status, err) {
 	                console.error(url, status, err.toString());
+	                _comm2.default.hideWaiting();
 	            }.bind(this)
 	        });
 	    },
@@ -23479,16 +23500,19 @@
 	            url = _comm2.default.server_addr + '/similar_trace?request={"mac":"' + value + '","query_type":"01","start_time":' + start_time + ',"end_time":' + end_time + '}';
 	        }
 	        console.log("url:", url);
+	        _comm2.default.showWaiting();
 	        $.ajax({
 	            url: url,
 	            dataType: 'json',
 	            cache: false,
 	            success: function (rsp) {
 	                console.log("loadTraceFromServer response", rsp);
+	                _comm2.default.hideWaiting();
 	                this.setState({ result_type: 1, rsp: rsp });
 	            }.bind(this),
 	            error: function (xhr, status, err) {
 	                console.error(url, status, err.toString());
+	                _comm2.default.hideWaiting();
 	            }.bind(this)
 	        });
 	    },

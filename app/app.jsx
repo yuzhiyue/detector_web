@@ -656,6 +656,9 @@ var Page = React.createClass({
                     </div>
                     <ModalBox title="影像" boxId="pictureModal" body={<PictureList pictures={pictures}/>} />
                     <TraceReplayBox />
+                    <div id="waiting_box" className="query_hint" style={{display:"none"}}>
+                        <img src="pic/waiting.gif" />正在查询，请稍等．．．
+                    </div>
                 </div>
             );
         }

@@ -155,16 +155,19 @@ var SimilarPage = React.createClass({
             url = Comm.server_addr + '/similar_trace?request={"mac":"' + value + '","query_type":"01","start_time":' + start_time + ',"end_time":'+ end_time +'}'
         }
         console.log("url:", url)
+        Comm.showWaiting()
         $.ajax({
             url: url,
             dataType: 'json',
             cache: false,
             success: function (rsp) {
                 console.log("loadTraceFromServer response", rsp)
+                Comm.hideWaiting()
                 this.setState({result_type:1, rsp: rsp});
             }.bind(this),
             error: function (xhr, status, err) {
                 console.error(url, status, err.toString());
+                Comm.hideWaiting()
             }.bind(this)
         });
     },
