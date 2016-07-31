@@ -339,7 +339,7 @@ var DetectorDetailBox = React.createClass({
                                     <td>{this.props.detector.longitude},{this.props.detector.latitude}</td>
                                     <td>{scanConf}</td>
                                     <td>{dateString}</td>
-                                    <td>{this.props.trace.length}</td>
+                                    <td>{this.props.distinct_device_num}</td>
                                 </tr></tbody>
                             </table>
                             <div><button type="button" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#video_analyser">视频联动分析</button></div>
@@ -465,10 +465,10 @@ var DetectorPage = React.createClass({
         });
     },
     getInitialState: function() {
-        return  {deviceList:{device_list:[], last_report_time:0}, current_detector:{mac:"", scan_conf:[] ,longitude:0, latitude:0,last_login_time:0},commData:{today_mac_count:0 ,third_part_detector_list:[], detector_list:[]}}
+        return  {deviceList:{device_list:[], last_report_time:0, distinct_device_num:0}, current_detector:{mac:"", scan_conf:[] ,longitude:0, latitude:0,last_login_time:0},commData:{today_mac_count:0 ,third_part_detector_list:[], detector_list:[]}}
     },
     render: function () {
-        var modalBody =  <DetectorDetailBox trace={this.state.deviceList.device_list} detector={this.state.current_detector} last_report_time={this.state.deviceList.last_report_time}/>
+        var modalBody =  <DetectorDetailBox trace={this.state.deviceList.device_list} detector={this.state.current_detector} distinct_device_num={this.state.deviceList.distinct_device_num} last_report_time={this.state.deviceList.last_report_time}/>
         var thirdNum = this.state.commData.third_part_detector_list.length
         return(
             <div className="container-fluid page-content">

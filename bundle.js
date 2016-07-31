@@ -686,7 +686,7 @@
 	                                    _react2.default.createElement(
 	                                        'td',
 	                                        null,
-	                                        this.props.trace.length
+	                                        this.props.distinct_device_num
 	                                    )
 	                                )
 	                            )
@@ -881,10 +881,10 @@
 	        });
 	    },
 	    getInitialState: function getInitialState() {
-	        return { deviceList: { device_list: [], last_report_time: 0 }, current_detector: { mac: "", scan_conf: [], longitude: 0, latitude: 0, last_login_time: 0 }, commData: { today_mac_count: 0, third_part_detector_list: [], detector_list: [] } };
+	        return { deviceList: { device_list: [], last_report_time: 0, distinct_device_num: 0 }, current_detector: { mac: "", scan_conf: [], longitude: 0, latitude: 0, last_login_time: 0 }, commData: { today_mac_count: 0, third_part_detector_list: [], detector_list: [] } };
 	    },
 	    render: function render() {
-	        var modalBody = _react2.default.createElement(DetectorDetailBox, { trace: this.state.deviceList.device_list, detector: this.state.current_detector, last_report_time: this.state.deviceList.last_report_time });
+	        var modalBody = _react2.default.createElement(DetectorDetailBox, { trace: this.state.deviceList.device_list, detector: this.state.current_detector, distinct_device_num: this.state.deviceList.distinct_device_num, last_report_time: this.state.deviceList.last_report_time });
 	        var thirdNum = this.state.commData.third_part_detector_list.length;
 	        return _react2.default.createElement(
 	            'div',
