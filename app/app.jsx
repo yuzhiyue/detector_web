@@ -404,18 +404,29 @@ var DetectorPage = React.createClass({
             success: function(rsp) {
                 if (this.isMounted()) {
                     console.log("detector list", rsp)
-                    this.setState({commData:rsp});
                     var idx = 1;
                     var lnglatArr = []
-                    this.state.commData.detector_list.forEach(function (e) {
+                    rsp.detector_list.forEach(function (e) {
                         lnglatArr.push(new AMap.LngLat(e.longitude, e.latitude))
                     })
                     AMap.convertFrom(lnglatArr, "gps", function (status, result) {
                         console.log("convert geo", status, result)
                         self.myMap.remove(self.markers)
                         self.markers = []
+                        var detector_list = []
+                        var today_mac_count = 0
                         result.locations.forEach(function (pos) {
-                            var text = '<div class="marker-route marker-marker-bus-from">'+ idx.toString() +'号</div>'
+                            var detector = rsp.detector_list[idx - 1]
+                            var contains = this.detectorFilter(pos.getLng(), pos.getLat())
+                            console.log("contains", contains)
+                            if (contains){
+                                detector_list.push(detector)
+                                today_mac_count = today_mac_count + detector.today_mac_count
+                            } else {
+                                idx = idx + 1
+                                return
+                            }
+                            var text = '<div class="marker-route marker-marker-bus-from">'+ detector.no.toString() +'号</div>'
                             var marker = new AMap.Marker({
                                 map: self.myMap,
                                 position: [pos.getLng(), pos.getLat()],
@@ -425,8 +436,9 @@ var DetectorPage = React.createClass({
                             });
                             self.markers.push(marker)
                             idx = idx + 1
-                        })
-                    })
+                        }.bind(this))
+                        this.setState({commData:{detector_list:detector_list, today_mac_count:today_mac_count}});
+                    }.bind(this))
                 }
             }.bind(this),
             error: function(xhr, status, err) {
@@ -446,7 +458,6 @@ var DetectorPage = React.createClass({
         });
         
         self.markers = []
-        self.polygons = []
         this.loadDetectorsFromServer();
         setInterval(this.loadDetectorsFromServer, 10000);
     },
@@ -466,14 +477,19 @@ var DetectorPage = React.createClass({
         });
     },
     getInitialState: function() {
-        return  {deviceList:{device_list:[], last_report_time:0, distinct_device_num:0}, current_detector:{mac:"", scan_conf:[] ,longitude:0, latitude:0,last_login_time:0},commData:{today_mac_count:0 ,third_part_detector_list:[], detector_list:[]}}
+        return  {polygons:[], deviceList:{device_list:[], last_report_time:0, distinct_device_num:0}, current_detector:{mac:"", scan_conf:[] ,longitude:0, latitude:0,last_login_time:0},commData:{today_mac_count:0, detector_list:[]}}
     },
     onDistrictChange: function (e) {
         var value = e.target.value
         console.log("onDistrictChange", value)
-        // if (value == "梅州市") {
-        //     return
-        // }
+        if (value == "全部") {
+            this.state.polygons.forEach(function (e) {
+                self.myMap.remove(e)
+            })
+            this.setState({polygons:[]})
+            this.loadDetectorsFromServer()
+            return
+        }
         AMap.service('AMap.DistrictSearch', function() {
             var opts = {
                 subdistrict: 1,   //返回下一级行政区
@@ -486,10 +502,10 @@ var DetectorPage = React.createClass({
             //行政区查询
             district.search(value, function (status, result) {
                 var bounds = result.districtList[0].boundaries;
-                self.polygons.forEach(function (e) {
+                this.state.polygons.forEach(function (e) {
                     self.myMap.remove(e)
                 })
-                self.polygons = []
+                var polygons = []
                 if (bounds) {
                     for (var i = 0, l = bounds.length; i < l; i++) {
                         //生成行政区划polygon
@@ -501,23 +517,37 @@ var DetectorPage = React.createClass({
                             fillColor: '#CCF3FF',
                             strokeColor: '#CC66CC'
                         });
-                        self.polygons.push(polygon);
+                        polygons.push(polygon);
                     }
                     self.myMap.setCity(value);
+                    this.setState({polygons:polygons})
                     //self.myMap.setFitView();//地图自适应
+                    this.loadDetectorsFromServer()
                 }
-            });
+            }.bind(this));
+        }.bind(this))
+    },
+    detectorFilter: function (lng, lat) {
+        if (this.state.polygons.length == 0) {
+            return true
+        }
+        var contains = false;
+        this.state.polygons.forEach(function (e) {
+            if(e.contains([lng, lat])) {
+                contains = true
+            }
         })
+        return contains
     },
     render: function () {
         var modalBody =  <DetectorDetailBox trace={this.state.deviceList.device_list} detector={this.state.current_detector} distinct_device_num={this.state.deviceList.distinct_device_num} last_report_time={this.state.deviceList.last_report_time}/>
-        var thirdNum = this.state.commData.third_part_detector_list.length
         return(
             <div className="container-fluid page-content">
                 <div className="row">
                     <div className="col-sm-8">
                         地区：
                         <select id='district' style={{width:"200px"}} onChange={this.onDistrictChange}>
+                            <option value="全部">全部</option>
                             <option value="梅州市">梅州市</option>
                             <option value="梅江区">梅江区</option>
                             <option value="梅县区">梅县区</option>
@@ -526,7 +556,7 @@ var DetectorPage = React.createClass({
                             <option value="五华县">五华县</option>
                             <option value="平远县">平远县</option>
                             <option value="蕉岭县">蕉岭县</option>
-                            <option value="兴宁县">兴宁县</option>
+                            <option value="兴宁市">兴宁市</option>
                         </select>
                     </div>
                 </div>
@@ -539,7 +569,7 @@ var DetectorPage = React.createClass({
                     </div>
                     <div className="col-sm-4">
                         <div className="panel panel-primary">
-                            <div className="panel-heading">今日探测人数：{this.state.commData.people}</div>
+                            <div className="panel-heading">探测器列表</div>
                             <DetectorList data={this.state.commData.detector_list}  showBoxHandler={this.showDeviceListBox}/>
                         </div>
                     </div>
@@ -552,12 +582,10 @@ var DetectorPage = React.createClass({
 
 var DetectorList = React.createClass({
     render: function () {
-        var idx = 0;
         var showBoxHandler = this.props.showBoxHandler
         var nodes = this.props.data.map(function (detector) {
-                idx += 1;
                 return (
-                    <DetectorItem key={detector.mac} data={detector} idx={idx} showBoxHandler={showBoxHandler}></DetectorItem>
+                    <DetectorItem key={detector.no} data={detector} showBoxHandler={showBoxHandler}></DetectorItem>
                 );
             }
         );
@@ -607,7 +635,7 @@ var DetectorItem = React.createClass({
         return (
             <a className="list-group-item" onClick={this.handleClick} href="#" data-toggle="modal" data-target="#device_list_box">
                 <span className="badge">{mac_count}</span>
-                <div>{this.props.idx}号 {company}  {this.props.data.mac}</div>
+                <div>{this.props.data.no}号 {company}  {this.props.data.mac}</div>
                 <div>{this.state.address}</div>
                 <div className={div_class}><b>状态：</b>{state}</div>
             </a>

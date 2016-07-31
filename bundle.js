@@ -820,18 +820,29 @@
 	            success: function (rsp) {
 	                if (this.isMounted()) {
 	                    console.log("detector list", rsp);
-	                    this.setState({ commData: rsp });
 	                    var idx = 1;
 	                    var lnglatArr = [];
-	                    this.state.commData.detector_list.forEach(function (e) {
+	                    rsp.detector_list.forEach(function (e) {
 	                        lnglatArr.push(new AMap.LngLat(e.longitude, e.latitude));
 	                    });
 	                    AMap.convertFrom(lnglatArr, "gps", function (status, result) {
 	                        console.log("convert geo", status, result);
 	                        self.myMap.remove(self.markers);
 	                        self.markers = [];
+	                        var detector_list = [];
+	                        var today_mac_count = 0;
 	                        result.locations.forEach(function (pos) {
-	                            var text = '<div class="marker-route marker-marker-bus-from">' + idx.toString() + '号</div>';
+	                            var detector = rsp.detector_list[idx - 1];
+	                            var contains = this.detectorFilter(pos.getLng(), pos.getLat());
+	                            console.log("contains", contains);
+	                            if (contains) {
+	                                detector_list.push(detector);
+	                                today_mac_count = today_mac_count + detector.today_mac_count;
+	                            } else {
+	                                idx = idx + 1;
+	                                return;
+	                            }
+	                            var text = '<div class="marker-route marker-marker-bus-from">' + detector.no.toString() + '号</div>';
 	                            var marker = new AMap.Marker({
 	                                map: self.myMap,
 	                                position: [pos.getLng(), pos.getLat()],
@@ -841,8 +852,9 @@
 	                            });
 	                            self.markers.push(marker);
 	                            idx = idx + 1;
-	                        });
-	                    });
+	                        }.bind(this));
+	                        this.setState({ commData: { detector_list: detector_list, today_mac_count: today_mac_count } });
+	                    }.bind(this));
 	                }
 	            }.bind(this),
 	            error: function (xhr, status, err) {
@@ -862,7 +874,6 @@
 	        });
 
 	        self.markers = [];
-	        self.polygons = [];
 	        this.loadDetectorsFromServer();
 	        setInterval(this.loadDetectorsFromServer, 10000);
 	    },
@@ -882,14 +893,19 @@
 	        });
 	    },
 	    getInitialState: function getInitialState() {
-	        return { deviceList: { device_list: [], last_report_time: 0, distinct_device_num: 0 }, current_detector: { mac: "", scan_conf: [], longitude: 0, latitude: 0, last_login_time: 0 }, commData: { today_mac_count: 0, third_part_detector_list: [], detector_list: [] } };
+	        return { polygons: [], deviceList: { device_list: [], last_report_time: 0, distinct_device_num: 0 }, current_detector: { mac: "", scan_conf: [], longitude: 0, latitude: 0, last_login_time: 0 }, commData: { today_mac_count: 0, detector_list: [] } };
 	    },
 	    onDistrictChange: function onDistrictChange(e) {
 	        var value = e.target.value;
 	        console.log("onDistrictChange", value);
-	        // if (value == "梅州市") {
-	        //     return
-	        // }
+	        if (value == "全部") {
+	            this.state.polygons.forEach(function (e) {
+	                self.myMap.remove(e);
+	            });
+	            this.setState({ polygons: [] });
+	            this.loadDetectorsFromServer();
+	            return;
+	        }
 	        AMap.service('AMap.DistrictSearch', function () {
 	            var opts = {
 	                subdistrict: 1, //返回下一级行政区
@@ -902,10 +918,10 @@
 	            //行政区查询
 	            district.search(value, function (status, result) {
 	                var bounds = result.districtList[0].boundaries;
-	                self.polygons.forEach(function (e) {
+	                this.state.polygons.forEach(function (e) {
 	                    self.myMap.remove(e);
 	                });
-	                self.polygons = [];
+	                var polygons = [];
 	                if (bounds) {
 	                    for (var i = 0, l = bounds.length; i < l; i++) {
 	                        //生成行政区划polygon
@@ -917,17 +933,30 @@
 	                            fillColor: '#CCF3FF',
 	                            strokeColor: '#CC66CC'
 	                        });
-	                        self.polygons.push(polygon);
+	                        polygons.push(polygon);
 	                    }
 	                    self.myMap.setCity(value);
+	                    this.setState({ polygons: polygons });
 	                    //self.myMap.setFitView();//地图自适应
+	                    this.loadDetectorsFromServer();
 	                }
-	            });
+	            }.bind(this));
+	        }.bind(this));
+	    },
+	    detectorFilter: function detectorFilter(lng, lat) {
+	        if (this.state.polygons.length == 0) {
+	            return true;
+	        }
+	        var contains = false;
+	        this.state.polygons.forEach(function (e) {
+	            if (e.contains([lng, lat])) {
+	                contains = true;
+	            }
 	        });
+	        return contains;
 	    },
 	    render: function render() {
 	        var modalBody = _react2.default.createElement(DetectorDetailBox, { trace: this.state.deviceList.device_list, detector: this.state.current_detector, distinct_device_num: this.state.deviceList.distinct_device_num, last_report_time: this.state.deviceList.last_report_time });
-	        var thirdNum = this.state.commData.third_part_detector_list.length;
 	        return _react2.default.createElement(
 	            'div',
 	            { className: 'container-fluid page-content' },
@@ -941,6 +970,11 @@
 	                    _react2.default.createElement(
 	                        'select',
 	                        { id: 'district', style: { width: "200px" }, onChange: this.onDistrictChange },
+	                        _react2.default.createElement(
+	                            'option',
+	                            { value: '全部' },
+	                            '全部'
+	                        ),
 	                        _react2.default.createElement(
 	                            'option',
 	                            { value: '梅州市' },
@@ -983,8 +1017,8 @@
 	                        ),
 	                        _react2.default.createElement(
 	                            'option',
-	                            { value: '兴宁县' },
-	                            '兴宁县'
+	                            { value: '兴宁市' },
+	                            '兴宁市'
 	                        )
 	                    )
 	                )
@@ -1015,8 +1049,7 @@
 	                        _react2.default.createElement(
 	                            'div',
 	                            { className: 'panel-heading' },
-	                            '今日探测人数：',
-	                            this.state.commData.people
+	                            '探测器列表'
 	                        ),
 	                        _react2.default.createElement(DetectorList, { data: this.state.commData.detector_list, showBoxHandler: this.showDeviceListBox })
 	                    )
@@ -1031,11 +1064,9 @@
 	    displayName: 'DetectorList',
 
 	    render: function render() {
-	        var idx = 0;
 	        var showBoxHandler = this.props.showBoxHandler;
 	        var nodes = this.props.data.map(function (detector) {
-	            idx += 1;
-	            return _react2.default.createElement(DetectorItem, { key: detector.mac, data: detector, idx: idx, showBoxHandler: showBoxHandler });
+	            return _react2.default.createElement(DetectorItem, { key: detector.no, data: detector, showBoxHandler: showBoxHandler });
 	        });
 	        return _react2.default.createElement(
 	            'div',
@@ -1097,7 +1128,7 @@
 	            _react2.default.createElement(
 	                'div',
 	                null,
-	                this.props.idx,
+	                this.props.data.no,
 	                '号 ',
 	                company,
 	                '  ',
