@@ -545,7 +545,7 @@ var DetectorPage = React.createClass({
             <div className="container-fluid page-content">
                 <div className="row">
                     <div className="col-sm-8">
-                        地区：
+                        地区过滤：
                         <select id='district' style={{width:"200px"}} onChange={this.onDistrictChange}>
                             <option value="全部">全部</option>
                             <option value="梅州市">梅州市</option>
@@ -560,7 +560,7 @@ var DetectorPage = React.createClass({
                         </select>
                     </div>
                 </div>
-                <div className="row">
+                <div className="row" style={{marginTop:"10px"}}>
                     <div className="col-sm-8">
                         <div className="panel panel-primary">
                             <div className="panel-heading">探测器分布</div>

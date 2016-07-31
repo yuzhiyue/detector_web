@@ -966,7 +966,7 @@
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'col-sm-8' },
-	                    '地区：',
+	                    '地区过滤：',
 	                    _react2.default.createElement(
 	                        'select',
 	                        { id: 'district', style: { width: "200px" }, onChange: this.onDistrictChange },
@@ -1025,7 +1025,7 @@
 	            ),
 	            _react2.default.createElement(
 	                'div',
-	                { className: 'row' },
+	                { className: 'row', style: { marginTop: "10px" } },
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'col-sm-8' },
