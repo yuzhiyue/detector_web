@@ -446,6 +446,7 @@ var DetectorPage = React.createClass({
         });
         
         self.markers = []
+        self.polygons = []
         this.loadDetectorsFromServer();
         setInterval(this.loadDetectorsFromServer, 10000);
     },
@@ -467,11 +468,68 @@ var DetectorPage = React.createClass({
     getInitialState: function() {
         return  {deviceList:{device_list:[], last_report_time:0, distinct_device_num:0}, current_detector:{mac:"", scan_conf:[] ,longitude:0, latitude:0,last_login_time:0},commData:{today_mac_count:0 ,third_part_detector_list:[], detector_list:[]}}
     },
+    onDistrictChange: function (e) {
+        var value = e.target.value
+        console.log("onDistrictChange", value)
+        // if (value == "梅州市") {
+        //     return
+        // }
+        AMap.service('AMap.DistrictSearch', function() {
+            var opts = {
+                subdistrict: 1,   //返回下一级行政区
+                extensions: 'all',  //返回行政区边界坐标组等具体信息
+                level: 'city'  //查询行政级别为 市
+            };
+            //实例化DistrictSearch
+            var district = new AMap.DistrictSearch(opts);
+            district.setLevel('district');
+            //行政区查询
+            district.search(value, function (status, result) {
+                var bounds = result.districtList[0].boundaries;
+                self.polygons.forEach(function (e) {
+                    self.myMap.remove(e)
+                })
+                self.polygons = []
+                if (bounds) {
+                    for (var i = 0, l = bounds.length; i < l; i++) {
+                        //生成行政区划polygon
+                        var polygon = new AMap.Polygon({
+                            map: self.myMap,
+                            strokeWeight: 1,
+                            path: bounds[i],
+                            fillOpacity: 0.2,
+                            fillColor: '#CCF3FF',
+                            strokeColor: '#CC66CC'
+                        });
+                        self.polygons.push(polygon);
+                    }
+                    self.myMap.setCity(value);
+                    //self.myMap.setFitView();//地图自适应
+                }
+            });
+        })
+    },
     render: function () {
         var modalBody =  <DetectorDetailBox trace={this.state.deviceList.device_list} detector={this.state.current_detector} distinct_device_num={this.state.deviceList.distinct_device_num} last_report_time={this.state.deviceList.last_report_time}/>
         var thirdNum = this.state.commData.third_part_detector_list.length
         return(
             <div className="container-fluid page-content">
+                <div className="row">
+                    <div className="col-sm-8">
+                        地区：
+                        <select id='district' style={{width:"200px"}} onChange={this.onDistrictChange}>
+                            <option value="梅州市">梅州市</option>
+                            <option value="梅江区">梅江区</option>
+                            <option value="梅县区">梅县区</option>
+                            <option value="大埔县">大埔县</option>
+                            <option value="丰顺县">丰顺县</option>
+                            <option value="五华县">五华县</option>
+                            <option value="平远县">平远县</option>
+                            <option value="蕉岭县">蕉岭县</option>
+                            <option value="兴宁县">兴宁县</option>
+                        </select>
+                    </div>
+                </div>
                 <div className="row">
                     <div className="col-sm-8">
                         <div className="panel panel-primary">
