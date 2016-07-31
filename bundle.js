@@ -827,11 +827,11 @@
 	                        self.myMap.remove(self.markers);
 	                        self.markers = [];
 	                        result.locations.forEach(function (pos) {
-	                            var text = '<div class="marker-route marker-marker-bus-from"><b>探:' + idx.toString() + '号</b></div>';
+	                            var text = '<div class="marker-route marker-marker-bus-from">' + idx.toString() + '号</div>';
 	                            var marker = new AMap.Marker({
 	                                map: self.myMap,
 	                                position: [pos.getLng(), pos.getLat()],
-	                                offset: new AMap.Pixel(-17, -42), //相对于基点的偏移位置
+	                                offset: new AMap.Pixel(-10, -20), //相对于基点的偏移位置
 	                                draggable: false, //是否可拖动
 	                                content: text
 	                            });
@@ -877,7 +877,7 @@
 	        });
 	    },
 	    getInitialState: function getInitialState() {
-	        return { deviceList: { device_list: [] }, current_detector: { mac: "", scan_conf: [], longitude: 0, latitude: 0, last_login_time: 0 }, commData: { today_mac_count: 0, third_part_detector_list: [], detector_list: [{ mac: "" }] } };
+	        return { deviceList: { device_list: [] }, current_detector: { mac: "", scan_conf: [], longitude: 0, latitude: 0, last_login_time: 0 }, commData: { today_mac_count: 0, third_part_detector_list: [], detector_list: [] } };
 	    },
 	    render: function render() {
 	        var modalBody = _react2.default.createElement(DetectorDetailBox, { trace: this.state.deviceList.device_list, detector: this.state.current_detector });
@@ -952,6 +952,25 @@
 	        console.log("click on " + this.props.data.mac);
 	        this.props.showBoxHandler(this.props.data);
 	    },
+	    getInitialState: function getInitialState() {
+	        return { address: "" };
+	    },
+	    componentDidMount: function componentDidMount() {
+	        AMap.convertFrom(new AMap.LngLat(this.props.data.longitude, this.props.data.latitude), "gps", function (status, result) {
+	            console.log("convert detector geo", status, result);
+	            var gd_pos = result.locations[0];
+	            AMap.service('AMap.Geocoder', function () {
+	                var geocoder = new AMap.Geocoder({
+	                    city: "010" //城市，默认：“全国”
+	                });
+	                geocoder.getAddress([gd_pos.getLng(), gd_pos.getLat()], function (status, result) {
+	                    if (status === 'complete' && result.info === 'OK') {
+	                        this.setState({ address: result.regeocode.formattedAddress });
+	                    }
+	                }.bind(this));
+	            }.bind(this));
+	        }.bind(this));
+	    },
 	    render: function render() {
 	        var state = this.props.data.status === "01" ? "在线" : "离线";
 	        var div_class = this.props.data.status === "01" ? "online" : "offline";
@@ -976,7 +995,14 @@
 	                null,
 	                this.props.idx,
 	                '号 ',
-	                company
+	                company,
+	                '  ',
+	                this.props.data.mac
+	            ),
+	            _react2.default.createElement(
+	                'div',
+	                null,
+	                this.state.address
 	            ),
 	            _react2.default.createElement(
 	                'div',
@@ -23142,17 +23168,26 @@
 	    var idx = 1;
 	    lineArr.forEach(function (pos) {
 	        var title = "序号：" + idx + "\n位置：" + pos.gws84[0] + "," + pos.gws84[1] + "\n时间：" + _comm2.default.formatDate(new Date(pos.time * 1000)) + "\n停留：" + pos.duration + "秒";
-	        var text = '<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>';
-	        if (pos.org_code == null || pos.org_code == "0") {
-	            text = '<span class="glyphicon glyphicon-star" aria-hidden="true"></span>';
+	        var iconUrl = "http://webapi.amap.com/theme/v1.3/markers/n/mid.png";
+	        var zIndex = 1;
+	        if (idx == 1) {
+	            iconUrl = "http://webapi.amap.com/theme/v1.3/markers/n/start.png";
+	            zIndex = 10;
+	        } else if (idx == lineArr.length) {
+	            iconUrl = "http://webapi.amap.com/theme/v1.3/markers/n/end.png";
+	            zIndex = 10;
+	        } else if (pos.org_code == null || pos.org_code == "0") {
+	            iconUrl = "http://webapi.amap.com/theme/v1.3/markers/n/mid.png";
+	            zIndex = 9;
 	        }
 	        var marker = new AMap.Marker({
 	            map: map,
 	            title: title,
 	            position: pos.gd_pos,
-	            offset: new AMap.Pixel(-7, -14), //相对于基点的偏移位置
+	            offset: new AMap.Pixel(-9, -31), //相对于基点的偏移位置
 	            draggable: false, //是否可拖动
-	            content: text
+	            icon: iconUrl,
+	            zIndex: zIndex
 	        });
 	        line.push(pos.gd_pos);
 	        idx = idx + 1;
@@ -23162,10 +23197,11 @@
 	    var polyline = new AMap.Polyline({
 	        map: map,
 	        path: line,
-	        strokeColor: "#00A", //线颜色
+	        strokeColor: "#3366FF", //线颜色
 	        strokeOpacity: 1, //线透明度
-	        strokeWeight: 3, //线宽
-	        strokeStyle: "solid" //线样式
+	        strokeWeight: 5, //线宽
+	        strokeStyle: "solid", //线样式
+	        strokeDasharray: [10, 5] //补充线样式
 	    });
 	    //map.setZoomAndCenter(14, lineArr[lineArr.length - 1]);
 	    //map.setFitView();

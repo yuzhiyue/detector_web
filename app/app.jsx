@@ -412,11 +412,11 @@ var DetectorPage = React.createClass({
                         self.myMap.remove(self.markers)
                         self.markers = []
                         result.locations.forEach(function (pos) {
-                            var text = '<div class="marker-route marker-marker-bus-from"><b>探:'+ idx.toString() +'号</b></div>'
+                            var text = '<div class="marker-route marker-marker-bus-from">'+ idx.toString() +'号</div>'
                             var marker = new AMap.Marker({
                                 map: self.myMap,
                                 position: [pos.getLng(), pos.getLat()],
-                                offset: new AMap.Pixel(-17, -42), //相对于基点的偏移位置
+                                offset: new AMap.Pixel(-10, -20), //相对于基点的偏移位置
                                 draggable: false,  //是否可拖动
                                 content: text
                             });
@@ -462,7 +462,7 @@ var DetectorPage = React.createClass({
         });
     },
     getInitialState: function() {
-        return  {deviceList:{device_list:[]}, current_detector:{mac:"", scan_conf:[] ,longitude:0, latitude:0,last_login_time:0},commData:{today_mac_count:0 ,third_part_detector_list:[], detector_list:[{mac:""}]}}
+        return  {deviceList:{device_list:[]}, current_detector:{mac:"", scan_conf:[] ,longitude:0, latitude:0,last_login_time:0},commData:{today_mac_count:0 ,third_part_detector_list:[], detector_list:[]}}
     },
     render: function () {
         var modalBody =  <DetectorDetailBox trace={this.state.deviceList.device_list} detector={this.state.current_detector}/>
@@ -513,6 +513,25 @@ var DetectorItem = React.createClass({
         console.log("click on " + this.props.data.mac)
         this.props.showBoxHandler(this.props.data)
     },
+    getInitialState: function() {
+        return {address:""}
+    },
+    componentDidMount: function() {
+        AMap.convertFrom(new AMap.LngLat(this.props.data.longitude, this.props.data.latitude), "gps", function (status, result) {
+            console.log("convert detector geo", status, result)
+            var gd_pos = result.locations[0]
+            AMap.service('AMap.Geocoder',function() {
+                var geocoder = new AMap.Geocoder({
+                    city: "010"//城市，默认：“全国”
+                });
+                geocoder.getAddress([gd_pos.getLng(), gd_pos.getLat()], function(status, result) {
+                    if (status === 'complete' && result.info === 'OK') {
+                        this.setState({address:result.regeocode.formattedAddress})
+                    }
+                }.bind(this))
+            }.bind(this))
+        }.bind(this))
+    },
     render: function () {
         var state = this.props.data.status === "01" ? "在线" : "离线";
         var div_class = this.props.data.status === "01" ? "online" : "offline";
@@ -527,8 +546,8 @@ var DetectorItem = React.createClass({
         return (
             <a className="list-group-item" onClick={this.handleClick} href="#" data-toggle="modal" data-target="#device_list_box">
                 <span className="badge">{mac_count}</span>
-                <div>{this.props.idx}号 {company}</div>
-                {/*<div>{this.props.data.mac}</div>*/}
+                <div>{this.props.idx}号 {company}  {this.props.data.mac}</div>
+                <div>{this.state.address}</div>
                 <div className={div_class}><b>状态：</b>{state}</div>
             </a>
         );

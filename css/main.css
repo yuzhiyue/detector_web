@@ -33,9 +33,11 @@ body {
 .amap-marker .marker-route{
     position: absolute;
     width: 40px;
-    height: 44px;
-    color: #449d44;
-    background: url(http://webapi.amap.com/theme/v1.3/images/newpc/way_btn2.png) no-repeat;
+    height: 30px;
+    color: #000000;
+    font-size: 12px;
+    background: url(../pic/loc.png) no-repeat;
+    background-size: 20px 20px;
     cursor: pointer;
 }
 
@@ -46,7 +48,7 @@ body {
 }
 
 .amap-marker .marker-marker-bus-from {
-    background-position: 0px -60px;
+    background-position: 0px 10px;
 }
 
 .online {
