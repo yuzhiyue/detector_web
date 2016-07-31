@@ -295,6 +295,9 @@ var DetectorDetailBox = React.createClass({
         if (mac == null) {
             mac = ""
         }
+        var date = new Date()
+        date.setTime(this.props.last_report_time * 1000)
+        var lastReportTime = Comm.formatDate(date)
         var idx = 0
         this.props.trace.forEach(function(point) {
             if (idx > 30 ) {
@@ -305,7 +308,7 @@ var DetectorDetailBox = React.createClass({
             if (time == null) {
                 time = point.time
             }
-            date = new Date()
+            var date = new Date()
             date.setTime(time * 1000)
             var dateString = Comm.formatDate(date)
             if (point.mac == null) {
@@ -346,7 +349,7 @@ var DetectorDetailBox = React.createClass({
                 <div className="row">
                     <div className="col-sm-12">
                         <div className="panel panel-default">
-                            <div className="panel-heading">附近的设备</div>
+                            <div className="panel-heading">周边设备 最近探测时间：{lastReportTime}</div>
                             <table className="table table-striped table-hover">
                                 <thead>
                                 <tr>
@@ -447,7 +450,7 @@ var DetectorPage = React.createClass({
         setInterval(this.loadDetectorsFromServer, 10000);
     },
     showDeviceListBox: function (apData) {
-        var url = Comm.server_addr + '/detector_info?request={"mac":"' + apData.mac + '","start_time":1}'
+        var url = Comm.server_addr + '/detector_info?request={"mac":"' + apData.mac + '"}'
         $.ajax({
             url: url,
             dataType: 'json',
@@ -462,10 +465,10 @@ var DetectorPage = React.createClass({
         });
     },
     getInitialState: function() {
-        return  {deviceList:{device_list:[]}, current_detector:{mac:"", scan_conf:[] ,longitude:0, latitude:0,last_login_time:0},commData:{today_mac_count:0 ,third_part_detector_list:[], detector_list:[]}}
+        return  {deviceList:{device_list:[], last_report_time:0}, current_detector:{mac:"", scan_conf:[] ,longitude:0, latitude:0,last_login_time:0},commData:{today_mac_count:0 ,third_part_detector_list:[], detector_list:[]}}
     },
     render: function () {
-        var modalBody =  <DetectorDetailBox trace={this.state.deviceList.device_list} detector={this.state.current_detector}/>
+        var modalBody =  <DetectorDetailBox trace={this.state.deviceList.device_list} detector={this.state.current_detector} last_report_time={this.state.deviceList.last_report_time}/>
         var thirdNum = this.state.commData.third_part_detector_list.length
         return(
             <div className="container-fluid page-content">

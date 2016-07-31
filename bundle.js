@@ -571,6 +571,9 @@
 	        if (mac == null) {
 	            mac = "";
 	        }
+	        var date = new Date();
+	        date.setTime(this.props.last_report_time * 1000);
+	        var lastReportTime = _comm2.default.formatDate(date);
 	        var idx = 0;
 	        this.props.trace.forEach(function (point) {
 	            if (idx > 30) {
@@ -581,7 +584,7 @@
 	            if (time == null) {
 	                time = point.time;
 	            }
-	            date = new Date();
+	            var date = new Date();
 	            date.setTime(time * 1000);
 	            var dateString = _comm2.default.formatDate(date);
 	            if (point.mac == null) {
@@ -712,7 +715,8 @@
 	                        _react2.default.createElement(
 	                            'div',
 	                            { className: 'panel-heading' },
-	                            '附近的设备'
+	                            '周边设备 最近探测时间：',
+	                            lastReportTime
 	                        ),
 	                        _react2.default.createElement(
 	                            'table',
@@ -862,7 +866,7 @@
 	        setInterval(this.loadDetectorsFromServer, 10000);
 	    },
 	    showDeviceListBox: function showDeviceListBox(apData) {
-	        var url = _comm2.default.server_addr + '/detector_info?request={"mac":"' + apData.mac + '","start_time":1}';
+	        var url = _comm2.default.server_addr + '/detector_info?request={"mac":"' + apData.mac + '"}';
 	        $.ajax({
 	            url: url,
 	            dataType: 'json',
@@ -877,10 +881,10 @@
 	        });
 	    },
 	    getInitialState: function getInitialState() {
-	        return { deviceList: { device_list: [] }, current_detector: { mac: "", scan_conf: [], longitude: 0, latitude: 0, last_login_time: 0 }, commData: { today_mac_count: 0, third_part_detector_list: [], detector_list: [] } };
+	        return { deviceList: { device_list: [], last_report_time: 0 }, current_detector: { mac: "", scan_conf: [], longitude: 0, latitude: 0, last_login_time: 0 }, commData: { today_mac_count: 0, third_part_detector_list: [], detector_list: [] } };
 	    },
 	    render: function render() {
-	        var modalBody = _react2.default.createElement(DetectorDetailBox, { trace: this.state.deviceList.device_list, detector: this.state.current_detector });
+	        var modalBody = _react2.default.createElement(DetectorDetailBox, { trace: this.state.deviceList.device_list, detector: this.state.current_detector, last_report_time: this.state.deviceList.last_report_time });
 	        var thirdNum = this.state.commData.third_part_detector_list.length;
 	        return _react2.default.createElement(
 	            'div',
@@ -22870,6 +22874,11 @@
 	            _react2.default.createElement(
 	                'td',
 	                null,
+	                this.props.ap_mac
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
 	                _react2.default.createElement(
 	                    'div',
 	                    null,
@@ -22908,7 +22917,7 @@
 	            if (point.org_code == null) {
 	                point.org_code = "0";
 	            }
-	            rows.push(_react2.default.createElement(TraceRowWithoutMac, { longitude: point.longitude, latitude: point.latitude, orgcode: point.org_code, time: dateString, duration: duration }));
+	            rows.push(_react2.default.createElement(TraceRowWithoutMac, { longitude: point.longitude, latitude: point.latitude, orgcode: point.org_code, ap_mac: point.ap_mac, time: dateString, duration: duration }));
 	        });
 	        return _react2.default.createElement(
 	            'div',
@@ -22941,6 +22950,11 @@
 	                            'th',
 	                            null,
 	                            '数据来源'
+	                        ),
+	                        _react2.default.createElement(
+	                            'th',
+	                            null,
+	                            '探针'
 	                        ),
 	                        _react2.default.createElement(
 	                            'th',

@@ -83,6 +83,7 @@ var TraceRowWithoutMac = React.createClass({
                 <td>{this.props.time}</td>
                 <td>{this.props.duration}秒</td>
                 <td>{this.props.orgcode}</td>
+                <td>{this.props.ap_mac}</td>
                 <td><div><button type="button"  disabled="disabled" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#pictureModal">查看影像</button></div></td>
             </tr>
         );
@@ -111,7 +112,7 @@ var TraceTable = React.createClass({
             if (point.org_code == null) {
                 point.org_code = "0"
             }
-            rows.push(<TraceRowWithoutMac longitude={point.longitude} latitude={point.latitude} orgcode={point.org_code} time={dateString} duration={duration}/>);
+            rows.push(<TraceRowWithoutMac longitude={point.longitude} latitude={point.latitude} orgcode={point.org_code} ap_mac={point.ap_mac} time={dateString} duration={duration}/>);
         });
         return (
             <div>
@@ -122,6 +123,7 @@ var TraceTable = React.createClass({
                         <th>时间</th>
                         <th>停留</th>
                         <th>数据来源</th>
+                        <th>探针</th>
                         <th>影像</th>
                     </tr>
                     </thead>
