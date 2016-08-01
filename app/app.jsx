@@ -411,7 +411,6 @@ function markerContent(detector) {
     var content = "MAC：" + detector.mac + "\n" +
         "位置：" + detector.longitude + ", " + detector.latitude + "\n" +
         "状态：" + state + "\n" +
-            "最近上报时间：" + lastReportTime + "\n" + 
             "最近登陆时间：" + lastLoginTime
             
     return content
@@ -455,12 +454,13 @@ var DetectorPage = React.createClass({
                                 position: [pos.getLng(), pos.getLat()],
                                 offset: new AMap.Pixel(-10, -20), //相对于基点的偏移位置
                                 draggable: false,  //是否可拖动
+                                title: markerContent(detector),
                                 content: text
                             });
-                            marker.content = markerContent(detector)
-                            marker.my_map = self.myMap,
-                            marker.on('click', markerClick);
-                            marker.emit('click', {target: marker});
+                            // marker.content = markerContent(detector)
+                            // marker.my_map = self.myMap,
+                            // marker.on('click', markerClick);
+                            // marker.emit('click', {target: marker});
                             self.markers.push(marker)
                             idx = idx + 1
                         }.bind(this))
@@ -486,7 +486,7 @@ var DetectorPage = React.createClass({
         
         self.markers = []
         this.loadDetectorsFromServer();
-        setInterval(this.loadDetectorsFromServer, 10000);
+        setInterval(this.loadDetectorsFromServer, 20000);
     },
     showDeviceListBox: function (apData) {
         var url = Comm.server_addr + '/detector_info?request={"mac":"' + apData.mac + '"}'
