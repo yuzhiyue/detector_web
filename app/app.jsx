@@ -393,7 +393,30 @@ var ModalBox = React.createClass({
     }
 });
 
-var g_MapMarks = []
+var infoWindow = new AMap.InfoWindow({offset: new AMap.Pixel(0, -30)});
+function markerClick(e) {
+    console.log("markerClick", e.target)
+    infoWindow.setContent(e.target.content);
+    infoWindow.open(e.target.my_map, e.target.getPosition());
+}
+
+function markerContent(detector) {
+    var date = new Date()
+    date.setTime(detector.last_report_time * 1000)
+    var lastReportTime = Comm.formatDate(date)
+    date.setTime(detector.last_login_time * 1000)
+    var lastLoginTime = Comm.formatDate(date)
+    
+    var state = detector.status === "01" ? "在线" : "离线";
+    var content = "MAC：" + detector.mac + "\n" +
+        "位置：" + detector.longitude + ", " + detector.latitude + "\n" +
+        "状态：" + state + "\n" +
+            "最近上报时间：" + lastReportTime + "\n" + 
+            "最近登陆时间：" + lastLoginTime
+            
+    return content
+}
+
 var DetectorPage = React.createClass({
     loadDetectorsFromServer: function() {
         //console.log("loadDetectorsFromServer")
@@ -434,6 +457,10 @@ var DetectorPage = React.createClass({
                                 draggable: false,  //是否可拖动
                                 content: text
                             });
+                            marker.content = markerContent(detector)
+                            marker.my_map = self.myMap,
+                            marker.on('click', markerClick);
+                            marker.emit('click', {target: marker});
                             self.markers.push(marker)
                             idx = idx + 1
                         }.bind(this))

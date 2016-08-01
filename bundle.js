@@ -807,7 +807,26 @@
 	    }
 	});
 
-	var g_MapMarks = [];
+	var infoWindow = new AMap.InfoWindow({ offset: new AMap.Pixel(0, -30) });
+	function markerClick(e) {
+	    console.log("markerClick", e.target);
+	    infoWindow.setContent(e.target.content);
+	    infoWindow.open(e.target.my_map, e.target.getPosition());
+	}
+
+	function markerContent(detector) {
+	    var date = new Date();
+	    date.setTime(detector.last_report_time * 1000);
+	    var lastReportTime = _comm2.default.formatDate(date);
+	    date.setTime(detector.last_login_time * 1000);
+	    var lastLoginTime = _comm2.default.formatDate(date);
+
+	    var state = detector.status === "01" ? "在线" : "离线";
+	    var content = "MAC：" + detector.mac + "\n" + "位置：" + detector.longitude + ", " + detector.latitude + "\n" + "状态：" + state + "\n" + "最近上报时间：" + lastReportTime + "\n" + "最近登陆时间：" + lastLoginTime;
+
+	    return content;
+	}
+
 	var DetectorPage = _react2.default.createClass({
 	    displayName: 'DetectorPage',
 
@@ -850,6 +869,9 @@
 	                                draggable: false, //是否可拖动
 	                                content: text
 	                            });
+	                            marker.content = markerContent(detector);
+	                            marker.my_map = self.myMap, marker.on('click', markerClick);
+	                            marker.emit('click', { target: marker });
 	                            self.markers.push(marker);
 	                            idx = idx + 1;
 	                        }.bind(this));
@@ -1469,10 +1491,30 @@
 
 	var process = module.exports = {};
 
-	// cached from whatever global is present so that test runners that stub it don't break things.
-	var cachedSetTimeout = setTimeout;
-	var cachedClearTimeout = clearTimeout;
+	// cached from whatever global is present so that test runners that stub it
+	// don't break things.  But we need to wrap it in a try catch in case it is
+	// wrapped in strict mode code which doesn't define any globals.  It's inside a
+	// function because try/catches deoptimize in certain engines.
 
+	var cachedSetTimeout;
+	var cachedClearTimeout;
+
+	(function () {
+	  try {
+	    cachedSetTimeout = setTimeout;
+	  } catch (e) {
+	    cachedSetTimeout = function () {
+	      throw new Error('setTimeout is not defined');
+	    }
+	  }
+	  try {
+	    cachedClearTimeout = clearTimeout;
+	  } catch (e) {
+	    cachedClearTimeout = function () {
+	      throw new Error('clearTimeout is not defined');
+	    }
+	  }
+	} ())
 	var queue = [];
 	var draining = false;
 	var currentQueue;
@@ -28309,11 +28351,11 @@
 	    arity: true
 	};
 
-	module.exports = function hoistNonReactStatics(targetComponent, sourceComponent) {
+	module.exports = function hoistNonReactStatics(targetComponent, sourceComponent, customStatics) {
 	    if (typeof sourceComponent !== 'string') { // don't hoist over string (html) components
 	        var keys = Object.getOwnPropertyNames(sourceComponent);
-	        for (var i=0; i<keys.length; ++i) {
-	            if (!REACT_STATICS[keys[i]] && !KNOWN_STATICS[keys[i]]) {
+	        for (var i = 0; i < keys.length; ++i) {
+	            if (!REACT_STATICS[keys[i]] && !KNOWN_STATICS[keys[i]] && (!customStatics || !customStatics[keys[i]])) {
 	                try {
 	                    targetComponent[keys[i]] = sourceComponent[keys[i]];
 	                } catch (error) {
