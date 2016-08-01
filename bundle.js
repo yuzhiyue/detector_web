@@ -23191,7 +23191,7 @@
 	    getInitialState: function getInitialState() {
 	        console.log("getInitialState");
 	        var start = _comm2.default.formatDate(new Date(new Date().getTime() - 24 * 3600 * 1000));
-	        var end = _comm2.default.formatDate(new Date(new Date().getTime() + 24 * 3600 * 1000));
+	        var end = _comm2.default.formatDate(new Date(new Date().getTime() + 86400000 - (new Date().getHours() * 60 * 60 + new Date().getMinutes() * 60 + new Date().getSeconds()) * 1000 - 1000));
 	        return { result_type: 1, time_range: { start: start, end: end }, rsp: { trace: [] }, fuzzy_search_data: { feature_list: [] } };
 	    },
 	    componentDidMount: function componentDidMount() {},
@@ -23724,7 +23724,7 @@
 	    getInitialState: function getInitialState() {
 	        console.log("getInitialState");
 	        var start = _comm2.default.formatDate(new Date(new Date().getTime() - 24 * 3600 * 1000));
-	        var end = _comm2.default.formatDate(new Date(new Date().getTime() + 24 * 3600 * 1000));
+	        var end = _comm2.default.formatDate(new Date(new Date().getTime() + 86400000 - (new Date().getHours() * 60 * 60 + new Date().getMinutes() * 60 + new Date().getSeconds()) * 1000 - 1000));
 	        return { result_type: 1, time_range: { start: start, end: end }, rsp: { trace_list: [] }, fuzzy_search_data: { feature_list: [] } };
 	    },
 	    componentDidMount: function componentDidMount() {},
