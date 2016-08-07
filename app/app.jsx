@@ -280,7 +280,7 @@ var TraceRow = React.createClass({
         return (
             <tr>
                 <td>{this.props.mac}</td>
-                <td>{this.props.longitude},{this.props.latitude}</td>
+                <td>{Comm.formatLngLat(this.props.longitude)},{Comm.formatLngLat(this.props.latitude)}</td>
                 <td>{this.props.time}</td>
                 <td><div><button type="button" disabled="disabled" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#pictureModal">查看影像</button></div></td>
             </tr>
@@ -336,7 +336,7 @@ var DetectorDetailBox = React.createClass({
                                 <thead><tr><th>设备MAC</th><th>经纬</th><th>扫描配置</th><th>最近登录时间</th><th>周边设备数</th></tr></thead>
                                 <tbody><tr>
                                     <td>{this.props.detector.mac}</td>
-                                    <td>{this.props.detector.longitude},{this.props.detector.latitude}</td>
+                                    <td>{Comm.formatLngLat(this.props.detector.longitude)},{Comm.formatLngLat(this.props.detector.latitude)}</td>
                                     <td>{scanConf}</td>
                                     <td>{dateString}</td>
                                     <td>{this.props.distinct_device_num}</td>
@@ -409,7 +409,7 @@ function markerContent(detector) {
     
     var state = detector.status === "01" ? "在线" : "离线";
     var content = "MAC：" + detector.mac + "\n" +
-        "位置：" + detector.longitude + ", " + detector.latitude + "\n" +
+        "位置：" + Comm.formatLngLat(detector.longitude) + ", " + Comm.formatLngLat(detector.latitude) + "\n" +
         "状态：" + state + "\n" +
             "最近登陆时间：" + lastLoginTime
             
@@ -504,7 +504,30 @@ var DetectorPage = React.createClass({
         });
     },
     getInitialState: function() {
-        return  {polygons:[], deviceList:{device_list:[], last_report_time:0, distinct_device_num:0}, current_detector:{mac:"", scan_conf:[] ,longitude:0, latitude:0,last_login_time:0},commData:{today_mac_count:0, detector_list:[]}}
+        var area = decodeURI(Comm.getCookie("area"))
+        area = decodeURI(area)
+        console.log("area cookies", area)
+        var areaList = area.split("_")
+        var areaItems = []
+        var unlimit = false
+        Comm.AreaItems.forEach(function (e) {
+            areaList.forEach(function (area) {
+                console.log(e, area)
+                if (area=="不限制") {
+                    unlimit = true
+                }
+                if (area == e) {
+                    areaItems.push(area)
+                    console.log("area add", area)
+                    return;
+                }
+            })
+        })
+        if (unlimit) {
+            areaItems = Comm.AreaItems
+        }
+        console.log(areaItems)
+        return  {unlimit:unlimit, areaItems:areaItems, polygons:[], deviceList:{device_list:[], last_report_time:0, distinct_device_num:0}, current_detector:{mac:"", scan_conf:[] ,longitude:0, latitude:0,last_login_time:0},commData:{today_mac_count:0, detector_list:[]}}
     },
     onDistrictChange: function (e) {
         var value = e.target.value
@@ -567,23 +590,19 @@ var DetectorPage = React.createClass({
         return contains
     },
     render: function () {
+        var selectItems = []
+        this.state.areaItems.forEach(function (e) {
+            selectItems.push(<option value={e}>{e}</option>)
+        })
         var modalBody =  <DetectorDetailBox trace={this.state.deviceList.device_list} detector={this.state.current_detector} distinct_device_num={this.state.deviceList.distinct_device_num} last_report_time={this.state.deviceList.last_report_time}/>
         return(
             <div className="container-fluid page-content">
                 <div className="row">
                     <div className="col-sm-8">
-                        地区过滤：
+                        辖区：
                         <select id='district' style={{width:"200px"}} onChange={this.onDistrictChange}>
                             <option value="全部">全部</option>
-                            <option value="梅州市">梅州市</option>
-                            <option value="梅江区">梅江区</option>
-                            <option value="梅县区">梅县区</option>
-                            <option value="大埔县">大埔县</option>
-                            <option value="丰顺县">丰顺县</option>
-                            <option value="五华县">五华县</option>
-                            <option value="平远县">平远县</option>
-                            <option value="蕉岭县">蕉岭县</option>
-                            <option value="兴宁市">兴宁市</option>
+                            {selectItems}
                         </select>
                     </div>
                 </div>

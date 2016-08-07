@@ -79,7 +79,7 @@ var TraceRowWithoutMac = React.createClass({
     render: function() {
         return (
             <tr>
-                <td>{this.props.longitude},{this.props.latitude}</td>
+                <td>{Comm.formatLngLat(this.props.longitude)},{Comm.formatLngLat(this.props.latitude)}</td>
                 <td>{this.props.time}</td>
                 <td>{this.props.duration}秒</td>
                 <td>{this.props.orgcode}</td>

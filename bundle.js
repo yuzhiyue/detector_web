@@ -536,9 +536,9 @@
 	            _react2.default.createElement(
 	                'td',
 	                null,
-	                this.props.longitude,
+	                _comm2.default.formatLngLat(this.props.longitude),
 	                ',',
-	                this.props.latitude
+	                _comm2.default.formatLngLat(this.props.latitude)
 	            ),
 	            _react2.default.createElement(
 	                'td',
@@ -669,9 +669,9 @@
 	                                    _react2.default.createElement(
 	                                        'td',
 	                                        null,
-	                                        this.props.detector.longitude,
+	                                        _comm2.default.formatLngLat(this.props.detector.longitude),
 	                                        ',',
-	                                        this.props.detector.latitude
+	                                        _comm2.default.formatLngLat(this.props.detector.latitude)
 	                                    ),
 	                                    _react2.default.createElement(
 	                                        'td',
@@ -822,7 +822,7 @@
 	    var lastLoginTime = _comm2.default.formatDate(date);
 
 	    var state = detector.status === "01" ? "在线" : "离线";
-	    var content = "MAC：" + detector.mac + "\n" + "位置：" + detector.longitude + ", " + detector.latitude + "\n" + "状态：" + state + "\n" + "最近登陆时间：" + lastLoginTime;
+	    var content = "MAC：" + detector.mac + "\n" + "位置：" + _comm2.default.formatLngLat(detector.longitude) + ", " + _comm2.default.formatLngLat(detector.latitude) + "\n" + "状态：" + state + "\n" + "最近登陆时间：" + lastLoginTime;
 
 	    return content;
 	}
@@ -917,7 +917,30 @@
 	        });
 	    },
 	    getInitialState: function getInitialState() {
-	        return { polygons: [], deviceList: { device_list: [], last_report_time: 0, distinct_device_num: 0 }, current_detector: { mac: "", scan_conf: [], longitude: 0, latitude: 0, last_login_time: 0 }, commData: { today_mac_count: 0, detector_list: [] } };
+	        var area = decodeURI(_comm2.default.getCookie("area"));
+	        area = decodeURI(area);
+	        console.log("area cookies", area);
+	        var areaList = area.split("_");
+	        var areaItems = [];
+	        var unlimit = false;
+	        _comm2.default.AreaItems.forEach(function (e) {
+	            areaList.forEach(function (area) {
+	                console.log(e, area);
+	                if (area == "不限制") {
+	                    unlimit = true;
+	                }
+	                if (area == e) {
+	                    areaItems.push(area);
+	                    console.log("area add", area);
+	                    return;
+	                }
+	            });
+	        });
+	        if (unlimit) {
+	            areaItems = _comm2.default.AreaItems;
+	        }
+	        console.log(areaItems);
+	        return { unlimit: unlimit, areaItems: areaItems, polygons: [], deviceList: { device_list: [], last_report_time: 0, distinct_device_num: 0 }, current_detector: { mac: "", scan_conf: [], longitude: 0, latitude: 0, last_login_time: 0 }, commData: { today_mac_count: 0, detector_list: [] } };
 	    },
 	    onDistrictChange: function onDistrictChange(e) {
 	        var value = e.target.value;
@@ -980,6 +1003,14 @@
 	        return contains;
 	    },
 	    render: function render() {
+	        var selectItems = [];
+	        this.state.areaItems.forEach(function (e) {
+	            selectItems.push(_react2.default.createElement(
+	                'option',
+	                { value: e },
+	                e
+	            ));
+	        });
 	        var modalBody = _react2.default.createElement(DetectorDetailBox, { trace: this.state.deviceList.device_list, detector: this.state.current_detector, distinct_device_num: this.state.deviceList.distinct_device_num, last_report_time: this.state.deviceList.last_report_time });
 	        return _react2.default.createElement(
 	            'div',
@@ -990,7 +1021,7 @@
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'col-sm-8' },
-	                    '地区过滤：',
+	                    '辖区：',
 	                    _react2.default.createElement(
 	                        'select',
 	                        { id: 'district', style: { width: "200px" }, onChange: this.onDistrictChange },
@@ -999,51 +1030,7 @@
 	                            { value: '全部' },
 	                            '全部'
 	                        ),
-	                        _react2.default.createElement(
-	                            'option',
-	                            { value: '梅州市' },
-	                            '梅州市'
-	                        ),
-	                        _react2.default.createElement(
-	                            'option',
-	                            { value: '梅江区' },
-	                            '梅江区'
-	                        ),
-	                        _react2.default.createElement(
-	                            'option',
-	                            { value: '梅县区' },
-	                            '梅县区'
-	                        ),
-	                        _react2.default.createElement(
-	                            'option',
-	                            { value: '大埔县' },
-	                            '大埔县'
-	                        ),
-	                        _react2.default.createElement(
-	                            'option',
-	                            { value: '丰顺县' },
-	                            '丰顺县'
-	                        ),
-	                        _react2.default.createElement(
-	                            'option',
-	                            { value: '五华县' },
-	                            '五华县'
-	                        ),
-	                        _react2.default.createElement(
-	                            'option',
-	                            { value: '平远县' },
-	                            '平远县'
-	                        ),
-	                        _react2.default.createElement(
-	                            'option',
-	                            { value: '蕉岭县' },
-	                            '蕉岭县'
-	                        ),
-	                        _react2.default.createElement(
-	                            'option',
-	                            { value: '兴宁市' },
-	                            '兴宁市'
-	                        )
+	                        selectItems
 	                    )
 	                )
 	            ),
@@ -21680,15 +21667,10 @@
 	    displayName: 'PrivateItem',
 
 	    render: function render() {
-	        var id = "group_checkbox" + this.props.group;
-	        var checkState = "";
-	        if (this.props.checked) {
-	            checkState = "checked";
-	        }
 	        return _react2.default.createElement(
 	            'label',
 	            { className: 'checkbox-inline' },
-	            _react2.default.createElement('input', { type: 'checkbox', onChange: this.props.handleChange, checked: this.props.checked, ref: id, value: this.props.group }),
+	            _react2.default.createElement('input', { type: 'checkbox', onChange: this.props.handleChange, checked: this.props.checked, value: this.props.group }),
 	            this.props.text
 	        );
 	    }
@@ -21715,6 +21697,41 @@
 	    }
 	});
 
+	var AreaItem = _react2.default.createClass({
+	    displayName: 'AreaItem',
+
+	    render: function render() {
+	        return _react2.default.createElement(
+	            'label',
+	            { className: 'checkbox-inline' },
+	            _react2.default.createElement('input', { type: 'checkbox', onChange: this.props.handleChange, checked: this.props.checked, value: this.props.area }),
+	            this.props.area
+	        );
+	    }
+	});
+
+	var Area = _react2.default.createClass({
+	    displayName: 'Area',
+
+	    render: function render() {
+	        var areaItems = ["不限制"].concat(_comm2.default.AreaItems);
+	        var rows = areaItems.map(function (e) {
+	            var checked = false;
+	            for (var i in this.props.area) {
+	                if (e === this.props.area[i]) {
+	                    checked = true;
+	                }
+	            }
+	            return _react2.default.createElement(AreaItem, { area: e, checked: checked, handleChange: this.props.handleChange });
+	        }.bind(this));
+	        return _react2.default.createElement(
+	            'div',
+	            null,
+	            rows
+	        );
+	    }
+	});
+
 	var UserEdit = _react2.default.createClass({
 	    displayName: 'UserEdit',
 
@@ -21722,13 +21739,14 @@
 	        var user = {
 	            username: this.refs.username.value,
 	            group: this.props.user.group,
+	            area: this.props.user.area,
 	            phone: this.refs.phone.value,
 	            desc: this.refs.desc.value
 	        };
 	        if (this.refs.password.value != "") {
 	            user.password = (0, _blueimpMd2.default)(this.refs.password.value);
 	        }
-	        var url = _comm2.default.server_addr + '/sys_user/update?request=' + JSON.stringify(user);
+	        var url = encodeURI(_comm2.default.server_addr + '/sys_user/update?request=' + JSON.stringify(user));
 	        console.log("save user ", url);
 	        $.ajax({
 	            url: url,
@@ -21748,6 +21766,7 @@
 	            username: this.refs.username.value,
 	            password: this.refs.password.value,
 	            group: this.props.user.group,
+	            area: this.props.user.area,
 	            phone: this.refs.phone.value,
 	            desc: this.refs.desc.value
 	        };
@@ -21861,6 +21880,20 @@
 	                                        { className: 'col-sm-10' },
 	                                        _react2.default.createElement(Private, { group: this.props.user.group, handleChange: this.props.handleGroupChange })
 	                                    )
+	                                ),
+	                                _react2.default.createElement(
+	                                    'div',
+	                                    { className: 'form-group' },
+	                                    _react2.default.createElement(
+	                                        'label',
+	                                        { 'for': 'desc', className: 'col-sm-2 control-label' },
+	                                        '辖区'
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'div',
+	                                        { className: 'col-sm-10' },
+	                                        _react2.default.createElement(Area, { area: this.props.user.area, handleChange: this.props.handleAreaChange })
+	                                    )
 	                                )
 	                            )
 	                        )
@@ -21948,7 +21981,7 @@
 	    displayName: 'UserPage',
 
 	    getInitialState: function getInitialState() {
-	        return { users: [], edit_readonly: false, user_edit: { username: "", password: "", group: [], phone: "", desc: "" } };
+	        return { users: [], edit_readonly: false, user_edit: { username: "", password: "", group: [], area: [], phone: "", desc: "" } };
 	    },
 	    setUserEditData: function setUserEditData(user) {
 	        console.log("setUserEditData:" + user);
@@ -21981,6 +22014,28 @@
 	        user_edit.group = newGroup;
 	        this.setState({ user_edit: user_edit });
 	    },
+	    handleAreaChange: function handleAreaChange(e) {
+	        var user_edit = this.state.user_edit;
+	        var area = e.target.value;
+	        var checked = e.target.checked;
+	        var newArea = [];
+	        if (checked) {
+	            newArea.push(area);
+	        }
+	        user_edit.area.forEach(function (e) {
+	            if (!checked && area == e) {
+	                return;
+	            }
+	            for (var i in newArea) {
+	                if (e === newArea[i]) {
+	                    return;
+	                }
+	            }
+	            newArea.push(e);
+	        });
+	        user_edit.area = newArea;
+	        this.setState({ user_edit: user_edit });
+	    },
 	    setReadOnly: function setReadOnly(value) {
 	        this.setState({ edit_readonly: value });
 	    },
@@ -22003,7 +22058,7 @@
 	        this.loadData();
 	    },
 	    resetEditUserData: function resetEditUserData() {
-	        this.setState({ user_edit: { username: "", password: "", group: [], phone: "", desc: "" } });
+	        this.setState({ user_edit: { username: "", password: "", group: [], area: [], phone: "", desc: "" } });
 	        this.setReadOnly(false);
 	    },
 	    render: function render() {
@@ -22067,7 +22122,7 @@
 	                    '添加用户'
 	                )
 	            ),
-	            _react2.default.createElement(UserEdit, { user: this.state.user_edit, readonly: this.state.readonly, handleUserEditInputData: this.handleUserEditInputData, handleGroupChange: this.handleGroupChange })
+	            _react2.default.createElement(UserEdit, { user: this.state.user_edit, readonly: this.state.readonly, handleUserEditInputData: this.handleUserEditInputData, handleGroupChange: this.handleGroupChange, handleAreaChange: this.handleAreaChange })
 	        );
 	    }
 	});
@@ -22157,6 +22212,25 @@
 	    return year + "/" + addZero(month, 2) + "/" + addZero(date, 2) + " " + addZero(hour, 2) + ":" + addZero(minute, 2) + ":" + addZero(second, 2);
 	}
 
+	function formatLngLat(x) {
+	    var f_x = parseFloat(x);
+	    if (isNaN(f_x)) {
+	        alert('function:changeTwoDecimal->parameter error');
+	        return false;
+	    }
+	    var f_x = Math.round(x * 1000000) / 1000000;
+	    var s_x = f_x.toString();
+	    var pos_decimal = s_x.indexOf('.');
+	    if (pos_decimal < 0) {
+	        pos_decimal = s_x.length;
+	        s_x += '.';
+	    }
+	    while (s_x.length <= pos_decimal + 6) {
+	        s_x += '0';
+	    }
+	    return s_x;
+	}
+
 	function showWaiting() {
 	    var query_hint = document.getElementById("waiting_box");
 	    query_hint.style.display = "block";
@@ -22175,13 +22249,17 @@
 	// {text:'车牌号关联分析',link:"/car"},
 	{ text: '上网行为查询', link: "/behavior", group: "5" }, { text: '特征库管理', link: "/feature", group: "6" }, { text: '用户管理', link: "/user", group: "7" }, { text: '探针配置', link: "/detector_conf", group: "8" }];
 
+	var AreaItems = ["梅州市", "梅江区", "梅县区", "大埔县", "丰顺县", "五华县", "平远县", "蕉岭县", "兴宁市"];
+
 	module.exports.addCookie = addCookie;
 	module.exports.getCookie = getCookie;
 	module.exports.deleteCookie = deleteCookie;
 	module.exports.randomChar = randomChar;
 	module.exports.randomCharWithoutTime = randomCharWithoutTime;
 	module.exports.formatDate = formatDate;
+	module.exports.formatLngLat = formatLngLat;
 	module.exports.PageItems = PageItems;
+	module.exports.AreaItems = AreaItems;
 	module.exports.showWaiting = showWaiting;
 	module.exports.hideWaiting = hideWaiting;
 	$.support.cors = true;
@@ -22515,6 +22593,12 @@
 	                        group += e + "_";
 	                    });
 	                    _comm2.default.addCookie("group", group);
+
+	                    var area = "";
+	                    rsp.user_info.area.forEach(function (e) {
+	                        area += e + "_";
+	                    });
+	                    _comm2.default.addCookie("area", encodeURI(area));
 	                    window.location.reload();
 	                } else {
 	                    alert("用户名或密码错误！");
@@ -23006,9 +23090,9 @@
 	            _react2.default.createElement(
 	                'td',
 	                null,
-	                this.props.longitude,
+	                _comm2.default.formatLngLat(this.props.longitude),
 	                ',',
-	                this.props.latitude
+	                _comm2.default.formatLngLat(this.props.latitude)
 	            ),
 	            _react2.default.createElement(
 	                'td',
@@ -23336,7 +23420,7 @@
 	    var line = [];
 	    var idx = 1;
 	    lineArr.forEach(function (pos) {
-	        var title = "序号：" + idx + "\n位置：" + pos.gws84[0] + "," + pos.gws84[1] + "\n时间：" + _comm2.default.formatDate(new Date(pos.time * 1000)) + "\n停留：" + pos.duration + "秒";
+	        var title = "序号：" + idx + "\n位置：" + _comm2.default.formatLngLat(pos.gws84[0]) + "," + _comm2.default.formatLngLat(pos.gws84[1]) + "\n时间：" + _comm2.default.formatDate(new Date(pos.time * 1000)) + "\n停留：" + pos.duration + "秒";
 	        var iconUrl = "http://webapi.amap.com/theme/v1.3/markers/n/mid.png";
 	        var zIndex = 1;
 	        if (idx == 1) {

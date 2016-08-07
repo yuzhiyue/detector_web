@@ -22,6 +22,12 @@ var LoginPage = React.createClass({
                         group += e + "_"
                     })
                     Comm.addCookie("group", group)
+                    
+                    var area = ""
+                    rsp.user_info.area.forEach(function (e) {
+                        area += e + "_"
+                    })
+                    Comm.addCookie("area", encodeURI(area))
                     window.location.reload();
                 }else {
                     alert("用户名或密码错误！")

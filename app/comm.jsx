@@ -76,6 +76,26 @@ function formatDate(now) {
     return year+"/"+ addZero(month, 2) + "/" + addZero(date,2) + " " + addZero(hour,2) + ":" + addZero(minute,2) + ":" + addZero(second,2);
 }
 
+function formatLngLat(x) {
+    var f_x = parseFloat(x);
+    if (isNaN(f_x)) {
+        alert('function:changeTwoDecimal->parameter error');
+        return false;
+    }
+    var f_x = Math.round(x * 1000000) / 1000000;
+    var s_x = f_x.toString();
+    var pos_decimal = s_x.indexOf('.');
+    if (pos_decimal < 0) {
+        pos_decimal = s_x.length;
+        s_x += '.';
+    }
+    while (s_x.length <= pos_decimal + 6) {
+        s_x += '0';
+    }
+    return s_x;
+}
+
+
 function showWaiting() {
     var query_hint = document.getElementById("waiting_box");
     query_hint.style.display="block";
@@ -100,13 +120,26 @@ var PageItems=[{text:'概览',link:"/home",group:"1"},
     {text:'探针配置',link:"/detector_conf",group:"8"}
 ]
 
+var AreaItems = [
+    "梅州市",
+    "梅江区",
+    "梅县区",
+    "大埔县",
+    "丰顺县",
+    "五华县",
+    "平远县",
+    "蕉岭县",
+    "兴宁市"]
+
 module.exports.addCookie = addCookie;
 module.exports.getCookie = getCookie;
 module.exports.deleteCookie = deleteCookie;
 module.exports.randomChar = randomChar;
 module.exports.randomCharWithoutTime = randomCharWithoutTime;
 module.exports.formatDate = formatDate;
+module.exports.formatLngLat = formatLngLat;
 module.exports.PageItems = PageItems;
+module.exports.AreaItems = AreaItems;
 module.exports.showWaiting = showWaiting;
 module.exports.hideWaiting = hideWaiting;
 $.support.cors = true;

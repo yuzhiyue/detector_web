@@ -7,13 +7,8 @@ import md5 from 'blueimp-md5'
 
 var PrivateItem = React.createClass({
     render:function () {
-        var id = "group_checkbox" + this.props.group;
-        var checkState = ""
-        if (this.props.checked) {
-            checkState = "checked"
-        }
         return(
-            <label className="checkbox-inline"><input type="checkbox" onChange={this.props.handleChange} checked={this.props.checked} ref={id} value={this.props.group}></input>{this.props.text}</label>
+            <label className="checkbox-inline"><input type="checkbox" onChange={this.props.handleChange} checked={this.props.checked} value={this.props.group}></input>{this.props.text}</label>
         )
     }
 });
@@ -37,18 +32,47 @@ var Private = React.createClass({
     }
 });
 
+var AreaItem = React.createClass({
+    render:function () {
+        return(
+            <label className="checkbox-inline"><input type="checkbox" onChange={this.props.handleChange} checked={this.props.checked} value={this.props.area}></input>{this.props.area}</label>
+        )
+    }
+});
+
+var Area = React.createClass({
+    render:function () {
+        var areaItems = ["不限制"].concat(Comm.AreaItems)
+        var rows = areaItems.map(function (e) {
+            var checked = false
+            for(var i in this.props.area){
+                if(e === this.props.area[i]){
+                    checked = true
+                }
+            }
+            return (<AreaItem area={e} checked={checked} handleChange={this.props.handleChange} />)
+        }.bind(this))
+        return(
+            <div>
+                {rows}
+            </div>
+        )
+    }
+});
+
 var UserEdit = React.createClass({
     saveUser:function (e) {
         var user = {
             username:   this.refs.username.value,
             group:      this.props.user.group,
+            area:      this.props.user.area,
             phone:      this.refs.phone.value,
             desc:       this.refs.desc.value,
         }
         if (this.refs.password.value != "") {
             user.password =  md5(this.refs.password.value)
         }
-        var url = Comm.server_addr + '/sys_user/update?request=' + JSON.stringify(user);
+        var url = encodeURI(Comm.server_addr + '/sys_user/update?request=' + JSON.stringify(user));
         console.log("save user ", url)
         $.ajax({
             url: url,
@@ -68,6 +92,7 @@ var UserEdit = React.createClass({
             username:   this.refs.username.value,
             password:   this.refs.password.value,
             group:      this.props.user.group,
+            area:      this.props.user.area,
             phone:      this.refs.phone.value,
             desc:       this.refs.desc.value,
         }
@@ -115,6 +140,12 @@ var UserEdit = React.createClass({
                                     <label for="desc" className="col-sm-2 control-label">权限</label>
                                     <div className="col-sm-10">
                                         <Private group={this.props.user.group} handleChange={this.props.handleGroupChange} />
+                                    </div>
+                                </div>
+                                <div className="form-group">
+                                    <label for="desc" className="col-sm-2 control-label">辖区</label>
+                                    <div className="col-sm-10">
+                                        <Area area={this.props.user.area} handleChange={this.props.handleAreaChange} />
                                     </div>
                                 </div>
                             </form>
@@ -167,7 +198,7 @@ var UserRow = React.createClass({
 
 var UserPage = React.createClass({
     getInitialState:function () {
-        return {users:[], edit_readonly:false, user_edit:{username:"",password:"",group:[],phone:"",desc:""}}
+        return {users:[], edit_readonly:false, user_edit:{username:"",password:"",group:[], area:[], phone:"",desc:""}}
     },
     setUserEditData:function(user){
         console.log("setUserEditData:" + user)
@@ -200,6 +231,28 @@ var UserPage = React.createClass({
         user_edit.group = newGroup
         this.setState({user_edit:user_edit})
     },
+    handleAreaChange: function (e) {
+        var user_edit = this.state.user_edit
+        var area = e.target.value
+        var checked = e.target.checked
+        var newArea = []
+        if (checked) {
+            newArea.push(area)
+        }
+        user_edit.area.forEach(function (e) {
+            if (!checked && area == e) {
+                return
+            }
+            for(var i in newArea){
+                if(e === newArea[i]){
+                    return
+                }
+            }
+            newArea.push(e)
+        })
+        user_edit.area = newArea
+        this.setState({user_edit:user_edit})
+    },
     setReadOnly:function (value) {
         this.setState({edit_readonly:value})
     },
@@ -222,7 +275,7 @@ var UserPage = React.createClass({
         this.loadData()
     },
     resetEditUserData:function () {
-        this.setState({user_edit:{username:"",password:"",group:[],phone:"",desc:""}})
+        this.setState({user_edit:{username:"",password:"",group:[], area:[], phone:"",desc:""}})
         this.setReadOnly(false)
     },
     render:function() {
@@ -249,7 +302,7 @@ var UserPage = React.createClass({
                     </table>
                     <button type="button" className="btn btn-info btn-sm" onClick={this.resetEditUserData} data-toggle="modal" data-target="#user_edit">添加用户</button>
                 </div>
-                <UserEdit user={this.state.user_edit} readonly={this.state.readonly} handleUserEditInputData={this.handleUserEditInputData} handleGroupChange={this.handleGroupChange} />
+                <UserEdit user={this.state.user_edit} readonly={this.state.readonly} handleUserEditInputData={this.handleUserEditInputData} handleGroupChange={this.handleGroupChange} handleAreaChange={this.handleAreaChange} />
             </div>
         );
     }
