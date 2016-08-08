@@ -58,10 +58,13 @@ var Panel = React.createClass({
 
 var FeaturePage = React.createClass({
     handleSearch: function (value) {
+        if(this.search_value != value) {
+            this.setState({page: 1})
+        }
         this.search_value = value
         console.log("handleSearch:" + value)
         console.log("loadTraceFromServer")
-        var url =  Comm.server_addr + '/feature/query?request={"phone":"' + value + '","mac":"' + value + '"}'
+        var url =  Comm.server_addr + '/feature/query?request={"phone":"' + value + '","mac":"' + value + '", "skip":' + (this.state.page-1)*20 + '}'
         $.ajax({
             url: url,
             dataType: 'json',
@@ -75,8 +78,24 @@ var FeaturePage = React.createClass({
             }.bind(this)
         });
     },
+    nextPage:function () {
+        if(this.search_value != null) {
+            this.setState({page: this.state.page + 1})
+            this.handleSearch(this.search_value)
+        }
+    },
+    prePage:function () {
+        if(this.search_value != null) {
+            var page = this.state.page - 1
+            if(page < 1) {
+                page = 1
+            }
+            this.setState({page: page})
+            this.handleSearch(this.search_value)
+        }
+    },
     getInitialState: function () {
-        return {data:{total_feature_num:0, today_update_feature_num:0, last_update_feature:[]},search_data:{feature_list:[]}}
+        return {page:1, data:{total_feature_num:0, today_update_feature_num:0, last_update_feature:[]},search_data:{feature_list:[]}}
     },
     componentDidMount: function () {
         $.support.Cors = true
@@ -134,6 +153,12 @@ var FeaturePage = React.createClass({
                                 <tbody>{rows}</tbody>
                             </table>
                         </div>
+                        <nav>
+                            <ul className="pager">
+                                <li className="previous"><a onClick={this.prePage}><span aria-hidden="true">&larr;</span>上一页</a></li>
+                                <li className="next"><a onClick={this.nextPage}>下一页<span aria-hidden="true">&rarr;</span></a></li>
+                            </ul>
+                        </nav>
                     </div>
                 </div>
             </div>

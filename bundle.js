@@ -22822,10 +22822,13 @@
 	    displayName: 'FeaturePage',
 
 	    handleSearch: function handleSearch(value) {
+	        if (this.search_value != value) {
+	            this.setState({ page: 1 });
+	        }
 	        this.search_value = value;
 	        console.log("handleSearch:" + value);
 	        console.log("loadTraceFromServer");
-	        var url = _comm2.default.server_addr + '/feature/query?request={"phone":"' + value + '","mac":"' + value + '"}';
+	        var url = _comm2.default.server_addr + '/feature/query?request={"phone":"' + value + '","mac":"' + value + '", "skip":' + (this.state.page - 1) * 20 + '}';
 	        $.ajax({
 	            url: url,
 	            dataType: 'json',
@@ -22839,8 +22842,24 @@
 	            }.bind(this)
 	        });
 	    },
+	    nextPage: function nextPage() {
+	        if (this.search_value != null) {
+	            this.setState({ page: this.state.page + 1 });
+	            this.handleSearch(this.search_value);
+	        }
+	    },
+	    prePage: function prePage() {
+	        if (this.search_value != null) {
+	            var page = this.state.page - 1;
+	            if (page < 1) {
+	                page = 1;
+	            }
+	            this.setState({ page: page });
+	            this.handleSearch(this.search_value);
+	        }
+	    },
 	    getInitialState: function getInitialState() {
-	        return { data: { total_feature_num: 0, today_update_feature_num: 0, last_update_feature: [] }, search_data: { feature_list: [] } };
+	        return { page: 1, data: { total_feature_num: 0, today_update_feature_num: 0, last_update_feature: [] }, search_data: { feature_list: [] } };
 	    },
 	    componentDidMount: function componentDidMount() {
 	        $.support.Cors = true;
@@ -22954,6 +22973,42 @@
 	                                'tbody',
 	                                null,
 	                                rows
+	                            )
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        'nav',
+	                        null,
+	                        _react2.default.createElement(
+	                            'ul',
+	                            { className: 'pager' },
+	                            _react2.default.createElement(
+	                                'li',
+	                                { className: 'previous' },
+	                                _react2.default.createElement(
+	                                    'a',
+	                                    { onClick: this.prePage },
+	                                    _react2.default.createElement(
+	                                        'span',
+	                                        { 'aria-hidden': 'true' },
+	                                        '←'
+	                                    ),
+	                                    '上一页'
+	                                )
+	                            ),
+	                            _react2.default.createElement(
+	                                'li',
+	                                { className: 'next' },
+	                                _react2.default.createElement(
+	                                    'a',
+	                                    { onClick: this.nextPage },
+	                                    '下一页',
+	                                    _react2.default.createElement(
+	                                        'span',
+	                                        { 'aria-hidden': 'true' },
+	                                        '→'
+	                                    )
+	                                )
 	                            )
 	                        )
 	                    )
@@ -23511,7 +23566,7 @@
 	        strokeStyle: "solid", //线样式
 	        strokeDasharray: [10, 5] //补充线样式
 	    });
-	    //map.setZoomAndCenter(14, lineArr[lineArr.length - 1]);
+	    map.setZoomAndCenter(13, line[0]);
 	    //map.setFitView();
 	}
 

@@ -66,7 +66,7 @@ function drawPath(lineArr){
         strokeStyle: "solid",   //线样式
         strokeDasharray: [10, 5] //补充线样式
     });
-    //map.setZoomAndCenter(14, lineArr[lineArr.length - 1]);
+    map.setZoomAndCenter(13, line[0]);
     //map.setFitView();
 
 }
