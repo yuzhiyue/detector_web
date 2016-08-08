@@ -485,7 +485,7 @@ var DetectorPage = React.createClass({
         });
         
         self.markers = []
-        this.loadDetectorsFromServer();
+        this.initPolygons()
         setInterval(this.loadDetectorsFromServer, 20000);
     },
     showDeviceListBox: function (apData) {
@@ -533,11 +533,7 @@ var DetectorPage = React.createClass({
         var value = e.target.value
         console.log("onDistrictChange", value)
         if (value == "全部") {
-            this.state.polygons.forEach(function (e) {
-                self.myMap.remove(e)
-            })
-            this.setState({polygons:[]})
-            this.loadDetectorsFromServer()
+            this.initPolygons()
             return
         }
         AMap.service('AMap.DistrictSearch', function() {
@@ -552,9 +548,7 @@ var DetectorPage = React.createClass({
             //行政区查询
             district.search(value, function (status, result) {
                 var bounds = result.districtList[0].boundaries;
-                this.state.polygons.forEach(function (e) {
-                    self.myMap.remove(e)
-                })
+                this.cleanPolygonsFromMap()
                 var polygons = []
                 if (bounds) {
                     for (var i = 0, l = bounds.length; i < l; i++) {
@@ -563,7 +557,7 @@ var DetectorPage = React.createClass({
                             map: self.myMap,
                             strokeWeight: 1,
                             path: bounds[i],
-                            fillOpacity: 0.2,
+                            fillOpacity: 0.1,
                             fillColor: '#CCF3FF',
                             strokeColor: '#CC66CC'
                         });
@@ -577,9 +571,59 @@ var DetectorPage = React.createClass({
             }.bind(this));
         }.bind(this))
     },
+    initPolygons: function () {
+        this.cleanPolygonsFromMap()
+        if (this.state.unlimit) {
+            this.setState({polygons:[]})
+            self.myMap.setCity("梅州市");
+            this.loadDetectorsFromServer()
+            return
+        }
+        AMap.service('AMap.DistrictSearch', function() {
+            var opts = {
+                subdistrict: 1,   //返回下一级行政区
+                extensions: 'all',  //返回行政区边界坐标组等具体信息
+                level: 'city'  //查询行政级别为 市
+            };
+            //实例化DistrictSearch
+            var district = new AMap.DistrictSearch(opts);
+            district.setLevel('district');
+            //行政区查询
+            this.state.areaItems.forEach(function (area) {
+                if(area=="全部") return
+                district.search(area, function (status, result) {
+                    var bounds = result.districtList[0].boundaries;
+                    if (bounds) {
+                        for (var i = 0, l = bounds.length; i < l; i++) {
+                            //生成行政区划polygon
+                            var polygon = new AMap.Polygon({
+                                map: self.myMap,
+                                strokeWeight: 1,
+                                path: bounds[i],
+                                fillOpacity: 0.1,
+                                fillColor: '#CCF3FF',
+                                strokeColor: '#CC66CC'
+                            });
+                            var polygons = this.state.polygons
+                            polygons.push(polygon);
+                            this.setState({polygons:polygons})
+                            this.loadDetectorsFromServer()
+                        }
+                    }
+                }.bind(this));
+            }.bind(this))
+        }.bind(this))
+    },
+    cleanPolygonsFromMap: function () {
+        this.state.polygons.forEach(function (e) {
+            self.myMap.remove(e)
+        })
+    },
     detectorFilter: function (lng, lat) {
         if (this.state.polygons.length == 0) {
-            return true
+            if (this.state.unlimit) {
+                return true
+            }
         }
         var contains = false;
         this.state.polygons.forEach(function (e) {

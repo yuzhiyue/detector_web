@@ -898,7 +898,7 @@
 	        });
 
 	        self.markers = [];
-	        this.loadDetectorsFromServer();
+	        this.initPolygons();
 	        setInterval(this.loadDetectorsFromServer, 20000);
 	    },
 	    showDeviceListBox: function showDeviceListBox(apData) {
@@ -946,11 +946,7 @@
 	        var value = e.target.value;
 	        console.log("onDistrictChange", value);
 	        if (value == "全部") {
-	            this.state.polygons.forEach(function (e) {
-	                self.myMap.remove(e);
-	            });
-	            this.setState({ polygons: [] });
-	            this.loadDetectorsFromServer();
+	            this.initPolygons();
 	            return;
 	        }
 	        AMap.service('AMap.DistrictSearch', function () {
@@ -965,9 +961,7 @@
 	            //行政区查询
 	            district.search(value, function (status, result) {
 	                var bounds = result.districtList[0].boundaries;
-	                this.state.polygons.forEach(function (e) {
-	                    self.myMap.remove(e);
-	                });
+	                this.cleanPolygonsFromMap();
 	                var polygons = [];
 	                if (bounds) {
 	                    for (var i = 0, l = bounds.length; i < l; i++) {
@@ -976,7 +970,7 @@
 	                            map: self.myMap,
 	                            strokeWeight: 1,
 	                            path: bounds[i],
-	                            fillOpacity: 0.2,
+	                            fillOpacity: 0.1,
 	                            fillColor: '#CCF3FF',
 	                            strokeColor: '#CC66CC'
 	                        });
@@ -990,9 +984,59 @@
 	            }.bind(this));
 	        }.bind(this));
 	    },
+	    initPolygons: function initPolygons() {
+	        this.cleanPolygonsFromMap();
+	        if (this.state.unlimit) {
+	            this.setState({ polygons: [] });
+	            self.myMap.setCity("梅州市");
+	            this.loadDetectorsFromServer();
+	            return;
+	        }
+	        AMap.service('AMap.DistrictSearch', function () {
+	            var opts = {
+	                subdistrict: 1, //返回下一级行政区
+	                extensions: 'all', //返回行政区边界坐标组等具体信息
+	                level: 'city' //查询行政级别为 市
+	            };
+	            //实例化DistrictSearch
+	            var district = new AMap.DistrictSearch(opts);
+	            district.setLevel('district');
+	            //行政区查询
+	            this.state.areaItems.forEach(function (area) {
+	                if (area == "全部") return;
+	                district.search(area, function (status, result) {
+	                    var bounds = result.districtList[0].boundaries;
+	                    if (bounds) {
+	                        for (var i = 0, l = bounds.length; i < l; i++) {
+	                            //生成行政区划polygon
+	                            var polygon = new AMap.Polygon({
+	                                map: self.myMap,
+	                                strokeWeight: 1,
+	                                path: bounds[i],
+	                                fillOpacity: 0.1,
+	                                fillColor: '#CCF3FF',
+	                                strokeColor: '#CC66CC'
+	                            });
+	                            var polygons = this.state.polygons;
+	                            polygons.push(polygon);
+	                            this.setState({ polygons: polygons });
+	                            this.loadDetectorsFromServer();
+	                        }
+	                    }
+	                }.bind(this));
+	            }.bind(this));
+	        }.bind(this));
+	    },
+	    cleanPolygonsFromMap: function cleanPolygonsFromMap() {
+	        this.state.polygons.forEach(function (e) {
+	            self.myMap.remove(e);
+	        });
+	    },
 	    detectorFilter: function detectorFilter(lng, lat) {
 	        if (this.state.polygons.length == 0) {
-	            return true;
+	            if (this.state.unlimit) {
+	                return true;
+	            }
 	        }
 	        var contains = false;
 	        this.state.polygons.forEach(function (e) {
@@ -22241,6 +22285,16 @@
 	    query_hint.style.display = "none";
 	}
 
+	function getOrgName(orgCode) {
+	    switch (orgCode) {
+	        case "0":
+	            return "广晟通信";
+	        case "555400905":
+	            return "百米生活";
+	    }
+	    return orgCode;
+	}
+
 	var PageItems = [{ text: '概览', link: "/home", group: "1" }, { text: '探针管理', link: "/detector", group: "2" }, { text: '轨迹查询', link: "/search", group: "3" },
 	// {text:'区域扫描',link:SearchPage},
 	{ text: '轨迹吻合度分析', link: "/similar", group: "4" },
@@ -22262,6 +22316,7 @@
 	module.exports.AreaItems = AreaItems;
 	module.exports.showWaiting = showWaiting;
 	module.exports.hideWaiting = hideWaiting;
+	module.exports.getOrgName = getOrgName;
 	$.support.cors = true;
 	module.exports.server_addr = "http://112.74.90.113/server_interface";
 	//module.exports.server_addr = "http://192.168.31.149:8080"
@@ -22719,7 +22774,7 @@
 	            _react2.default.createElement(
 	                'td',
 	                null,
-	                '百米'
+	                _comm2.default.getOrgName(this.props.orgCode)
 	            )
 	        );
 	    }
@@ -23108,7 +23163,7 @@
 	            _react2.default.createElement(
 	                'td',
 	                null,
-	                this.props.orgcode
+	                _comm2.default.getOrgName(this.props.orgcode)
 	            ),
 	            _react2.default.createElement(
 	                'td',

@@ -82,7 +82,7 @@ var TraceRowWithoutMac = React.createClass({
                 <td>{Comm.formatLngLat(this.props.longitude)},{Comm.formatLngLat(this.props.latitude)}</td>
                 <td>{this.props.time}</td>
                 <td>{this.props.duration}秒</td>
-                <td>{this.props.orgcode}</td>
+                <td>{Comm.getOrgName(this.props.orgcode)}</td>
                 <td>{this.props.ap_mac}</td>
                 <td><div><button type="button"  disabled="disabled" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#pictureModal">查看影像</button></div></td>
             </tr>

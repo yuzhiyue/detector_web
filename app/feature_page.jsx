@@ -36,7 +36,7 @@ var FeatureRow = React.createClass({
                 <td></td>
                 <td></td>
                 <td>{this.props.time}</td>
-                <td>百米</td>
+                <td>{Comm.getOrgName(this.props.orgCode)}</td>
             </tr>
         );
     }

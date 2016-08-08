@@ -106,6 +106,16 @@ function hideWaiting() {
     query_hint.style.display="none";
 }
 
+function getOrgName(orgCode) {
+    switch (orgCode) {
+        case "0":
+            return "广晟通信"
+        case "555400905":
+            return "百米生活"
+    }
+    return orgCode
+}
+
 var PageItems=[{text:'概览',link:"/home",group:"1"},
     {text:'探针管理',link:"/detector",group:"2"},
     {text:'轨迹查询',link:"/search",group:"3"},
@@ -142,6 +152,7 @@ module.exports.PageItems = PageItems;
 module.exports.AreaItems = AreaItems;
 module.exports.showWaiting = showWaiting;
 module.exports.hideWaiting = hideWaiting;
+module.exports.getOrgName = getOrgName;
 $.support.cors = true;
 module.exports.server_addr = "http://112.74.90.113/server_interface"
 //module.exports.server_addr = "http://192.168.31.149:8080"
