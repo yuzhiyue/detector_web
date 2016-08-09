@@ -90,7 +90,11 @@
 
 	var _behavior_page2 = _interopRequireDefault(_behavior_page);
 
-	var _detector_conf = __webpack_require__(178);
+	var _detector_page = __webpack_require__(178);
+
+	var _detector_page2 = _interopRequireDefault(_detector_page);
+
+	var _detector_conf = __webpack_require__(179);
 
 	var _detector_conf2 = _interopRequireDefault(_detector_conf);
 
@@ -100,15 +104,14 @@
 
 	var _trace_replay = __webpack_require__(175);
 
-	var _reactRouter = __webpack_require__(179);
+	var _reactRouter = __webpack_require__(180);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	/**
-	 * Created by Cosine on 2016/5/7.
-	 */
+	var pictures = ["video/1.jpg", "video/2.jpg", "video/3.jpg", "video/4.jpg", "video/5.jpg"]; /**
+	                                                                                             * Created by Cosine on 2016/5/7.
+	                                                                                             */
 
-	var pictures = ["video/1.jpg", "video/2.jpg", "video/3.jpg", "video/4.jpg", "video/5.jpg"];
 	var PictureList = _react2.default.createClass({
 	    displayName: 'PictureList',
 
@@ -322,101 +325,6 @@
 	    }
 	});
 
-	var VideoAnalyser = _react2.default.createClass({
-	    displayName: 'VideoAnalyser',
-
-	    loadData: function loadData() {
-	        var url = _comm2.default.server_addr + '/video?request={"mac":"868120137840424", "start_time":1, "end_time":1}';
-	        $.ajax({
-	            url: url,
-	            dataType: 'json',
-	            cache: false,
-	            success: function (rsp) {
-	                console.log("loadDetectorInfoFromServer response", rsp);
-	                this.setState({ picture_list: rsp.picture_list });
-	            }.bind(this),
-	            error: function (xhr, status, err) {
-	                console.error(url, status, err.toString());
-	            }.bind(this)
-	        });
-	    },
-	    componentDidMount: function componentDidMount() {
-	        this.loadData();
-	    },
-	    getInitialState: function getInitialState() {
-	        return { picture_list: [] };
-	    },
-	    render: function render() {
-	        var picList = [];
-	        this.state.picture_list.forEach(function (picture) {
-	            var macList = [];
-	            picture.device_list.forEach(function (device) {
-	                macList.push(_react2.default.createElement(
-	                    'li',
-	                    { className: 'list-group-item' },
-	                    device.mac
-	                ));
-	            });
-	            var date = new Date();
-	            date.setTime(picture.time * 1000);
-	            var dateString = _comm2.default.formatDate(date);
-	            picList.push(_react2.default.createElement(
-	                'li',
-	                { className: 'list-group-item' },
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'container-fluid page-content' },
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'row' },
-	                        _react2.default.createElement(
-	                            'div',
-	                            { className: 'col-sm-6' },
-	                            _react2.default.createElement(
-	                                'div',
-	                                { className: 'panel panel-default' },
-	                                _react2.default.createElement(
-	                                    'div',
-	                                    { className: 'panel-heading' },
-	                                    dateString
-	                                ),
-	                                _react2.default.createElement('img', { style: { width: "385px" }, src: picture.url })
-	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            'div',
-	                            { className: 'col-sm-6' },
-	                            _react2.default.createElement(
-	                                'div',
-	                                { className: 'panel panel-default' },
-	                                _react2.default.createElement(
-	                                    'div',
-	                                    { className: 'panel-heading' },
-	                                    '周边设备'
-	                                ),
-	                                _react2.default.createElement(
-	                                    'ul',
-	                                    { className: 'list-group' },
-	                                    macList
-	                                )
-	                            )
-	                        )
-	                    )
-	                )
-	            ));
-	        });
-	        return _react2.default.createElement(
-	            'div',
-	            null,
-	            _react2.default.createElement(
-	                'ul',
-	                { className: 'list-group' },
-	                picList
-	            )
-	        );
-	    }
-	});
-
 	var Home = _react2.default.createClass({
 	    displayName: 'Home',
 
@@ -521,248 +429,6 @@
 	    }
 	});
 
-	var TraceRow = _react2.default.createClass({
-	    displayName: 'TraceRow',
-
-	    render: function render() {
-	        return _react2.default.createElement(
-	            'tr',
-	            null,
-	            _react2.default.createElement(
-	                'td',
-	                null,
-	                this.props.mac
-	            ),
-	            _react2.default.createElement(
-	                'td',
-	                null,
-	                _comm2.default.formatLngLat(this.props.longitude),
-	                ',',
-	                _comm2.default.formatLngLat(this.props.latitude)
-	            ),
-	            _react2.default.createElement(
-	                'td',
-	                null,
-	                this.props.time
-	            ),
-	            _react2.default.createElement(
-	                'td',
-	                null,
-	                _react2.default.createElement(
-	                    'div',
-	                    null,
-	                    _react2.default.createElement(
-	                        'button',
-	                        { type: 'button', disabled: 'disabled', className: 'btn btn-primary btn-sm', 'data-toggle': 'modal', 'data-target': '#pictureModal' },
-	                        '查看影像'
-	                    )
-	                )
-	            )
-	        );
-	    }
-	});
-
-	var DetectorDetailBox = _react2.default.createClass({
-	    displayName: 'DetectorDetailBox',
-
-	    render: function render() {
-	        var rows = [];
-	        var mac = this.props.mac;
-	        if (mac == null) {
-	            mac = "";
-	        }
-	        var date = new Date();
-	        date.setTime(this.props.last_report_time * 1000);
-	        var lastReportTime = _comm2.default.formatDate(date);
-	        var idx = 0;
-	        this.props.trace.forEach(function (point) {
-	            if (idx > 30) {
-	                return;
-	            }
-	            idx++;
-	            var time = point.enter_time;
-	            if (time == null) {
-	                time = point.time;
-	            }
-	            var date = new Date();
-	            date.setTime(time * 1000);
-	            var dateString = _comm2.default.formatDate(date);
-	            if (point.mac == null) {
-	                point.mac = mac;
-	            }
-	            rows.push(_react2.default.createElement(TraceRow, { mac: point.mac, longitude: point.longitude, latitude: point.latitude, time: dateString }));
-	        });
-	        var date = new Date();
-	        date.setTime(this.props.detector.last_login_time * 1000);
-	        var dateString = _comm2.default.formatDate(date);
-	        var scanConf = "默认配置";
-	        if (this.props.detector.scan_conf != null) {
-	            scanConf = "";
-	            this.props.detector.scan_conf.map(function (e) {
-	                scanConf = scanConf + e.channel + ":" + e.interval + ",";
-	            });
-	        }
-	        return _react2.default.createElement(
-	            'div',
-	            { className: 'container-fluid page-content' },
-	            _react2.default.createElement(
-	                'div',
-	                { className: 'row' },
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'col-sm-12' },
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'panel panel-default' },
-	                        _react2.default.createElement(
-	                            'div',
-	                            { className: 'panel-heading' },
-	                            '探测器属性'
-	                        ),
-	                        _react2.default.createElement(
-	                            'table',
-	                            { className: 'table table-striped table-hover' },
-	                            _react2.default.createElement(
-	                                'thead',
-	                                null,
-	                                _react2.default.createElement(
-	                                    'tr',
-	                                    null,
-	                                    _react2.default.createElement(
-	                                        'th',
-	                                        null,
-	                                        '设备MAC'
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'th',
-	                                        null,
-	                                        '经纬'
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'th',
-	                                        null,
-	                                        '扫描配置'
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'th',
-	                                        null,
-	                                        '最近登录时间'
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'th',
-	                                        null,
-	                                        '周边设备数'
-	                                    )
-	                                )
-	                            ),
-	                            _react2.default.createElement(
-	                                'tbody',
-	                                null,
-	                                _react2.default.createElement(
-	                                    'tr',
-	                                    null,
-	                                    _react2.default.createElement(
-	                                        'td',
-	                                        null,
-	                                        this.props.detector.mac
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'td',
-	                                        null,
-	                                        _comm2.default.formatLngLat(this.props.detector.longitude),
-	                                        ',',
-	                                        _comm2.default.formatLngLat(this.props.detector.latitude)
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'td',
-	                                        null,
-	                                        scanConf
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'td',
-	                                        null,
-	                                        dateString
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'td',
-	                                        null,
-	                                        this.props.distinct_device_num
-	                                    )
-	                                )
-	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            'div',
-	                            null,
-	                            _react2.default.createElement(
-	                                'button',
-	                                { type: 'button', className: 'btn btn-primary btn-sm', 'data-toggle': 'modal', 'data-target': '#video_analyser' },
-	                                '视频联动分析'
-	                            )
-	                        )
-	                    )
-	                )
-	            ),
-	            _react2.default.createElement(
-	                'div',
-	                { className: 'row' },
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'col-sm-12' },
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'panel panel-default' },
-	                        _react2.default.createElement(
-	                            'div',
-	                            { className: 'panel-heading' },
-	                            '周边设备 最近探测时间：',
-	                            lastReportTime
-	                        ),
-	                        _react2.default.createElement(
-	                            'table',
-	                            { className: 'table table-striped table-hover' },
-	                            _react2.default.createElement(
-	                                'thead',
-	                                null,
-	                                _react2.default.createElement(
-	                                    'tr',
-	                                    null,
-	                                    _react2.default.createElement(
-	                                        'th',
-	                                        null,
-	                                        '设备MAC'
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'th',
-	                                        null,
-	                                        '经纬'
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'th',
-	                                        null,
-	                                        '时间'
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        'th',
-	                                        null,
-	                                        '影像'
-	                                    )
-	                                )
-	                            ),
-	                            _react2.default.createElement(
-	                                'tbody',
-	                                null,
-	                                rows
-	                            )
-	                        )
-	                    )
-	                )
-	            ),
-	            _react2.default.createElement(ModalBox, { boxId: 'video_analyser', body: _react2.default.createElement(VideoAnalyser, null), title: '视频关联分析' })
-	        );
-	    }
-	});
-
 	var ModalBox = _react2.default.createClass({
 	    displayName: 'ModalBox',
 
@@ -813,451 +479,6 @@
 	    infoWindow.setContent(e.target.content);
 	    infoWindow.open(e.target.my_map, e.target.getPosition());
 	}
-
-	function markerContent(detector) {
-	    var date = new Date();
-	    date.setTime(detector.last_report_time * 1000);
-	    var lastReportTime = _comm2.default.formatDate(date);
-	    date.setTime(detector.last_login_time * 1000);
-	    var lastLoginTime = _comm2.default.formatDate(date);
-
-	    var state = detector.status === "01" ? "在线" : "离线";
-	    var content = "MAC：" + detector.mac + "\n" + "位置：" + _comm2.default.formatLngLat(detector.longitude) + ", " + _comm2.default.formatLngLat(detector.latitude) + "\n" + "状态：" + state + "\n" + "最近登陆时间：" + lastLoginTime;
-
-	    return content;
-	}
-
-	var DetectorPage = _react2.default.createClass({
-	    displayName: 'DetectorPage',
-
-	    loadDetectorsFromServer: function loadDetectorsFromServer() {
-	        //console.log("loadDetectorsFromServer")
-	        $.ajax({
-	            url: _comm2.default.server_addr + "/detector_list?request={}",
-	            dataType: 'json',
-	            cache: false,
-	            success: function (rsp) {
-	                if (this.isMounted()) {
-	                    console.log("detector list", rsp);
-	                    var idx = 1;
-	                    var lnglatArr = [];
-	                    rsp.detector_list.forEach(function (e) {
-	                        lnglatArr.push(new AMap.LngLat(e.longitude, e.latitude));
-	                    });
-	                    AMap.convertFrom(lnglatArr, "gps", function (status, result) {
-	                        console.log("convert geo", status, result);
-	                        self.myMap.remove(self.markers);
-	                        self.markers = [];
-	                        var detector_list = [];
-	                        var today_mac_count = 0;
-	                        result.locations.forEach(function (pos) {
-	                            var detector = rsp.detector_list[idx - 1];
-	                            var contains = this.detectorFilter(pos.getLng(), pos.getLat());
-	                            console.log("contains", contains);
-	                            if (contains) {
-	                                detector_list.push(detector);
-	                                today_mac_count = today_mac_count + detector.today_mac_count;
-	                            } else {
-	                                idx = idx + 1;
-	                                return;
-	                            }
-	                            var text = '<div class="marker-route marker-marker-bus-from">' + detector.no.toString() + '号</div>';
-	                            var marker = new AMap.Marker({
-	                                map: self.myMap,
-	                                position: [pos.getLng(), pos.getLat()],
-	                                offset: new AMap.Pixel(-10, -20), //相对于基点的偏移位置
-	                                draggable: false, //是否可拖动
-	                                title: markerContent(detector),
-	                                content: text
-	                            });
-	                            // marker.content = markerContent(detector)
-	                            // marker.my_map = self.myMap,
-	                            // marker.on('click', markerClick);
-	                            // marker.emit('click', {target: marker});
-	                            self.markers.push(marker);
-	                            idx = idx + 1;
-	                        }.bind(this));
-	                        this.setState({ commData: { detector_list: detector_list, today_mac_count: today_mac_count } });
-	                    }.bind(this));
-	                }
-	            }.bind(this),
-	            error: function (xhr, status, err) {
-	                console.error(this.props.url, status, err.toString());
-	            }.bind(this)
-	        });
-	    },
-	    componentDidMount: function componentDidMount() {
-	        self.myMap = new AMap.Map('map_detector', {
-	            resizeEnable: true,
-	            zoom: 14,
-	            center: [116.109095, 24.296806]
-
-	        });
-	        self.myMap.plugin(["AMap.ToolBar"], function () {
-	            self.myMap.addControl(new AMap.ToolBar());
-	        });
-
-	        self.markers = [];
-	        this.initPolygons();
-	        setInterval(this.loadDetectorsFromServer, 20000);
-	    },
-	    showDeviceListBox: function showDeviceListBox(apData) {
-	        var url = _comm2.default.server_addr + '/detector_info?request={"mac":"' + apData.mac + '"}';
-	        $.ajax({
-	            url: url,
-	            dataType: 'json',
-	            cache: false,
-	            success: function (rsp) {
-	                console.log("loadDetectorInfoFromServer response", rsp);
-	                this.setState({ deviceList: rsp, current_detector: apData });
-	            }.bind(this),
-	            error: function (xhr, status, err) {
-	                console.error(url, status, err.toString());
-	            }.bind(this)
-	        });
-	    },
-	    getInitialState: function getInitialState() {
-	        var area = decodeURI(_comm2.default.getCookie("area"));
-	        area = decodeURI(area);
-	        console.log("area cookies", area);
-	        var areaList = area.split("_");
-	        var areaItems = [];
-	        var unlimit = false;
-	        _comm2.default.AreaItems.forEach(function (e) {
-	            areaList.forEach(function (area) {
-	                console.log(e, area);
-	                if (area == "不限制") {
-	                    unlimit = true;
-	                }
-	                if (area == e) {
-	                    areaItems.push(area);
-	                    console.log("area add", area);
-	                    return;
-	                }
-	            });
-	        });
-	        if (unlimit) {
-	            areaItems = _comm2.default.AreaItems;
-	        }
-	        console.log(areaItems);
-	        return { unlimit: unlimit, areaItems: areaItems, polygons: [], deviceList: { device_list: [], last_report_time: 0, distinct_device_num: 0 }, current_detector: { mac: "", scan_conf: [], longitude: 0, latitude: 0, last_login_time: 0 }, commData: { today_mac_count: 0, detector_list: [] } };
-	    },
-	    onDistrictChange: function onDistrictChange(e) {
-	        var value = e.target.value;
-	        console.log("onDistrictChange", value);
-	        if (value == "全部") {
-	            this.initPolygons();
-	            return;
-	        }
-	        AMap.service('AMap.DistrictSearch', function () {
-	            var opts = {
-	                subdistrict: 1, //返回下一级行政区
-	                extensions: 'all', //返回行政区边界坐标组等具体信息
-	                level: 'city' //查询行政级别为 市
-	            };
-	            //实例化DistrictSearch
-	            var district = new AMap.DistrictSearch(opts);
-	            district.setLevel('district');
-	            //行政区查询
-	            district.search(value, function (status, result) {
-	                var bounds = result.districtList[0].boundaries;
-	                this.cleanPolygonsFromMap();
-	                var polygons = [];
-	                if (bounds) {
-	                    for (var i = 0, l = bounds.length; i < l; i++) {
-	                        //生成行政区划polygon
-	                        var polygon = new AMap.Polygon({
-	                            map: self.myMap,
-	                            strokeWeight: 1,
-	                            path: bounds[i],
-	                            fillOpacity: 0.1,
-	                            fillColor: '#CCF3FF',
-	                            strokeColor: '#CC66CC'
-	                        });
-	                        polygons.push(polygon);
-	                    }
-	                    self.myMap.setCity(value);
-	                    this.setState({ polygons: polygons });
-	                    //self.myMap.setFitView();//地图自适应
-	                    this.loadDetectorsFromServer();
-	                }
-	            }.bind(this));
-	        }.bind(this));
-	    },
-	    initPolygons: function initPolygons() {
-	        this.cleanPolygonsFromMap();
-	        if (this.state.unlimit) {
-	            this.setState({ polygons: [] });
-	            self.myMap.setCity("梅州市");
-	            this.loadDetectorsFromServer();
-	            return;
-	        }
-	        AMap.service('AMap.DistrictSearch', function () {
-	            var opts = {
-	                subdistrict: 1, //返回下一级行政区
-	                extensions: 'all', //返回行政区边界坐标组等具体信息
-	                level: 'city' //查询行政级别为 市
-	            };
-	            //实例化DistrictSearch
-	            var district = new AMap.DistrictSearch(opts);
-	            district.setLevel('district');
-	            //行政区查询
-	            this.state.areaItems.forEach(function (area) {
-	                if (area == "全部") return;
-	                district.search(area, function (status, result) {
-	                    var bounds = result.districtList[0].boundaries;
-	                    if (bounds) {
-	                        for (var i = 0, l = bounds.length; i < l; i++) {
-	                            //生成行政区划polygon
-	                            var polygon = new AMap.Polygon({
-	                                map: self.myMap,
-	                                strokeWeight: 1,
-	                                path: bounds[i],
-	                                fillOpacity: 0.1,
-	                                fillColor: '#CCF3FF',
-	                                strokeColor: '#CC66CC'
-	                            });
-	                            var polygons = this.state.polygons;
-	                            polygons.push(polygon);
-	                            this.setState({ polygons: polygons });
-	                            this.loadDetectorsFromServer();
-	                        }
-	                    }
-	                }.bind(this));
-	            }.bind(this));
-	        }.bind(this));
-	    },
-	    cleanPolygonsFromMap: function cleanPolygonsFromMap() {
-	        this.state.polygons.forEach(function (e) {
-	            self.myMap.remove(e);
-	        });
-	    },
-	    detectorFilter: function detectorFilter(lng, lat) {
-	        if (this.state.polygons.length == 0) {
-	            if (this.state.unlimit) {
-	                return true;
-	            }
-	        }
-	        var contains = false;
-	        this.state.polygons.forEach(function (e) {
-	            if (e.contains([lng, lat])) {
-	                contains = true;
-	            }
-	        });
-	        return contains;
-	    },
-	    render: function render() {
-	        var selectItems = [];
-	        this.state.areaItems.forEach(function (e) {
-	            selectItems.push(_react2.default.createElement(
-	                'option',
-	                { value: e },
-	                e
-	            ));
-	        });
-	        var modalBody = _react2.default.createElement(DetectorDetailBox, { trace: this.state.deviceList.device_list, detector: this.state.current_detector, distinct_device_num: this.state.deviceList.distinct_device_num, last_report_time: this.state.deviceList.last_report_time });
-	        return _react2.default.createElement(
-	            'div',
-	            { className: 'container-fluid page-content' },
-	            _react2.default.createElement(
-	                'div',
-	                { className: 'row' },
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'col-sm-8' },
-	                    '辖区：',
-	                    _react2.default.createElement(
-	                        'select',
-	                        { id: 'district', style: { width: "200px" }, onChange: this.onDistrictChange },
-	                        _react2.default.createElement(
-	                            'option',
-	                            { value: '全部' },
-	                            '全部'
-	                        ),
-	                        selectItems
-	                    )
-	                )
-	            ),
-	            _react2.default.createElement(
-	                'div',
-	                { className: 'row', style: { marginTop: "10px" } },
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'col-sm-8' },
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'panel panel-primary' },
-	                        _react2.default.createElement(
-	                            'div',
-	                            { className: 'panel-heading' },
-	                            '探测器分布'
-	                        ),
-	                        _react2.default.createElement('div', { id: 'map_detector', className: 'map' })
-	                    )
-	                ),
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'col-sm-4' },
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'panel panel-primary' },
-	                        _react2.default.createElement(
-	                            'div',
-	                            { className: 'panel-heading' },
-	                            '探测器列表'
-	                        ),
-	                        _react2.default.createElement(DetectorList, { data: this.state.commData.detector_list, showBoxHandler: this.showDeviceListBox })
-	                    )
-	                )
-	            ),
-	            _react2.default.createElement(ModalBox, { boxId: 'device_list_box', body: modalBody, title: '探测器详细信息' })
-	        );
-	    }
-	});
-
-	var DetectorList = _react2.default.createClass({
-	    displayName: 'DetectorList',
-
-	    render: function render() {
-	        var showBoxHandler = this.props.showBoxHandler;
-	        var nodes = this.props.data.map(function (detector) {
-	            return _react2.default.createElement(DetectorItem, { key: detector.no, data: detector, showBoxHandler: showBoxHandler });
-	        });
-	        return _react2.default.createElement(
-	            'div',
-	            { className: 'detector_list' },
-	            _react2.default.createElement(
-	                'ul',
-	                { className: 'list-group' },
-	                nodes
-	            )
-	        );
-	    }
-	});
-
-	var DetectorItem = _react2.default.createClass({
-	    displayName: 'DetectorItem',
-
-	    handleClick: function handleClick(event) {
-	        console.log("click on " + this.props.data.mac);
-	        this.props.showBoxHandler(this.props.data);
-	    },
-	    getInitialState: function getInitialState() {
-	        return { address: "" };
-	    },
-	    componentDidMount: function componentDidMount() {
-	        AMap.convertFrom(new AMap.LngLat(this.props.data.longitude, this.props.data.latitude), "gps", function (status, result) {
-	            console.log("convert detector geo", status, result);
-	            var gd_pos = result.locations[0];
-	            AMap.service('AMap.Geocoder', function () {
-	                var geocoder = new AMap.Geocoder({
-	                    city: "010" //城市，默认：“全国”
-	                });
-	                geocoder.getAddress([gd_pos.getLng(), gd_pos.getLat()], function (status, result) {
-	                    if (status === 'complete' && result.info === 'OK') {
-	                        this.setState({ address: result.regeocode.formattedAddress });
-	                    }
-	                }.bind(this));
-	            }.bind(this));
-	        }.bind(this));
-	    },
-	    render: function render() {
-	        var state = this.props.data.status === "01" ? "在线" : "离线";
-	        var div_class = this.props.data.status === "01" ? "online" : "offline";
-	        var mac_count = 0;
-	        if (this.props.data.today_mac_count != null) {
-	            mac_count = this.props.data.today_mac_count;
-	        }
-	        var company = "广晟";
-	        if (this.props.data.company == "02") {
-	            company = "百米";
-	        }
-	        return _react2.default.createElement(
-	            'a',
-	            { className: 'list-group-item', onClick: this.handleClick, href: '#', 'data-toggle': 'modal', 'data-target': '#device_list_box' },
-	            _react2.default.createElement(
-	                'span',
-	                { className: 'badge' },
-	                mac_count
-	            ),
-	            _react2.default.createElement(
-	                'div',
-	                null,
-	                this.props.data.no,
-	                '号 ',
-	                company,
-	                '  ',
-	                this.props.data.mac
-	            ),
-	            _react2.default.createElement(
-	                'div',
-	                null,
-	                this.state.address
-	            ),
-	            _react2.default.createElement(
-	                'div',
-	                { className: div_class },
-	                _react2.default.createElement(
-	                    'b',
-	                    null,
-	                    '状态：'
-	                ),
-	                state
-	            )
-	        );
-	    }
-	});
-
-	var DetectorRow = _react2.default.createClass({
-	    displayName: 'DetectorRow',
-
-	    render: function render() {
-	        var date = new Date();
-	        date.setTime(this.props.last_login_time * 1000);
-	        var dateString = _comm2.default.formatDate(date);
-	        return _react2.default.createElement(
-	            'tr',
-	            null,
-	            _react2.default.createElement(
-	                'td',
-	                null,
-	                this.props.mac
-	            ),
-	            _react2.default.createElement(
-	                'td',
-	                null,
-	                this.props.longitude,
-	                ',',
-	                this.props.latitude
-	            ),
-	            _react2.default.createElement(
-	                'td',
-	                null,
-	                dateString
-	            ),
-	            _react2.default.createElement(
-	                'td',
-	                null,
-	                '在线'
-	            ),
-	            _react2.default.createElement(
-	                'td',
-	                null,
-	                '陈工'
-	            ),
-	            _react2.default.createElement(
-	                'td',
-	                null,
-	                '18554374756'
-	            ),
-	            _react2.default.createElement(
-	                'td',
-	                null,
-	                this.props.region
-	            )
-	        );
-	    }
-	});
 
 	var RegionPage = _react2.default.createClass({
 	    displayName: 'RegionPage',
@@ -1404,7 +625,7 @@
 	        { path: '/', component: Page },
 	        _react2.default.createElement(_reactRouter.IndexRoute, { component: Home }),
 	        _react2.default.createElement(_reactRouter.Route, { path: 'home', component: Home }),
-	        _react2.default.createElement(_reactRouter.Route, { path: 'detector', component: DetectorPage }),
+	        _react2.default.createElement(_reactRouter.Route, { path: 'detector', component: _detector_page2.default }),
 	        _react2.default.createElement(_reactRouter.Route, { path: 'search', component: _search_page2.default }),
 	        _react2.default.createElement(_reactRouter.Route, { path: 'feature', component: _feature_page2.default }),
 	        _react2.default.createElement(_reactRouter.Route, { path: 'behavior', component: _behavior_page2.default }),
@@ -24249,6 +23470,910 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	var ModalBox = _react2.default.createClass({
+	    displayName: 'ModalBox',
+
+	    render: function render() {
+	        var bodyCompont = this.props.body;
+	        return _react2.default.createElement(
+	            'div',
+	            { className: 'modal fade', id: this.props.boxId },
+	            _react2.default.createElement(
+	                'div',
+	                { className: 'modal-dialog modal-lg' },
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'modal-content' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'modal-header' },
+	                        _react2.default.createElement(
+	                            'button',
+	                            { type: 'button', className: 'close', 'data-dismiss': 'modal', 'aria-label': 'Close' },
+	                            _react2.default.createElement(
+	                                'span',
+	                                { 'aria-hidden': 'true' },
+	                                '×'
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            'h4',
+	                            { className: 'modal-title' },
+	                            this.props.title
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'modal-body' },
+	                        bodyCompont
+	                    ),
+	                    _react2.default.createElement('div', { className: 'modal-footer' })
+	                )
+	            )
+	        );
+	    }
+	});
+
+	var TraceRow = _react2.default.createClass({
+	    displayName: 'TraceRow',
+
+	    render: function render() {
+	        return _react2.default.createElement(
+	            'tr',
+	            null,
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                this.props.mac
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                _comm2.default.formatLngLat(this.props.longitude),
+	                ',',
+	                _comm2.default.formatLngLat(this.props.latitude)
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                this.props.time
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    _react2.default.createElement(
+	                        'button',
+	                        { type: 'button', disabled: 'disabled', className: 'btn btn-primary btn-sm', 'data-toggle': 'modal', 'data-target': '#pictureModal' },
+	                        '查看影像'
+	                    )
+	                )
+	            )
+	        );
+	    }
+	});
+
+	var DetectorDetailBox = _react2.default.createClass({
+	    displayName: 'DetectorDetailBox',
+
+	    render: function render() {
+	        var rows = [];
+	        var mac = this.props.mac;
+	        if (mac == null) {
+	            mac = "";
+	        }
+	        var date = new Date();
+	        date.setTime(this.props.last_report_time * 1000);
+	        var lastReportTime = _comm2.default.formatDate(date);
+	        var idx = 0;
+	        this.props.trace.forEach(function (point) {
+	            if (idx > 30) {
+	                return;
+	            }
+	            idx++;
+	            var time = point.enter_time;
+	            if (time == null) {
+	                time = point.time;
+	            }
+	            var date = new Date();
+	            date.setTime(time * 1000);
+	            var dateString = _comm2.default.formatDate(date);
+	            if (point.mac == null) {
+	                point.mac = mac;
+	            }
+	            rows.push(_react2.default.createElement(TraceRow, { mac: point.mac, longitude: point.longitude, latitude: point.latitude, time: dateString }));
+	        });
+	        var date = new Date();
+	        date.setTime(this.props.detector.last_login_time * 1000);
+	        var dateString = _comm2.default.formatDate(date);
+	        var scanConf = "默认配置";
+	        if (this.props.detector.scan_conf != null) {
+	            scanConf = "";
+	            this.props.detector.scan_conf.map(function (e) {
+	                scanConf = scanConf + e.channel + ":" + e.interval + ",";
+	            });
+	        }
+	        return _react2.default.createElement(
+	            'div',
+	            { className: 'container-fluid page-content' },
+	            _react2.default.createElement(
+	                'div',
+	                { className: 'row' },
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'col-sm-12' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'panel panel-default' },
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'panel-heading' },
+	                            '探测器属性'
+	                        ),
+	                        _react2.default.createElement(
+	                            'table',
+	                            { className: 'table table-striped table-hover' },
+	                            _react2.default.createElement(
+	                                'thead',
+	                                null,
+	                                _react2.default.createElement(
+	                                    'tr',
+	                                    null,
+	                                    _react2.default.createElement(
+	                                        'th',
+	                                        null,
+	                                        '设备MAC'
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'th',
+	                                        null,
+	                                        '经纬'
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'th',
+	                                        null,
+	                                        '扫描配置'
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'th',
+	                                        null,
+	                                        '最近登录时间'
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'th',
+	                                        null,
+	                                        '周边设备数'
+	                                    )
+	                                )
+	                            ),
+	                            _react2.default.createElement(
+	                                'tbody',
+	                                null,
+	                                _react2.default.createElement(
+	                                    'tr',
+	                                    null,
+	                                    _react2.default.createElement(
+	                                        'td',
+	                                        null,
+	                                        this.props.detector.mac
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'td',
+	                                        null,
+	                                        _comm2.default.formatLngLat(this.props.detector.longitude),
+	                                        ',',
+	                                        _comm2.default.formatLngLat(this.props.detector.latitude)
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'td',
+	                                        null,
+	                                        scanConf
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'td',
+	                                        null,
+	                                        dateString
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'td',
+	                                        null,
+	                                        this.props.distinct_device_num
+	                                    )
+	                                )
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            'div',
+	                            null,
+	                            _react2.default.createElement(
+	                                'button',
+	                                { type: 'button', className: 'btn btn-primary btn-sm', 'data-toggle': 'modal', 'data-target': '#video_analyser' },
+	                                '视频联动分析'
+	                            )
+	                        )
+	                    )
+	                )
+	            ),
+	            _react2.default.createElement(
+	                'div',
+	                { className: 'row' },
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'col-sm-12' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'panel panel-default' },
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'panel-heading' },
+	                            '周边设备 最近探测时间：',
+	                            lastReportTime
+	                        ),
+	                        _react2.default.createElement(
+	                            'table',
+	                            { className: 'table table-striped table-hover' },
+	                            _react2.default.createElement(
+	                                'thead',
+	                                null,
+	                                _react2.default.createElement(
+	                                    'tr',
+	                                    null,
+	                                    _react2.default.createElement(
+	                                        'th',
+	                                        null,
+	                                        '设备MAC'
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'th',
+	                                        null,
+	                                        '经纬'
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'th',
+	                                        null,
+	                                        '时间'
+	                                    ),
+	                                    _react2.default.createElement(
+	                                        'th',
+	                                        null,
+	                                        '影像'
+	                                    )
+	                                )
+	                            ),
+	                            _react2.default.createElement(
+	                                'tbody',
+	                                null,
+	                                rows
+	                            )
+	                        )
+	                    )
+	                )
+	            ),
+	            _react2.default.createElement(ModalBox, { boxId: 'video_analyser', body: _react2.default.createElement(VideoAnalyser, null), title: '视频关联分析' })
+	        );
+	    }
+	});
+
+	var VideoAnalyser = _react2.default.createClass({
+	    displayName: 'VideoAnalyser',
+
+	    loadData: function loadData() {
+	        var url = _comm2.default.server_addr + '/video?request={"mac":"868120137840424", "start_time":1, "end_time":1}';
+	        $.ajax({
+	            url: url,
+	            dataType: 'json',
+	            cache: false,
+	            success: function (rsp) {
+	                console.log("loadDetectorInfoFromServer response", rsp);
+	                this.setState({ picture_list: rsp.picture_list });
+	            }.bind(this),
+	            error: function (xhr, status, err) {
+	                console.error(url, status, err.toString());
+	            }.bind(this)
+	        });
+	    },
+	    componentDidMount: function componentDidMount() {
+	        this.loadData();
+	    },
+	    getInitialState: function getInitialState() {
+	        return { picture_list: [] };
+	    },
+	    render: function render() {
+	        var picList = [];
+	        this.state.picture_list.forEach(function (picture) {
+	            var macList = [];
+	            picture.device_list.forEach(function (device) {
+	                macList.push(_react2.default.createElement(
+	                    'li',
+	                    { className: 'list-group-item' },
+	                    device.mac
+	                ));
+	            });
+	            var date = new Date();
+	            date.setTime(picture.time * 1000);
+	            var dateString = _comm2.default.formatDate(date);
+	            picList.push(_react2.default.createElement(
+	                'li',
+	                { className: 'list-group-item' },
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'container-fluid page-content' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'row' },
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'col-sm-6' },
+	                            _react2.default.createElement(
+	                                'div',
+	                                { className: 'panel panel-default' },
+	                                _react2.default.createElement(
+	                                    'div',
+	                                    { className: 'panel-heading' },
+	                                    dateString
+	                                ),
+	                                _react2.default.createElement('img', { style: { width: "385px" }, src: picture.url })
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'col-sm-6' },
+	                            _react2.default.createElement(
+	                                'div',
+	                                { className: 'panel panel-default' },
+	                                _react2.default.createElement(
+	                                    'div',
+	                                    { className: 'panel-heading' },
+	                                    '周边设备'
+	                                ),
+	                                _react2.default.createElement(
+	                                    'ul',
+	                                    { className: 'list-group' },
+	                                    macList
+	                                )
+	                            )
+	                        )
+	                    )
+	                )
+	            ));
+	        });
+	        return _react2.default.createElement(
+	            'div',
+	            null,
+	            _react2.default.createElement(
+	                'ul',
+	                { className: 'list-group' },
+	                picList
+	            )
+	        );
+	    }
+	});
+
+	function markerContent(detector) {
+	    var date = new Date();
+	    date.setTime(detector.last_report_time * 1000);
+	    var lastReportTime = _comm2.default.formatDate(date);
+	    date.setTime(detector.last_login_time * 1000);
+	    var lastLoginTime = _comm2.default.formatDate(date);
+
+	    var state = detector.status === "01" ? "在线" : "离线";
+	    var content = "MAC：" + detector.mac + "\n" + "位置：" + _comm2.default.formatLngLat(detector.longitude) + ", " + _comm2.default.formatLngLat(detector.latitude) + "\n" + "状态：" + state + "\n" + "最近登陆时间：" + lastLoginTime;
+
+	    return content;
+	}
+
+	var DetectorPage = _react2.default.createClass({
+	    displayName: 'DetectorPage',
+
+	    loadDetectorsFromServer: function loadDetectorsFromServer() {
+	        //console.log("loadDetectorsFromServer")
+	        $.ajax({
+	            url: _comm2.default.server_addr + "/detector_list?request={}",
+	            dataType: 'json',
+	            cache: false,
+	            success: function (rsp) {
+	                if (this.isMounted()) {
+	                    console.log("detector list", rsp);
+	                    var idx = 1;
+	                    var lnglatArr = [];
+	                    rsp.detector_list.forEach(function (e) {
+	                        lnglatArr.push(new AMap.LngLat(e.longitude, e.latitude));
+	                    });
+	                    AMap.convertFrom(lnglatArr, "gps", function (status, result) {
+	                        console.log("convert geo", status, result);
+	                        self.myMap.remove(self.markers);
+	                        self.markers = [];
+	                        var detector_list = [];
+	                        var today_mac_count = 0;
+	                        result.locations.forEach(function (pos) {
+	                            var detector = rsp.detector_list[idx - 1];
+	                            var contains = this.detectorFilter(pos.getLng(), pos.getLat());
+	                            console.log("contains", contains);
+	                            if (contains) {
+	                                detector_list.push(detector);
+	                                today_mac_count = today_mac_count + detector.today_mac_count;
+	                            } else {
+	                                idx = idx + 1;
+	                                return;
+	                            }
+	                            var text = '<div class="marker-route marker-marker-bus-from">' + detector.no.toString() + '号</div>';
+	                            var marker = new AMap.Marker({
+	                                map: self.myMap,
+	                                position: [pos.getLng(), pos.getLat()],
+	                                offset: new AMap.Pixel(-10, -20), //相对于基点的偏移位置
+	                                draggable: false, //是否可拖动
+	                                title: markerContent(detector),
+	                                content: text
+	                            });
+	                            // marker.content = markerContent(detector)
+	                            // marker.my_map = self.myMap,
+	                            // marker.on('click', markerClick);
+	                            // marker.emit('click', {target: marker});
+	                            self.markers.push(marker);
+	                            idx = idx + 1;
+	                        }.bind(this));
+	                        this.setState({ commData: { detector_list: detector_list, today_mac_count: today_mac_count } });
+	                    }.bind(this));
+	                }
+	            }.bind(this),
+	            error: function (xhr, status, err) {
+	                console.error(this.props.url, status, err.toString());
+	            }.bind(this)
+	        });
+	    },
+	    componentDidMount: function componentDidMount() {
+	        self.myMap = new AMap.Map('map_detector', {
+	            resizeEnable: true,
+	            zoom: 14,
+	            center: [116.109095, 24.296806]
+
+	        });
+	        self.myMap.plugin(["AMap.ToolBar"], function () {
+	            self.myMap.addControl(new AMap.ToolBar());
+	        });
+
+	        self.markers = [];
+	        this.initPolygons();
+	        setInterval(this.loadDetectorsFromServer, 20000);
+	    },
+	    showDeviceListBox: function showDeviceListBox(apData) {
+	        var url = _comm2.default.server_addr + '/detector_info?request={"mac":"' + apData.mac + '"}';
+	        $.ajax({
+	            url: url,
+	            dataType: 'json',
+	            cache: false,
+	            success: function (rsp) {
+	                console.log("loadDetectorInfoFromServer response", rsp);
+	                this.setState({ deviceList: rsp, current_detector: apData });
+	            }.bind(this),
+	            error: function (xhr, status, err) {
+	                console.error(url, status, err.toString());
+	            }.bind(this)
+	        });
+	    },
+	    getInitialState: function getInitialState() {
+	        var area = decodeURI(_comm2.default.getCookie("area"));
+	        area = decodeURI(area);
+	        console.log("area cookies", area);
+	        var areaList = area.split("_");
+	        var areaItems = [];
+	        var unlimit = false;
+	        _comm2.default.AreaItems.forEach(function (e) {
+	            areaList.forEach(function (area) {
+	                console.log(e, area);
+	                if (area == "不限制") {
+	                    unlimit = true;
+	                }
+	                if (area == e) {
+	                    areaItems.push(area);
+	                    console.log("area add", area);
+	                    return;
+	                }
+	            });
+	        });
+	        if (unlimit) {
+	            areaItems = _comm2.default.AreaItems;
+	        }
+	        console.log(areaItems);
+	        return { unlimit: unlimit, areaItems: areaItems, polygons: [], deviceList: { device_list: [], last_report_time: 0, distinct_device_num: 0 }, current_detector: { mac: "", scan_conf: [], longitude: 0, latitude: 0, last_login_time: 0 }, commData: { today_mac_count: 0, detector_list: [] } };
+	    },
+	    onDistrictChange: function onDistrictChange(e) {
+	        var value = e.target.value;
+	        console.log("onDistrictChange", value);
+	        if (value == "全部") {
+	            this.initPolygons();
+	            return;
+	        }
+	        AMap.service('AMap.DistrictSearch', function () {
+	            var opts = {
+	                subdistrict: 1, //返回下一级行政区
+	                extensions: 'all', //返回行政区边界坐标组等具体信息
+	                level: 'city' //查询行政级别为 市
+	            };
+	            //实例化DistrictSearch
+	            var district = new AMap.DistrictSearch(opts);
+	            district.setLevel('district');
+	            //行政区查询
+	            district.search(value, function (status, result) {
+	                var bounds = result.districtList[0].boundaries;
+	                this.cleanPolygonsFromMap();
+	                var polygons = [];
+	                if (bounds) {
+	                    for (var i = 0, l = bounds.length; i < l; i++) {
+	                        //生成行政区划polygon
+	                        var polygon = new AMap.Polygon({
+	                            map: self.myMap,
+	                            strokeWeight: 1,
+	                            path: bounds[i],
+	                            fillOpacity: 0.1,
+	                            fillColor: '#CCF3FF',
+	                            strokeColor: '#CC66CC'
+	                        });
+	                        polygons.push(polygon);
+	                    }
+	                    self.myMap.setCity(value);
+	                    this.setState({ polygons: polygons });
+	                    //self.myMap.setFitView();//地图自适应
+	                    this.loadDetectorsFromServer();
+	                }
+	            }.bind(this));
+	        }.bind(this));
+	    },
+	    initPolygons: function initPolygons() {
+	        this.cleanPolygonsFromMap();
+	        if (this.state.unlimit) {
+	            this.setState({ polygons: [] });
+	            self.myMap.setCity("梅州市");
+	            this.loadDetectorsFromServer();
+	            return;
+	        }
+	        AMap.service('AMap.DistrictSearch', function () {
+	            var opts = {
+	                subdistrict: 1, //返回下一级行政区
+	                extensions: 'all', //返回行政区边界坐标组等具体信息
+	                level: 'city' //查询行政级别为 市
+	            };
+	            //实例化DistrictSearch
+	            var district = new AMap.DistrictSearch(opts);
+	            district.setLevel('district');
+	            //行政区查询
+	            this.state.areaItems.forEach(function (area) {
+	                if (area == "全部") return;
+	                district.search(area, function (status, result) {
+	                    var bounds = result.districtList[0].boundaries;
+	                    if (bounds) {
+	                        for (var i = 0, l = bounds.length; i < l; i++) {
+	                            //生成行政区划polygon
+	                            var polygon = new AMap.Polygon({
+	                                map: self.myMap,
+	                                strokeWeight: 1,
+	                                path: bounds[i],
+	                                fillOpacity: 0.1,
+	                                fillColor: '#CCF3FF',
+	                                strokeColor: '#CC66CC'
+	                            });
+	                            var polygons = this.state.polygons;
+	                            polygons.push(polygon);
+	                            this.setState({ polygons: polygons });
+	                            this.loadDetectorsFromServer();
+	                        }
+	                    }
+	                }.bind(this));
+	            }.bind(this));
+	        }.bind(this));
+	    },
+	    cleanPolygonsFromMap: function cleanPolygonsFromMap() {
+	        this.state.polygons.forEach(function (e) {
+	            self.myMap.remove(e);
+	        });
+	    },
+	    detectorFilter: function detectorFilter(lng, lat) {
+	        if (this.state.polygons.length == 0) {
+	            if (this.state.unlimit) {
+	                return true;
+	            }
+	        }
+	        var contains = false;
+	        this.state.polygons.forEach(function (e) {
+	            if (e.contains([lng, lat])) {
+	                contains = true;
+	            }
+	        });
+	        return contains;
+	    },
+	    render: function render() {
+	        var selectItems = [];
+	        this.state.areaItems.forEach(function (e) {
+	            selectItems.push(_react2.default.createElement(
+	                'option',
+	                { value: e },
+	                e
+	            ));
+	        });
+	        var modalBody = _react2.default.createElement(DetectorDetailBox, { trace: this.state.deviceList.device_list, detector: this.state.current_detector, distinct_device_num: this.state.deviceList.distinct_device_num, last_report_time: this.state.deviceList.last_report_time });
+	        return _react2.default.createElement(
+	            'div',
+	            { className: 'container-fluid page-content' },
+	            _react2.default.createElement(
+	                'div',
+	                { className: 'row' },
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'col-sm-8' },
+	                    '辖区：',
+	                    _react2.default.createElement(
+	                        'select',
+	                        { id: 'district', style: { width: "200px" }, onChange: this.onDistrictChange },
+	                        _react2.default.createElement(
+	                            'option',
+	                            { value: '全部' },
+	                            '全部'
+	                        ),
+	                        selectItems
+	                    )
+	                )
+	            ),
+	            _react2.default.createElement(
+	                'div',
+	                { className: 'row', style: { marginTop: "10px" } },
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'col-sm-8' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'panel panel-primary' },
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'panel-heading' },
+	                            '探测器列表'
+	                        ),
+	                        _react2.default.createElement(DetectorList, { data: this.state.commData.detector_list, showBoxHandler: this.showDeviceListBox })
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'col-sm-4' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'panel panel-primary' },
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'panel-heading' },
+	                            '探测器分布'
+	                        ),
+	                        _react2.default.createElement('div', { id: 'map_detector', className: 'map' })
+	                    )
+	                )
+	            ),
+	            _react2.default.createElement(ModalBox, { boxId: 'device_list_box', body: modalBody, title: '探测器详细信息' })
+	        );
+	    }
+	});
+
+	var DetectorList = _react2.default.createClass({
+	    displayName: 'DetectorList',
+
+	    render: function render() {
+	        var showBoxHandler = this.props.showBoxHandler;
+	        var nodes = this.props.data.map(function (detector) {
+	            return _react2.default.createElement(DetectorItem, { key: detector.no, data: detector, showBoxHandler: showBoxHandler });
+	        });
+	        return(
+	            // <div className="detector_list">
+	            //     <ul className="list-group">{nodes}</ul>
+	            // </div>
+	            _react2.default.createElement(
+	                'table',
+	                { className: 'table table-striped table-condensed' },
+	                _react2.default.createElement(
+	                    'thead',
+	                    null,
+	                    _react2.default.createElement(
+	                        'tr',
+	                        null,
+	                        _react2.default.createElement(
+	                            'th',
+	                            null,
+	                            '编号'
+	                        ),
+	                        _react2.default.createElement(
+	                            'th',
+	                            null,
+	                            '机构'
+	                        ),
+	                        _react2.default.createElement(
+	                            'th',
+	                            null,
+	                            'MAC'
+	                        ),
+	                        _react2.default.createElement(
+	                            'th',
+	                            null,
+	                            '安装地址'
+	                        ),
+	                        _react2.default.createElement(
+	                            'th',
+	                            null,
+	                            '状态'
+	                        ),
+	                        _react2.default.createElement(
+	                            'th',
+	                            null,
+	                            '探测设备数'
+	                        )
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'tbody',
+	                    null,
+	                    nodes
+	                )
+	            )
+	        );
+	    }
+	});
+
+	var DetectorItem = _react2.default.createClass({
+	    displayName: 'DetectorItem',
+
+	    handleClick: function handleClick(event) {
+	        console.log("click on " + this.props.data.mac);
+	        this.props.showBoxHandler(this.props.data);
+	    },
+	    getInitialState: function getInitialState() {
+	        return { address: "" };
+	    },
+	    componentDidMount: function componentDidMount() {
+	        AMap.convertFrom(new AMap.LngLat(this.props.data.longitude, this.props.data.latitude), "gps", function (status, result) {
+	            console.log("convert detector geo", status, result);
+	            var gd_pos = result.locations[0];
+	            AMap.service('AMap.Geocoder', function () {
+	                var geocoder = new AMap.Geocoder({
+	                    city: "010" //城市，默认：“全国”
+	                });
+	                geocoder.getAddress([gd_pos.getLng(), gd_pos.getLat()], function (status, result) {
+	                    if (status === 'complete' && result.info === 'OK') {
+	                        this.setState({ address: result.regeocode.formattedAddress });
+	                    }
+	                }.bind(this));
+	            }.bind(this));
+	        }.bind(this));
+	    },
+	    render: function render() {
+	        var state = this.props.data.status === "01" ? "在线" : "离线";
+	        var div_class = this.props.data.status === "01" ? "online" : "offline";
+	        var mac_count = 0;
+	        if (this.props.data.today_mac_count != null) {
+	            mac_count = this.props.data.today_mac_count;
+	        }
+	        var company = "广晟";
+	        if (this.props.data.company == "02") {
+	            company = "百米";
+	        }
+	        return(
+	            // <a className="list-group-item" onClick={this.handleClick} href="#" data-toggle="modal" data-target="#device_list_box">
+	            //     <span className="badge">{mac_count}</span>
+	            //     <div>{this.props.data.no}号 {company}  {this.props.data.mac}</div>
+	            //     <div>{this.state.address}</div>
+	            //     <div className={div_class}><b>状态：</b>{state}</div>
+	            // </a>
+	            _react2.default.createElement(
+	                'tr',
+	                { onClick: this.handleClick, href: '#', 'data-toggle': 'modal', 'data-target': '#device_list_box' },
+	                _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.props.data.no
+	                ),
+	                _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    company
+	                ),
+	                _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.props.data.mac
+	                ),
+	                _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.state.address
+	                ),
+	                _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: div_class },
+	                        state
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    _react2.default.createElement(
+	                        'span',
+	                        { className: 'badge' },
+	                        mac_count
+	                    )
+	                )
+	            )
+	        );
+	    }
+	});
+
+	var DetectorRow = _react2.default.createClass({
+	    displayName: 'DetectorRow',
+
+	    render: function render() {
+	        var date = new Date();
+	        date.setTime(this.props.last_login_time * 1000);
+	        var dateString = _comm2.default.formatDate(date);
+	        return _react2.default.createElement(
+	            'tr',
+	            null,
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                this.props.mac
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                this.props.longitude,
+	                ',',
+	                this.props.latitude
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                dateString
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                '在线'
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                '陈工'
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                '18554374756'
+	            ),
+	            _react2.default.createElement(
+	                'td',
+	                null,
+	                this.props.region
+	            )
+	        );
+	    }
+	});
+
+	module.exports = DetectorPage;
+
+/***/ },
+/* 179 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _comm = __webpack_require__(170);
+
+	var _comm2 = _interopRequireDefault(_comm);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 	var DetectorConfPage = _react2.default.createClass({
 	    displayName: 'DetectorConfPage',
 
@@ -24377,7 +24502,7 @@
 	module.exports = DetectorConfPage;
 
 /***/ },
-/* 179 */
+/* 180 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24385,7 +24510,7 @@
 	exports.__esModule = true;
 	exports.createMemoryHistory = exports.hashHistory = exports.browserHistory = exports.applyRouterMiddleware = exports.formatPattern = exports.useRouterHistory = exports.match = exports.routerShape = exports.locationShape = exports.PropTypes = exports.RoutingContext = exports.RouterContext = exports.createRoutes = exports.useRoutes = exports.RouteContext = exports.Lifecycle = exports.History = exports.Route = exports.Redirect = exports.IndexRoute = exports.IndexRedirect = exports.withRouter = exports.IndexLink = exports.Link = exports.Router = undefined;
 
-	var _RouteUtils = __webpack_require__(180);
+	var _RouteUtils = __webpack_require__(181);
 
 	Object.defineProperty(exports, 'createRoutes', {
 	  enumerable: true,
@@ -24394,7 +24519,7 @@
 	  }
 	});
 
-	var _PropTypes2 = __webpack_require__(183);
+	var _PropTypes2 = __webpack_require__(184);
 
 	Object.defineProperty(exports, 'locationShape', {
 	  enumerable: true,
@@ -24409,7 +24534,7 @@
 	  }
 	});
 
-	var _PatternUtils = __webpack_require__(186);
+	var _PatternUtils = __webpack_require__(187);
 
 	Object.defineProperty(exports, 'formatPattern', {
 	  enumerable: true,
@@ -24418,85 +24543,85 @@
 	  }
 	});
 
-	var _Router2 = __webpack_require__(188);
+	var _Router2 = __webpack_require__(189);
 
 	var _Router3 = _interopRequireDefault(_Router2);
 
-	var _Link2 = __webpack_require__(217);
+	var _Link2 = __webpack_require__(218);
 
 	var _Link3 = _interopRequireDefault(_Link2);
 
-	var _IndexLink2 = __webpack_require__(218);
+	var _IndexLink2 = __webpack_require__(219);
 
 	var _IndexLink3 = _interopRequireDefault(_IndexLink2);
 
-	var _withRouter2 = __webpack_require__(219);
+	var _withRouter2 = __webpack_require__(220);
 
 	var _withRouter3 = _interopRequireDefault(_withRouter2);
 
-	var _IndexRedirect2 = __webpack_require__(221);
+	var _IndexRedirect2 = __webpack_require__(222);
 
 	var _IndexRedirect3 = _interopRequireDefault(_IndexRedirect2);
 
-	var _IndexRoute2 = __webpack_require__(223);
+	var _IndexRoute2 = __webpack_require__(224);
 
 	var _IndexRoute3 = _interopRequireDefault(_IndexRoute2);
 
-	var _Redirect2 = __webpack_require__(222);
+	var _Redirect2 = __webpack_require__(223);
 
 	var _Redirect3 = _interopRequireDefault(_Redirect2);
 
-	var _Route2 = __webpack_require__(224);
+	var _Route2 = __webpack_require__(225);
 
 	var _Route3 = _interopRequireDefault(_Route2);
 
-	var _History2 = __webpack_require__(225);
+	var _History2 = __webpack_require__(226);
 
 	var _History3 = _interopRequireDefault(_History2);
 
-	var _Lifecycle2 = __webpack_require__(226);
+	var _Lifecycle2 = __webpack_require__(227);
 
 	var _Lifecycle3 = _interopRequireDefault(_Lifecycle2);
 
-	var _RouteContext2 = __webpack_require__(227);
+	var _RouteContext2 = __webpack_require__(228);
 
 	var _RouteContext3 = _interopRequireDefault(_RouteContext2);
 
-	var _useRoutes2 = __webpack_require__(228);
+	var _useRoutes2 = __webpack_require__(229);
 
 	var _useRoutes3 = _interopRequireDefault(_useRoutes2);
 
-	var _RouterContext2 = __webpack_require__(214);
+	var _RouterContext2 = __webpack_require__(215);
 
 	var _RouterContext3 = _interopRequireDefault(_RouterContext2);
 
-	var _RoutingContext2 = __webpack_require__(229);
+	var _RoutingContext2 = __webpack_require__(230);
 
 	var _RoutingContext3 = _interopRequireDefault(_RoutingContext2);
 
 	var _PropTypes3 = _interopRequireDefault(_PropTypes2);
 
-	var _match2 = __webpack_require__(230);
+	var _match2 = __webpack_require__(231);
 
 	var _match3 = _interopRequireDefault(_match2);
 
-	var _useRouterHistory2 = __webpack_require__(234);
+	var _useRouterHistory2 = __webpack_require__(235);
 
 	var _useRouterHistory3 = _interopRequireDefault(_useRouterHistory2);
 
-	var _applyRouterMiddleware2 = __webpack_require__(235);
+	var _applyRouterMiddleware2 = __webpack_require__(236);
 
 	var _applyRouterMiddleware3 = _interopRequireDefault(_applyRouterMiddleware2);
 
-	var _browserHistory2 = __webpack_require__(236);
+	var _browserHistory2 = __webpack_require__(237);
 
 	var _browserHistory3 = _interopRequireDefault(_browserHistory2);
 
-	var _hashHistory2 = __webpack_require__(239);
+	var _hashHistory2 = __webpack_require__(240);
 
 	var _hashHistory3 = _interopRequireDefault(_hashHistory2);
 
-	var _createMemoryHistory2 = __webpack_require__(231);
+	var _createMemoryHistory2 = __webpack_require__(232);
 
 	var _createMemoryHistory3 = _interopRequireDefault(_createMemoryHistory2);
 
@@ -24538,7 +24663,7 @@
 	exports.createMemoryHistory = _createMemoryHistory3.default;
 
 /***/ },
-/* 180 */
+/* 181 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -24556,7 +24681,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
@@ -24656,7 +24781,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 181 */
+/* 182 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24665,7 +24790,7 @@
 	exports.default = routerWarning;
 	exports._resetWarned = _resetWarned;
 
-	var _warning = __webpack_require__(182);
+	var _warning = __webpack_require__(183);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -24697,7 +24822,7 @@
 	}
 
 /***/ },
-/* 182 */
+/* 183 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -24764,7 +24889,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 183 */
+/* 184 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -24774,15 +24899,15 @@
 
 	var _react = __webpack_require__(2);
 
-	var _deprecateObjectProperties = __webpack_require__(184);
+	var _deprecateObjectProperties = __webpack_require__(185);
 
 	var _deprecateObjectProperties2 = _interopRequireDefault(_deprecateObjectProperties);
 
-	var _InternalPropTypes = __webpack_require__(185);
+	var _InternalPropTypes = __webpack_require__(186);
 
 	var InternalPropTypes = _interopRequireWildcard(_InternalPropTypes);
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
@@ -24871,7 +24996,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 184 */
+/* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -24879,7 +25004,7 @@
 	exports.__esModule = true;
 	exports.canUseMembrane = undefined;
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
@@ -24952,7 +25077,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 185 */
+/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24989,7 +25114,7 @@
 	var routes = exports.routes = oneOfType([route, arrayOf(route)]);
 
 /***/ },
-/* 186 */
+/* 187 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -25001,7 +25126,7 @@
 	exports.getParams = getParams;
 	exports.formatPattern = formatPattern;
 
-	var _invariant = __webpack_require__(187);
+	var _invariant = __webpack_require__(188);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -25207,7 +25332,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 187 */
+/* 188 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -25265,7 +25390,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 188 */
+/* 189 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -25274,11 +25399,11 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _createHashHistory = __webpack_require__(189);
+	var _createHashHistory = __webpack_require__(190);
 
 	var _createHashHistory2 = _interopRequireDefault(_createHashHistory);
 
-	var _useQueries = __webpack_require__(204);
+	var _useQueries = __webpack_require__(205);
 
 	var _useQueries2 = _interopRequireDefault(_useQueries);
 
@@ -25286,21 +25411,21 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _createTransitionManager = __webpack_require__(207);
+	var _createTransitionManager = __webpack_require__(208);
 
 	var _createTransitionManager2 = _interopRequireDefault(_createTransitionManager);
 
-	var _InternalPropTypes = __webpack_require__(185);
+	var _InternalPropTypes = __webpack_require__(186);
 
-	var _RouterContext = __webpack_require__(214);
+	var _RouterContext = __webpack_require__(215);
 
 	var _RouterContext2 = _interopRequireDefault(_RouterContext);
 
-	var _RouteUtils = __webpack_require__(180);
+	var _RouteUtils = __webpack_require__(181);
 
-	var _RouterUtils = __webpack_require__(216);
+	var _RouterUtils = __webpack_require__(217);
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
@@ -25479,7 +25604,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 189 */
+/* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -25490,25 +25615,25 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _warning = __webpack_require__(182);
+	var _warning = __webpack_require__(183);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(187);
+	var _invariant = __webpack_require__(188);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _Actions = __webpack_require__(190);
+	var _Actions = __webpack_require__(191);
 
-	var _PathUtils = __webpack_require__(191);
+	var _PathUtils = __webpack_require__(192);
 
-	var _ExecutionEnvironment = __webpack_require__(192);
+	var _ExecutionEnvironment = __webpack_require__(193);
 
-	var _DOMUtils = __webpack_require__(193);
+	var _DOMUtils = __webpack_require__(194);
 
-	var _DOMStateStorage = __webpack_require__(194);
+	var _DOMStateStorage = __webpack_require__(195);
 
-	var _createDOMHistory = __webpack_require__(195);
+	var _createDOMHistory = __webpack_require__(196);
 
 	var _createDOMHistory2 = _interopRequireDefault(_createDOMHistory);
 
@@ -25731,7 +25856,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 190 */
+/* 191 */
 /***/ function(module, exports) {
 
 	/**
@@ -25767,7 +25892,7 @@
 	};
 
 /***/ },
-/* 191 */
+/* 192 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -25778,7 +25903,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _warning = __webpack_require__(182);
+	var _warning = __webpack_require__(183);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -25820,7 +25945,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 192 */
+/* 193 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -25830,7 +25955,7 @@
 	exports.canUseDOM = canUseDOM;
 
 /***/ },
-/* 193 */
+/* 194 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -25910,7 +26035,7 @@
 	}
 
 /***/ },
-/* 194 */
+/* 195 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/*eslint-disable no-empty */
@@ -25922,7 +26047,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _warning = __webpack_require__(182);
+	var _warning = __webpack_require__(183);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -25989,7 +26114,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 195 */
+/* 196 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -26000,15 +26125,15 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _invariant = __webpack_require__(187);
+	var _invariant = __webpack_require__(188);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _ExecutionEnvironment = __webpack_require__(192);
+	var _ExecutionEnvironment = __webpack_require__(193);
 
-	var _DOMUtils = __webpack_require__(193);
+	var _DOMUtils = __webpack_require__(194);
 
-	var _createHistory = __webpack_require__(196);
+	var _createHistory = __webpack_require__(197);
 
 	var _createHistory2 = _interopRequireDefault(_createHistory);
 
@@ -26035,7 +26160,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 196 */
+/* 197 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -26046,29 +26171,29 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _warning = __webpack_require__(182);
+	var _warning = __webpack_require__(183);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _deepEqual = __webpack_require__(197);
+	var _deepEqual = __webpack_require__(198);
 
 	var _deepEqual2 = _interopRequireDefault(_deepEqual);
 
-	var _PathUtils = __webpack_require__(191);
+	var _PathUtils = __webpack_require__(192);
 
-	var _AsyncUtils = __webpack_require__(200);
+	var _AsyncUtils = __webpack_require__(201);
 
-	var _Actions = __webpack_require__(190);
+	var _Actions = __webpack_require__(191);
 
-	var _createLocation2 = __webpack_require__(201);
+	var _createLocation2 = __webpack_require__(202);
 
 	var _createLocation3 = _interopRequireDefault(_createLocation2);
 
-	var _runTransitionHook = __webpack_require__(202);
+	var _runTransitionHook = __webpack_require__(203);
 
 	var _runTransitionHook2 = _interopRequireDefault(_runTransitionHook);
 
-	var _deprecate = __webpack_require__(203);
+	var _deprecate = __webpack_require__(204);
 
 	var _deprecate2 = _interopRequireDefault(_deprecate);
 
@@ -26329,12 +26454,12 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 197 */
+/* 198 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var pSlice = Array.prototype.slice;
-	var objectKeys = __webpack_require__(198);
-	var isArguments = __webpack_require__(199);
+	var objectKeys = __webpack_require__(199);
+	var isArguments = __webpack_require__(200);
 
 	var deepEqual = module.exports = function (actual, expected, opts) {
 	  if (!opts) opts = {};
@@ -26429,7 +26554,7 @@
 
 
 /***/ },
-/* 198 */
+/* 199 */
 /***/ function(module, exports) {
 
 	exports = module.exports = typeof Object.keys === 'function'
@@ -26444,7 +26569,7 @@
 
 
 /***/ },
-/* 199 */
+/* 200 */
 /***/ function(module, exports) {
 
 	var supportsArgumentsClass = (function(){
@@ -26470,7 +26595,7 @@
 
 
 /***/ },
-/* 200 */
+/* 201 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -26533,7 +26658,7 @@
 	}
 
 /***/ },
-/* 201 */
+/* 202 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -26544,13 +26669,13 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _warning = __webpack_require__(182);
+	var _warning = __webpack_require__(183);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _Actions = __webpack_require__(190);
+	var _Actions = __webpack_require__(191);
 
-	var _PathUtils = __webpack_require__(191);
+	var _PathUtils = __webpack_require__(192);
 
 	function createLocation() {
 	  var location = arguments.length <= 0 || arguments[0] === undefined ? '/' : arguments[0];
@@ -26590,7 +26715,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 202 */
+/* 203 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -26599,7 +26724,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _warning = __webpack_require__(182);
+	var _warning = __webpack_require__(183);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -26620,7 +26745,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 203 */
+/* 204 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -26629,7 +26754,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _warning = __webpack_require__(182);
+	var _warning = __webpack_require__(183);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -26645,7 +26770,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 204 */
+/* 205 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -26656,19 +26781,19 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _warning = __webpack_require__(182);
+	var _warning = __webpack_require__(183);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _queryString = __webpack_require__(205);
+	var _queryString = __webpack_require__(206);
 
-	var _runTransitionHook = __webpack_require__(202);
+	var _runTransitionHook = __webpack_require__(203);
 
 	var _runTransitionHook2 = _interopRequireDefault(_runTransitionHook);
 
-	var _PathUtils = __webpack_require__(191);
+	var _PathUtils = __webpack_require__(192);
 
-	var _deprecate = __webpack_require__(203);
+	var _deprecate = __webpack_require__(204);
 
 	var _deprecate2 = _interopRequireDefault(_deprecate);
 
@@ -26827,11 +26952,11 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 205 */
+/* 206 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	var strictUriEncode = __webpack_require__(206);
+	var strictUriEncode = __webpack_require__(207);
 
 	exports.extract = function (str) {
 		return str.split('?')[1] || '';
@@ -26899,7 +27024,7 @@
 
 
 /***/ },
-/* 206 */
+/* 207 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -26911,7 +27036,7 @@
 
 
 /***/ },
-/* 207 */
+/* 208 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -26922,27 +27047,27 @@
 
 	exports.default = createTransitionManager;
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
-	var _Actions = __webpack_require__(190);
+	var _Actions = __webpack_require__(191);
 
-	var _computeChangedRoutes2 = __webpack_require__(208);
+	var _computeChangedRoutes2 = __webpack_require__(209);
 
 	var _computeChangedRoutes3 = _interopRequireDefault(_computeChangedRoutes2);
 
-	var _TransitionUtils = __webpack_require__(209);
+	var _TransitionUtils = __webpack_require__(210);
 
-	var _isActive2 = __webpack_require__(211);
+	var _isActive2 = __webpack_require__(212);
 
 	var _isActive3 = _interopRequireDefault(_isActive2);
 
-	var _getComponents = __webpack_require__(212);
+	var _getComponents = __webpack_require__(213);
 
 	var _getComponents2 = _interopRequireDefault(_getComponents);
 
-	var _matchRoutes = __webpack_require__(213);
+	var _matchRoutes = __webpack_require__(214);
 
 	var _matchRoutes2 = _interopRequireDefault(_matchRoutes);
 
@@ -27224,14 +27349,14 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 208 */
+/* 209 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _PatternUtils = __webpack_require__(186);
+	var _PatternUtils = __webpack_require__(187);
 
 	function routeParamsChanged(route, prevState, nextState) {
 	  if (!route.path) return false;
@@ -27306,7 +27431,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 209 */
+/* 210 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -27316,9 +27441,9 @@
 	exports.runChangeHooks = runChangeHooks;
 	exports.runLeaveHooks = runLeaveHooks;
 
-	var _AsyncUtils = __webpack_require__(210);
+	var _AsyncUtils = __webpack_require__(211);
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
@@ -27434,7 +27559,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 210 */
+/* 211 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -27527,7 +27652,7 @@
 	}
 
 /***/ },
-/* 211 */
+/* 212 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27538,7 +27663,7 @@
 
 	exports.default = isActive;
 
-	var _PatternUtils = __webpack_require__(186);
+	var _PatternUtils = __webpack_require__(187);
 
 	function deepEqual(a, b) {
 	  if (a == b) return true;
@@ -27684,7 +27809,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 212 */
+/* 213 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -27693,11 +27818,11 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _AsyncUtils = __webpack_require__(210);
+	var _AsyncUtils = __webpack_require__(211);
 
-	var _deprecateObjectProperties = __webpack_require__(184);
+	var _deprecateObjectProperties = __webpack_require__(185);
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
@@ -27769,7 +27894,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 213 */
+/* 214 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -27782,15 +27907,15 @@
 
 	exports.default = matchRoutes;
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
-	var _AsyncUtils = __webpack_require__(210);
+	var _AsyncUtils = __webpack_require__(211);
 
-	var _PatternUtils = __webpack_require__(186);
+	var _PatternUtils = __webpack_require__(187);
 
-	var _RouteUtils = __webpack_require__(180);
+	var _RouteUtils = __webpack_require__(181);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -28008,7 +28133,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 214 */
+/* 215 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -28019,7 +28144,7 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _invariant = __webpack_require__(187);
+	var _invariant = __webpack_require__(188);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -28027,17 +28152,17 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _deprecateObjectProperties = __webpack_require__(184);
+	var _deprecateObjectProperties = __webpack_require__(185);
 
 	var _deprecateObjectProperties2 = _interopRequireDefault(_deprecateObjectProperties);
 
-	var _getRouteParams = __webpack_require__(215);
+	var _getRouteParams = __webpack_require__(216);
 
 	var _getRouteParams2 = _interopRequireDefault(_getRouteParams);
 
-	var _RouteUtils = __webpack_require__(180);
+	var _RouteUtils = __webpack_require__(181);
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
@@ -28170,14 +28295,14 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 215 */
+/* 216 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _PatternUtils = __webpack_require__(186);
+	var _PatternUtils = __webpack_require__(187);
 
 	/**
 	 * Extracts an object of params the given route cares about from
@@ -28203,7 +28328,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 216 */
+/* 217 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -28215,7 +28340,7 @@
 	exports.createRouterObject = createRouterObject;
 	exports.createRoutingHistory = createRoutingHistory;
 
-	var _deprecateObjectProperties = __webpack_require__(184);
+	var _deprecateObjectProperties = __webpack_require__(185);
 
 	var _deprecateObjectProperties2 = _interopRequireDefault(_deprecateObjectProperties);
 
@@ -28241,7 +28366,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 217 */
+/* 218 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -28254,11 +28379,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
-	var _PropTypes = __webpack_require__(183);
+	var _PropTypes = __webpack_require__(184);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -28420,7 +28545,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 218 */
+/* 219 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28433,7 +28558,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Link = __webpack_require__(217);
+	var _Link = __webpack_require__(218);
 
 	var _Link2 = _interopRequireDefault(_Link);
 
@@ -28453,7 +28578,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 219 */
+/* 220 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28468,11 +28593,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _hoistNonReactStatics = __webpack_require__(220);
+	var _hoistNonReactStatics = __webpack_require__(221);
 
 	var _hoistNonReactStatics2 = _interopRequireDefault(_hoistNonReactStatics);
 
-	var _PropTypes = __webpack_require__(183);
+	var _PropTypes = __webpack_require__(184);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -28498,7 +28623,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 220 */
+/* 221 */
 /***/ function(module, exports) {
 
 	/**
@@ -28546,7 +28671,7 @@
 
 
 /***/ },
-/* 221 */
+/* 222 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -28557,19 +28682,19 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
-	var _invariant = __webpack_require__(187);
+	var _invariant = __webpack_require__(188);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _Redirect = __webpack_require__(222);
+	var _Redirect = __webpack_require__(223);
 
 	var _Redirect2 = _interopRequireDefault(_Redirect);
 
-	var _InternalPropTypes = __webpack_require__(185);
+	var _InternalPropTypes = __webpack_require__(186);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -28615,7 +28740,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 222 */
+/* 223 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -28626,15 +28751,15 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _invariant = __webpack_require__(187);
+	var _invariant = __webpack_require__(188);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _RouteUtils = __webpack_require__(180);
+	var _RouteUtils = __webpack_require__(181);
 
-	var _PatternUtils = __webpack_require__(186);
+	var _PatternUtils = __webpack_require__(187);
 
-	var _InternalPropTypes = __webpack_require__(185);
+	var _InternalPropTypes = __webpack_require__(186);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -28723,7 +28848,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 223 */
+/* 224 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -28734,17 +28859,17 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
-	var _invariant = __webpack_require__(187);
+	var _invariant = __webpack_require__(188);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _RouteUtils = __webpack_require__(180);
+	var _RouteUtils = __webpack_require__(181);
 
-	var _InternalPropTypes = __webpack_require__(185);
+	var _InternalPropTypes = __webpack_require__(186);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -28789,7 +28914,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 224 */
+/* 225 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -28800,13 +28925,13 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _invariant = __webpack_require__(187);
+	var _invariant = __webpack_require__(188);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _RouteUtils = __webpack_require__(180);
+	var _RouteUtils = __webpack_require__(181);
 
-	var _InternalPropTypes = __webpack_require__(185);
+	var _InternalPropTypes = __webpack_require__(186);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -28852,18 +28977,18 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 225 */
+/* 226 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
 	exports.__esModule = true;
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
-	var _InternalPropTypes = __webpack_require__(185);
+	var _InternalPropTypes = __webpack_require__(186);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -28887,14 +29012,14 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 226 */
+/* 227 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
 	exports.__esModule = true;
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
@@ -28902,7 +29027,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _invariant = __webpack_require__(187);
+	var _invariant = __webpack_require__(188);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -28961,14 +29086,14 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 227 */
+/* 228 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
 	exports.__esModule = true;
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
@@ -29012,7 +29137,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 228 */
+/* 229 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -29021,15 +29146,15 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _useQueries = __webpack_require__(204);
+	var _useQueries = __webpack_require__(205);
 
 	var _useQueries2 = _interopRequireDefault(_useQueries);
 
-	var _createTransitionManager = __webpack_require__(207);
+	var _createTransitionManager = __webpack_require__(208);
 
 	var _createTransitionManager2 = _interopRequireDefault(_createTransitionManager);
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
@@ -29069,7 +29194,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 229 */
+/* 230 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -29080,11 +29205,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _RouterContext = __webpack_require__(214);
+	var _RouterContext = __webpack_require__(215);
 
 	var _RouterContext2 = _interopRequireDefault(_RouterContext);
 
-	var _routerWarning = __webpack_require__(181);
+	var _routerWarning = __webpack_require__(182);
 
 	var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
@@ -29105,7 +29230,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 230 */
+/* 231 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -29114,21 +29239,21 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _invariant = __webpack_require__(187);
+	var _invariant = __webpack_require__(188);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _createMemoryHistory = __webpack_require__(231);
+	var _createMemoryHistory = __webpack_require__(232);
 
 	var _createMemoryHistory2 = _interopRequireDefault(_createMemoryHistory);
 
-	var _createTransitionManager = __webpack_require__(207);
+	var _createTransitionManager = __webpack_require__(208);
 
 	var _createTransitionManager2 = _interopRequireDefault(_createTransitionManager);
 
-	var _RouteUtils = __webpack_require__(180);
+	var _RouteUtils = __webpack_require__(181);
 
-	var _RouterUtils = __webpack_require__(216);
+	var _RouterUtils = __webpack_require__(217);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -29192,7 +29317,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 231 */
+/* 232 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29200,15 +29325,15 @@
 	exports.__esModule = true;
 	exports.default = createMemoryHistory;
 
-	var _useQueries = __webpack_require__(204);
+	var _useQueries = __webpack_require__(205);
 
 	var _useQueries2 = _interopRequireDefault(_useQueries);
 
-	var _useBasename = __webpack_require__(232);
+	var _useBasename = __webpack_require__(233);
 
 	var _useBasename2 = _interopRequireDefault(_useBasename);
 
-	var _createMemoryHistory = __webpack_require__(233);
+	var _createMemoryHistory = __webpack_require__(234);
 
 	var _createMemoryHistory2 = _interopRequireDefault(_createMemoryHistory);
 
@@ -29229,7 +29354,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 232 */
+/* 233 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -29240,19 +29365,19 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _warning = __webpack_require__(182);
+	var _warning = __webpack_require__(183);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _ExecutionEnvironment = __webpack_require__(192);
+	var _ExecutionEnvironment = __webpack_require__(193);
 
-	var _PathUtils = __webpack_require__(191);
+	var _PathUtils = __webpack_require__(192);
 
-	var _runTransitionHook = __webpack_require__(202);
+	var _runTransitionHook = __webpack_require__(203);
 
 	var _runTransitionHook2 = _interopRequireDefault(_runTransitionHook);
 
-	var _deprecate = __webpack_require__(203);
+	var _deprecate = __webpack_require__(204);
 
 	var _deprecate2 = _interopRequireDefault(_deprecate);
 
@@ -29393,7 +29518,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 233 */
+/* 234 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -29404,19 +29529,19 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _warning = __webpack_require__(182);
+	var _warning = __webpack_require__(183);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(187);
+	var _invariant = __webpack_require__(188);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _PathUtils = __webpack_require__(191);
+	var _PathUtils = __webpack_require__(192);
 
-	var _Actions = __webpack_require__(190);
+	var _Actions = __webpack_require__(191);
 
-	var _createHistory = __webpack_require__(196);
+	var _createHistory = __webpack_require__(197);
 
 	var _createHistory2 = _interopRequireDefault(_createHistory);
 
@@ -29553,7 +29678,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 234 */
+/* 235 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29561,11 +29686,11 @@
 	exports.__esModule = true;
 	exports.default = useRouterHistory;
 
-	var _useQueries = __webpack_require__(204);
+	var _useQueries = __webpack_require__(205);
 
 	var _useQueries2 = _interopRequireDefault(_useQueries);
 
-	var _useBasename = __webpack_require__(232);
+	var _useBasename = __webpack_require__(233);
 
 	var _useBasename2 = _interopRequireDefault(_useBasename);
 
@@ -29581,7 +29706,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 235 */
+/* 236 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29594,7 +29719,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _RouterContext = __webpack_require__(214);
+	var _RouterContext = __webpack_require__(215);
 
 	var _RouterContext2 = _interopRequireDefault(_RouterContext);
 
@@ -29636,18 +29761,18 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 236 */
+/* 237 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _createBrowserHistory = __webpack_require__(237);
+	var _createBrowserHistory = __webpack_require__(238);
 
 	var _createBrowserHistory2 = _interopRequireDefault(_createBrowserHistory);
 
-	var _createRouterHistory = __webpack_require__(238);
+	var _createRouterHistory = __webpack_require__(239);
 
 	var _createRouterHistory2 = _interopRequireDefault(_createRouterHistory);
 
@@ -29657,7 +29782,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 237 */
+/* 238 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -29668,21 +29793,21 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _invariant = __webpack_require__(187);
+	var _invariant = __webpack_require__(188);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _Actions = __webpack_require__(190);
+	var _Actions = __webpack_require__(191);
 
-	var _PathUtils = __webpack_require__(191);
+	var _PathUtils = __webpack_require__(192);
 
-	var _ExecutionEnvironment = __webpack_require__(192);
+	var _ExecutionEnvironment = __webpack_require__(193);
 
-	var _DOMUtils = __webpack_require__(193);
+	var _DOMUtils = __webpack_require__(194);
 
-	var _DOMStateStorage = __webpack_require__(194);
+	var _DOMStateStorage = __webpack_require__(195);
 
-	var _createDOMHistory = __webpack_require__(195);
+	var _createDOMHistory = __webpack_require__(196);
 
 	var _createDOMHistory2 = _interopRequireDefault(_createDOMHistory);
 
@@ -29843,7 +29968,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 238 */
+/* 239 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29856,7 +29981,7 @@
 	  return history;
 	};
 
-	var _useRouterHistory = __webpack_require__(234);
+	var _useRouterHistory = __webpack_require__(235);
 
 	var _useRouterHistory2 = _interopRequireDefault(_useRouterHistory);
 
@@ -29867,18 +29992,18 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 239 */
+/* 240 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _createHashHistory = __webpack_require__(189);
+	var _createHashHistory = __webpack_require__(190);
 
 	var _createHashHistory2 = _interopRequireDefault(_createHashHistory);
 
-	var _createRouterHistory = __webpack_require__(238);
+	var _createRouterHistory = __webpack_require__(239);
 
 	var _createRouterHistory2 = _interopRequireDefault(_createRouterHistory);
 
