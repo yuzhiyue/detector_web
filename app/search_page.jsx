@@ -149,7 +149,11 @@ var SearchPage = React.createClass({
             cache: false,
             success: function (rsp) {
                 console.log("handleFuzzySearch response", rsp)
-                this.setState({result_type:2, fuzzy_search_data:rsp});
+                if(rsp.feature_list== null || rsp.feature_list.length == 0) {
+                    alert("查询不到" + value + "的相关数据，请确认输入是否正确！");
+                } else {
+                    this.setState({result_type:2, fuzzy_search_data:rsp});
+                }
             }.bind(this),
             error: function (xhr, status, err) {
                 console.error(url, status, err.toString());
@@ -184,7 +188,11 @@ var SearchPage = React.createClass({
             success: function (rsp) {
                 console.log("loadTraceFromServer response", rsp)
                 Comm.hideWaiting()
-                this.setState({result_type:1, rsp: rsp});
+                if(rsp.trace.length == 0) {
+                    alert("查询不到" + this.state.time_range.start + "到" + this.state.time_range.end + "时间段内" + value +"的轨迹，请确输入是否正确！");
+                } else {
+                    this.setState({result_type:1, rsp: rsp});
+                }
             }.bind(this),
             error: function (xhr, status, err) {
                 console.error(url, status, err.toString());

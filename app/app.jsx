@@ -71,11 +71,20 @@ var TopNavbar = React.createClass({
 });
 
 var LeftNavbar = React.createClass({
+    getInitialState: function() {
+        return  {currItem: Comm.PageItems[0].group};
+    },
+    currItemChange: function (currItem) {
+        console.log("currItemChange", currItem)
+        this.setState({currItem:currItem})
+    },
     render: function () {
+        var self = this
         var changePageHandler = this.props.changePageHandler
-        var items = this.props.items.map(function(item){
+        var items = this.props.items.map(function(item) {
+            var active = item.group == self.state.currItem
             return (
-                <LeftNavbarItem changePageHandler={changePageHandler} link={item.link} group={item.group} ></LeftNavbarItem>
+                <LeftNavbarItem changePageHandler={changePageHandler} currItemChange={self.currItemChange} link={item.link} group={item.group} active={active}></LeftNavbarItem>
             )
         });
         return (
@@ -88,7 +97,7 @@ var LeftNavbar = React.createClass({
 
 var LeftNavbarItem = React.createClass({
     handleClick:function () {
-        this.props.changePageHandler(this.props.link)
+        this.props.currItemChange(this.props.group)
     },
     render: function () {
         var img = "./res/menu_" + this.props.group + "a.jpg"
@@ -97,7 +106,7 @@ var LeftNavbarItem = React.createClass({
         }
         
         return (
-            <li><Link to={this.props.link}><img src={img} /></Link></li>
+            <li onClick={this.handleClick} ><Link to={this.props.link}><img src={img} /></Link></li>
         );
     }
 });

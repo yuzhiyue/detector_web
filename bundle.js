@@ -211,10 +211,19 @@
 	var LeftNavbar = _react2.default.createClass({
 	    displayName: 'LeftNavbar',
 
+	    getInitialState: function getInitialState() {
+	        return { currItem: _comm2.default.PageItems[0].group };
+	    },
+	    currItemChange: function currItemChange(currItem) {
+	        console.log("currItemChange", currItem);
+	        this.setState({ currItem: currItem });
+	    },
 	    render: function render() {
+	        var self = this;
 	        var changePageHandler = this.props.changePageHandler;
 	        var items = this.props.items.map(function (item) {
-	            return _react2.default.createElement(LeftNavbarItem, { changePageHandler: changePageHandler, link: item.link, group: item.group });
+	            var active = item.group == self.state.currItem;
+	            return _react2.default.createElement(LeftNavbarItem, { changePageHandler: changePageHandler, currItemChange: self.currItemChange, link: item.link, group: item.group, active: active });
 	        });
 	        return _react2.default.createElement(
 	            'nav',
@@ -234,7 +243,7 @@
 	    displayName: 'LeftNavbarItem',
 
 	    handleClick: function handleClick() {
-	        this.props.changePageHandler(this.props.link);
+	        this.props.currItemChange(this.props.group);
 	    },
 	    render: function render() {
 	        var img = "./res/menu_" + this.props.group + "a.jpg";
@@ -244,7 +253,7 @@
 
 	        return _react2.default.createElement(
 	            'li',
-	            null,
+	            { onClick: this.handleClick },
 	            _react2.default.createElement(
 	                _reactRouter.Link,
 	                { to: this.props.link },
@@ -22561,7 +22570,11 @@
 	            cache: false,
 	            success: function (rsp) {
 	                console.log("handleFuzzySearch response", rsp);
-	                this.setState({ result_type: 2, fuzzy_search_data: rsp });
+	                if (rsp.feature_list == null || rsp.feature_list.length == 0) {
+	                    alert("查询不到" + value + "的相关数据，请确认输入是否正确！");
+	                } else {
+	                    this.setState({ result_type: 2, fuzzy_search_data: rsp });
+	                }
 	            }.bind(this),
 	            error: function (xhr, status, err) {
 	                console.error(url, status, err.toString());
@@ -22596,7 +22609,11 @@
 	            success: function (rsp) {
 	                console.log("loadTraceFromServer response", rsp);
 	                _comm2.default.hideWaiting();
-	                this.setState({ result_type: 1, rsp: rsp });
+	                if (rsp.trace.length == 0) {
+	                    alert("查询不到" + this.state.time_range.start + "到" + this.state.time_range.end + "时间段内" + value + "的轨迹，请确输入是否正确！");
+	                } else {
+	                    this.setState({ result_type: 1, rsp: rsp });
+	                }
 	            }.bind(this),
 	            error: function (xhr, status, err) {
 	                console.error(url, status, err.toString());
