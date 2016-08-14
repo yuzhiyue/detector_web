@@ -171,7 +171,7 @@
 	        });
 	        return _react2.default.createElement(
 	            'nav',
-	            { className: 'navbar navbar-inverse navbar-fixed-top top-bar' },
+	            { className: 'navbar navbar-fixed-top top-bar' },
 	            _react2.default.createElement(
 	                'div',
 	                { className: 'container' },
@@ -214,15 +214,11 @@
 	    render: function render() {
 	        var changePageHandler = this.props.changePageHandler;
 	        var items = this.props.items.map(function (item) {
-	            return _react2.default.createElement(
-	                LeftNavbarItem,
-	                { changePageHandler: changePageHandler, link: item.link },
-	                item.text
-	            );
+	            return _react2.default.createElement(LeftNavbarItem, { changePageHandler: changePageHandler, link: item.link, group: item.group });
 	        });
 	        return _react2.default.createElement(
 	            'nav',
-	            { className: 'narbar navbar-default left-bar' },
+	            { className: 'narbar left-bar' },
 	            _react2.default.createElement(
 	                'ul',
 	                { className: 'nav nav-stacked' },
@@ -241,13 +237,18 @@
 	        this.props.changePageHandler(this.props.link);
 	    },
 	    render: function render() {
+	        var img = "./res/menu_" + this.props.group + "a.jpg";
+	        if (this.props.active) {
+	            img = "./res/menu_" + this.props.group + "b.jpg";
+	        }
+
 	        return _react2.default.createElement(
 	            'li',
 	            null,
 	            _react2.default.createElement(
 	                _reactRouter.Link,
 	                { to: this.props.link },
-	                this.props.children
+	                _react2.default.createElement('img', { src: img })
 	            )
 	        );
 	    }
@@ -599,7 +600,7 @@
 	                        ),
 	                        _react2.default.createElement(
 	                            'div',
-	                            { className: 'col-sm-10' },
+	                            { className: 'col-sm-10 right-content' },
 	                            this.props.children
 	                        )
 	                    )
@@ -609,7 +610,7 @@
 	                _react2.default.createElement(
 	                    'div',
 	                    { id: 'waiting_box', className: 'query_hint', style: { display: "none" } },
-	                    _react2.default.createElement('img', { src: 'pic/waiting.gif' }),
+	                    _react2.default.createElement('img', { src: 'res/waiting.gif' }),
 	                    '正在查询，请稍等．．．'
 	                )
 	            );

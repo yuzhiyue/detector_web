@@ -57,7 +57,7 @@ var TopNavbar = React.createClass({
             )
         });
         return (
-            <nav className="navbar navbar-inverse navbar-fixed-top top-bar">
+            <nav className="navbar navbar-fixed-top top-bar">
                 <div className="container">
                     <ul className="nav navbar-nav">{menu}</ul>
                     <ul className="nav navbar-nav navbar-right">
@@ -75,11 +75,11 @@ var LeftNavbar = React.createClass({
         var changePageHandler = this.props.changePageHandler
         var items = this.props.items.map(function(item){
             return (
-                <LeftNavbarItem changePageHandler={changePageHandler} link={item.link}>{item.text}</LeftNavbarItem>
+                <LeftNavbarItem changePageHandler={changePageHandler} link={item.link} group={item.group} ></LeftNavbarItem>
             )
         });
         return (
-            <nav className="narbar navbar-default left-bar">
+            <nav className="narbar left-bar">
                 <ul className="nav nav-stacked"> {items} </ul>
             </nav>
         )
@@ -91,8 +91,13 @@ var LeftNavbarItem = React.createClass({
         this.props.changePageHandler(this.props.link)
     },
     render: function () {
+        var img = "./res/menu_" + this.props.group + "a.jpg"
+        if(this.props.active) {
+            img = "./res/menu_" + this.props.group + "b.jpg"
+        }
+        
         return (
-            <li><Link to={this.props.link}>{this.props.children}</Link></li>
+            <li><Link to={this.props.link}><img src={img} /></Link></li>
         );
     }
 });
@@ -345,7 +350,7 @@ var Page = React.createClass({
                             <div className="col-sm-2">
                                 <LeftNavbar changePageHandler={this.changePageHandler} items={pageItems} />
                             </div>
-                            <div className="col-sm-10">
+                            <div className="col-sm-10 right-content">
                                 {this.props.children}
                             </div>
                         </div>
@@ -353,7 +358,7 @@ var Page = React.createClass({
                     <ModalBox title="影像" boxId="pictureModal" body={<PictureList pictures={pictures}/>} />
                     <TraceReplayBox />
                     <div id="waiting_box" className="query_hint" style={{display:"none"}}>
-                        <img src="pic/waiting.gif" />正在查询，请稍等．．．
+                        <img src="res/waiting.gif" />正在查询，请稍等．．．
                     </div>
                 </div>
             );
