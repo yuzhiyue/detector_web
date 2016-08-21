@@ -13,6 +13,7 @@ import SimilarPage from './similar_page.jsx'
 import BehaviorPage from './behavior_page.jsx'
 import DetectorPage from './detector_page.jsx'
 import DetectorConfPage from './detector_conf.jsx'
+import StatsPage from './stats_page.jsx'
 import Comm from './comm.jsx'
 import {TraceReplayBox} from "./trace_replay.jsx"
 
@@ -451,6 +452,7 @@ ReactDOM.render(
             <Route path="user" component={UserPage}  />
             <Route path="similar" component={SimilarPage}  />
             <Route path="detector_conf" component={DetectorConfPage}  />
+            <Route path="stats" component={StatsPage}  />
         </Route>
     </Router>,
     document.getElementById("warpper")

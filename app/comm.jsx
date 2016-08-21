@@ -123,6 +123,7 @@ function getOrgName(orgCode) {
 }
 
 var PageItems=[{text:'概览',link:"/home",group:"1"},
+    {text:'数据报表',link:"/stats",group:"9"},
     {text:'探针管理',link:"/detector",group:"2"},
     {text:'轨迹查询',link:"/search",group:"3"},
     // {text:'区域扫描',link:SearchPage},
@@ -133,7 +134,7 @@ var PageItems=[{text:'概览',link:"/home",group:"1"},
     {text:'上网行为查询',link:"/behavior",group:"5"},
     {text:'特征库管理',link:"/feature",group:"6"},
     {text:'用户管理',link:"/user",group:"7"},
-    {text:'探针配置',link:"/detector_conf",group:"8"}
+    {text:'探针配置',link:"/detector_conf",group:"8"},
 ]
 
 var AreaItems = [

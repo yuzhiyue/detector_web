@@ -16,7 +16,7 @@ var LoginPage = React.createClass({
             success: function(rsp) {
                 console.log("login response", rsp)
                 if(rsp.ret_code == "0") {
-                    Comm.addCookie("username", username)
+                    Comm.addCookie("username", username, 12)
                     var group = ""
                     rsp.user_info.group.forEach(function (e) {
                         group += e + "_"
