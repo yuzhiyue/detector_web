@@ -14,6 +14,7 @@ body {
 .left-bar {
     background-color: #666666;
     margin-left: -15px;
+    width: 220px;
 }
 
 .left-bar a{
