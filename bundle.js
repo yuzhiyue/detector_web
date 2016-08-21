@@ -306,21 +306,24 @@
 
 	    componentDidMount: function componentDidMount() {
 	        console.log("Chart componentDidMount");
-	        var ctx = document.getElementById(this.props.chartId).getContext("2d");
-	        var myLineChart = new Chart(ctx, {
-	            type: 'line',
-	            data: this.props.data,
-	            options: Chart.defaults.global
-	        });
 	    },
 	    render: function render() {
+	        var doc = document.getElementById(this.props.chartId);
+	        if (doc != null) {
+	            var ctx = doc.getContext("2d");
+	            var myLineChart = new Chart(ctx, {
+	                type: 'line',
+	                data: this.props.data,
+	                options: Chart.defaults.global
+	            });
+	        }
 	        return _react2.default.createElement(
 	            'div',
 	            { className: 'panel panel-default' },
 	            _react2.default.createElement(
 	                'div',
 	                { className: 'panel-body' },
-	                _react2.default.createElement('canvas', { id: this.props.chartId, style: { height: "200px" } })
+	                _react2.default.createElement('canvas', { id: this.props.chartId })
 	            ),
 	            _react2.default.createElement(
 	                'div',
@@ -354,29 +357,87 @@
 	            }.bind(this)
 	        });
 	    },
+	    loadStateData: function loadStateData() {
+	        $.ajax({
+	            url: _comm2.default.server_addr + '/state?request={"type":"online_detector_num"}',
+	            dataType: 'json',
+	            cache: false,
+	            success: function (rsp) {
+	                if (this.isMounted()) {
+	                    this.setState({ onlineDetectorNumState: rsp.data });
+	                }
+	            }.bind(this),
+	            error: function (xhr, status, err) {
+	                console.error(this.props.url, status, err.toString());
+	            }.bind(this)
+	        });
+
+	        $.ajax({
+	            url: _comm2.default.server_addr + '/state?request={"type":"discover_mac"}',
+	            dataType: 'json',
+	            cache: false,
+	            success: function (rsp) {
+	                if (this.isMounted()) {
+	                    this.setState({ discoverMacState: rsp.data });
+	                }
+	            }.bind(this),
+	            error: function (xhr, status, err) {
+	                console.error(this.props.url, status, err.toString());
+	            }.bind(this)
+	        });
+	    },
 	    componentDidMount: function componentDidMount() {
 	        console.log("componentDidMount");
 	        this.loadDetectorsFromServer();
-	        setInterval(this.loadDetectorsFromServer, 10000);
+	        this.loadStateData();
+	        //setInterval(this.loadDetectorsFromServer, 10000);
 	    },
 	    getInitialState: function getInitialState() {
-	        return { commData: { today_mac_count: 0, detector_list: [{ mac: "" }] } };
+	        return { discoverMacState: [], onlineDetectorNumState: [], commData: { today_mac_count: 0, detector_list: [{ mac: "" }] } };
 	    },
 	    render: function render() {
 	        var apCount = this.state.commData.detector_list.length;
+	        var discoverMacStateValue = [];
+	        var discoverMacStateTime = [];
+	        this.state.discoverMacState.forEach(function (e) {
+	            discoverMacStateValue.push(e.value);
+	            discoverMacStateTime.push(_comm2.default.getHours(e.time) + ":00");
+	        });
 	        var data1 = {
-	            labels: ["13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"],
+	            labels: discoverMacStateTime,
 	            datasets: [{
 	                label: "MAC数量",
-	                fillColor: "rgba(220,220,220,0.5)",
-	                strokeColor: "rgba(220,220,220,1)",
-	                pointColor: "rgba(220,220,220,1)",
-	                pointStrokeColor: "#fff",
-	                data: [65, 59, 90, 81, 56, 55, 40]
+	                fill: false,
+	                lineTension: 0.1,
+	                backgroundColor: "rgba(75,192,192,0.4)",
+	                borderColor: "rgba(75,192,192,1)",
+	                borderCapStyle: 'butt',
+	                borderDash: [],
+	                borderDashOffset: 0.0,
+	                borderJoinStyle: 'miter',
+	                pointBorderColor: "rgba(75,192,192,1)",
+	                pointBackgroundColor: "#fff",
+	                pointBorderWidth: 1,
+	                pointHoverRadius: 5,
+	                pointHoverBackgroundColor: "rgba(75,192,192,1)",
+	                pointHoverBorderColor: "rgba(220,220,220,1)",
+	                pointHoverBorderWidth: 2,
+	                pointRadius: 1,
+	                pointHitRadius: 10,
+	                data: discoverMacStateValue,
+	                spanGaps: false
 	            }]
 	        };
+
+	        var onlineDetectorNumStateValue = [];
+	        var onlineDetectorNumStateTime = [];
+	        this.state.onlineDetectorNumState.forEach(function (e) {
+	            onlineDetectorNumStateValue.push(e.value);
+	            onlineDetectorNumStateTime.push(_comm2.default.getHours(e.time) + ":00");
+	        });
+
 	        var data2 = {
-	            labels: ["13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"],
+	            labels: onlineDetectorNumStateTime,
 	            datasets: [{
 	                label: "在线探测器数量",
 	                fill: false,
@@ -396,7 +457,8 @@
 	                pointHoverBorderWidth: 2,
 	                pointRadius: 1,
 	                pointHitRadius: 10,
-	                data: [20, 20, 20, 20, 20, 20, 20]
+	                data: onlineDetectorNumStateValue,
+	                spanGaps: false
 	            }]
 	        };
 	        return _react2.default.createElement(
@@ -21487,6 +21549,12 @@
 	    return year + "/" + addZero(month, 2) + "/" + addZero(date, 2) + " " + addZero(hour, 2) + ":" + addZero(minute, 2) + ":" + addZero(second, 2);
 	}
 
+	function getHours(time) {
+	    var date = new Date();
+	    date.setTime(time * 1000);
+	    return String(date.getHours());
+	}
+
 	function formatLngLat(x) {
 	    var f_x = parseFloat(x);
 	    if (isNaN(f_x)) {
@@ -21542,6 +21610,7 @@
 	module.exports.randomChar = randomChar;
 	module.exports.randomCharWithoutTime = randomCharWithoutTime;
 	module.exports.formatDate = formatDate;
+	module.exports.getHours = getHours;
 	module.exports.formatLngLat = formatLngLat;
 	module.exports.PageItems = PageItems;
 	module.exports.AreaItems = AreaItems;

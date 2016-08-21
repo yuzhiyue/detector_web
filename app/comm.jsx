@@ -76,6 +76,12 @@ function formatDate(now) {
     return year+"/"+ addZero(month, 2) + "/" + addZero(date,2) + " " + addZero(hour,2) + ":" + addZero(minute,2) + ":" + addZero(second,2);
 }
 
+function getHours(time) {
+    var date = new Date()
+    date.setTime(time * 1000)
+    return String(date.getHours())
+}
+
 function formatLngLat(x) {
     var f_x = parseFloat(x);
     if (isNaN(f_x)) {
@@ -147,6 +153,7 @@ module.exports.deleteCookie = deleteCookie;
 module.exports.randomChar = randomChar;
 module.exports.randomCharWithoutTime = randomCharWithoutTime;
 module.exports.formatDate = formatDate;
+module.exports.getHours = getHours;
 module.exports.formatLngLat = formatLngLat;
 module.exports.PageItems = PageItems;
 module.exports.AreaItems = AreaItems;

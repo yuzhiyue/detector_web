@@ -128,18 +128,21 @@ var Panel = React.createClass({
 var MyChart = React.createClass({
     componentDidMount: function () {
         console.log("Chart componentDidMount")
-        var ctx = document.getElementById(this.props.chartId).getContext("2d");
-        var myLineChart = new Chart(ctx, {
-            type: 'line',
-            data: this.props.data,
-            options: Chart.defaults.global
-        });
     },
     render: function () {
+        var doc = document.getElementById(this.props.chartId)
+        if (doc != null) {
+            var ctx = doc.getContext("2d");
+            var myLineChart = new Chart(ctx, {
+                type: 'line',
+                data: this.props.data,
+                options: Chart.defaults.global
+            });
+        }
         return (
             <div className="panel panel-default">
                 <div className="panel-body">
-                    <canvas id={this.props.chartId} style={{height:"200px"}}></canvas>
+                    <canvas id={this.props.chartId}></canvas>
                 </div>
                 <div className="panel-footer"><a href={this.props.link}>{this.props.linkText}</a></div>
             </div>
@@ -164,31 +167,89 @@ var Home = React.createClass({
             }.bind(this)
         });
     },
+    loadStateData: function () {
+        $.ajax({
+            url: Comm.server_addr + '/state?request={"type":"online_detector_num"}',
+            dataType: 'json',
+            cache: false,
+            success: function(rsp) {
+                if (this.isMounted()) {
+                    this.setState({onlineDetectorNumState:rsp.data});
+                }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+
+        $.ajax({
+            url: Comm.server_addr + '/state?request={"type":"discover_mac"}',
+            dataType: 'json',
+            cache: false,
+            success: function(rsp) {
+                if (this.isMounted()) {
+                    this.setState({discoverMacState:rsp.data});
+                }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+    },
     componentDidMount: function() {
         console.log("componentDidMount")
         this.loadDetectorsFromServer();
-        setInterval(this.loadDetectorsFromServer, 10000);
+        this.loadStateData()
+        //setInterval(this.loadDetectorsFromServer, 10000);
     },
     getInitialState: function() {
-        return  {commData:{today_mac_count:0 ,detector_list:[{mac:""}]}};
+        return  {discoverMacState:[], onlineDetectorNumState:[], commData:{today_mac_count:0 ,detector_list:[{mac:""}]}};
     },
     render: function () {
         var apCount = this.state.commData.detector_list.length
+        var discoverMacStateValue = []
+        var discoverMacStateTime = []
+        this.state.discoverMacState.forEach(function (e) {
+            discoverMacStateValue.push(e.value)
+            discoverMacStateTime.push(Comm.getHours(e.time)+ ":00")
+        })
         var data1 = {
-            labels : ["13:00","14:00","15:00","16:00","17:00","18:00","19:00"],
+            labels : discoverMacStateTime,
             datasets : [
                 {
                     label : "MAC数量",
-                    fillColor : "rgba(220,220,220,0.5)",
-                    strokeColor : "rgba(220,220,220,1)",
-                    pointColor : "rgba(220,220,220,1)",
-                    pointStrokeColor : "#fff",
-                    data : [65,59,90,81,56,55,40]
+                    fill: false,
+                    lineTension: 0.1,
+                    backgroundColor: "rgba(75,192,192,0.4)",
+                    borderColor: "rgba(75,192,192,1)",
+                    borderCapStyle: 'butt',
+                    borderDash: [],
+                    borderDashOffset: 0.0,
+                    borderJoinStyle: 'miter',
+                    pointBorderColor: "rgba(75,192,192,1)",
+                    pointBackgroundColor: "#fff",
+                    pointBorderWidth: 1,
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: "rgba(75,192,192,1)",
+                    pointHoverBorderColor: "rgba(220,220,220,1)",
+                    pointHoverBorderWidth: 2,
+                    pointRadius: 1,
+                    pointHitRadius: 10,
+                    data : discoverMacStateValue,
+                    spanGaps: false,
                 }
             ]
         }
+
+        var onlineDetectorNumStateValue = []
+        var onlineDetectorNumStateTime = []
+        this.state.onlineDetectorNumState.forEach(function (e) {
+            onlineDetectorNumStateValue.push(e.value)
+            onlineDetectorNumStateTime.push(Comm.getHours(e.time)+":00")
+        })
+
         var data2 = {
-            labels : ["13:00","14:00","15:00","16:00","17:00","18:00","19:00"],
+            labels : onlineDetectorNumStateTime,
             datasets : [
                 {
                     label : "在线探测器数量",
@@ -209,7 +270,8 @@ var Home = React.createClass({
                     pointHoverBorderWidth: 2,
                     pointRadius: 1,
                     pointHitRadius: 10,
-                    data : [20,20,20,20,20,20,20]
+                    data : onlineDetectorNumStateValue,
+                    spanGaps: false,
                 }
             ]
         }
