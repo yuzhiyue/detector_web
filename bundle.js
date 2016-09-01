@@ -823,10 +823,30 @@
 
 	var process = module.exports = {};
 
-	// cached from whatever global is present so that test runners that stub it don't break things.
-	var cachedSetTimeout = setTimeout;
-	var cachedClearTimeout = clearTimeout;
+	// cached from whatever global is present so that test runners that stub it
+	// don't break things.  But we need to wrap it in a try catch in case it is
+	// wrapped in strict mode code which doesn't define any globals.  It's inside a
+	// function because try/catches deoptimize in certain engines.
 
+	var cachedSetTimeout;
+	var cachedClearTimeout;
+
+	(function () {
+	  try {
+	    cachedSetTimeout = setTimeout;
+	  } catch (e) {
+	    cachedSetTimeout = function () {
+	      throw new Error('setTimeout is not defined');
+	    }
+	  }
+	  try {
+	    cachedClearTimeout = clearTimeout;
+	  } catch (e) {
+	    cachedClearTimeout = function () {
+	      throw new Error('clearTimeout is not defined');
+	    }
+	  }
+	} ())
 	var queue = [];
 	var draining = false;
 	var currentQueue;
@@ -23972,7 +23992,13 @@
 	                    var idx = 1;
 	                    var lnglatArr = [];
 	                    rsp.detector_list.forEach(function (e) {
+	                        if (e.longitude == 0 || e.latitude == 0) {
+	                            return;
+	                        }
 	                        lnglatArr.push(new AMap.LngLat(e.longitude, e.latitude));
+	                        AMap.convertFrom(new AMap.LngLat(e.longitude, e.latitude), "gps", function (status, result) {
+	                            console.log("convert geo", e, status, result);
+	                        });
 	                    });
 	                    AMap.convertFrom(lnglatArr, "gps", function (status, result) {
 	                        console.log("convert geo", status, result);
@@ -23980,33 +24006,35 @@
 	                        self.markers = [];
 	                        var detector_list = [];
 	                        var today_mac_count = 0;
-	                        result.locations.forEach(function (pos) {
-	                            var detector = rsp.detector_list[idx - 1];
-	                            var contains = this.detectorFilter(pos.getLng(), pos.getLat());
-	                            console.log("contains", contains);
-	                            if (contains) {
-	                                detector_list.push(detector);
-	                                today_mac_count = today_mac_count + detector.today_mac_count;
-	                            } else {
+	                        if (result.locations != null) {
+	                            result.locations.forEach(function (pos) {
+	                                var detector = rsp.detector_list[idx - 1];
+	                                var contains = this.detectorFilter(pos.getLng(), pos.getLat());
+	                                console.log("contains", contains);
+	                                if (contains) {
+	                                    detector_list.push(detector);
+	                                    today_mac_count = today_mac_count + detector.today_mac_count;
+	                                } else {
+	                                    idx = idx + 1;
+	                                    return;
+	                                }
+	                                var text = '<div class="marker-route marker-marker-bus-from">' + detector.no.toString() + '号</div>';
+	                                var marker = new AMap.Marker({
+	                                    map: self.myMap,
+	                                    position: [pos.getLng(), pos.getLat()],
+	                                    offset: new AMap.Pixel(-10, -20), //相对于基点的偏移位置
+	                                    draggable: false, //是否可拖动
+	                                    title: markerContent(detector),
+	                                    content: text
+	                                });
+	                                // marker.content = markerContent(detector)
+	                                // marker.my_map = self.myMap,
+	                                // marker.on('click', markerClick);
+	                                // marker.emit('click', {target: marker});
+	                                self.markers.push(marker);
 	                                idx = idx + 1;
-	                                return;
-	                            }
-	                            var text = '<div class="marker-route marker-marker-bus-from">' + detector.no.toString() + '号</div>';
-	                            var marker = new AMap.Marker({
-	                                map: self.myMap,
-	                                position: [pos.getLng(), pos.getLat()],
-	                                offset: new AMap.Pixel(-10, -20), //相对于基点的偏移位置
-	                                draggable: false, //是否可拖动
-	                                title: markerContent(detector),
-	                                content: text
-	                            });
-	                            // marker.content = markerContent(detector)
-	                            // marker.my_map = self.myMap,
-	                            // marker.on('click', markerClick);
-	                            // marker.emit('click', {target: marker});
-	                            self.markers.push(marker);
-	                            idx = idx + 1;
-	                        }.bind(this));
+	                            }.bind(this));
+	                        }
 	                        this.setState({ commData: { detector_list: detector_list, today_mac_count: today_mac_count } });
 	                    }.bind(this));
 	                }
@@ -24090,6 +24118,9 @@
 	            district.setLevel('district');
 	            //行政区查询
 	            district.search(value, function (status, result) {
+	                if (result.districtList == null) {
+	                    return;
+	                }
 	                var bounds = result.districtList[0].boundaries;
 	                this.cleanPolygonsFromMap();
 	                var polygons = [];
@@ -24321,6 +24352,9 @@
 	    componentDidMount: function componentDidMount() {
 	        AMap.convertFrom(new AMap.LngLat(this.props.data.longitude, this.props.data.latitude), "gps", function (status, result) {
 	            console.log("convert detector geo", status, result);
+	            if (result.locations == null) {
+	                return;
+	            }
 	            var gd_pos = result.locations[0];
 	            AMap.service('AMap.Geocoder', function () {
 	                var geocoder = new AMap.Geocoder({
@@ -28897,11 +28931,11 @@
 	    arity: true
 	};
 
-	module.exports = function hoistNonReactStatics(targetComponent, sourceComponent) {
+	module.exports = function hoistNonReactStatics(targetComponent, sourceComponent, customStatics) {
 	    if (typeof sourceComponent !== 'string') { // don't hoist over string (html) components
 	        var keys = Object.getOwnPropertyNames(sourceComponent);
-	        for (var i=0; i<keys.length; ++i) {
-	            if (!REACT_STATICS[keys[i]] && !KNOWN_STATICS[keys[i]]) {
+	        for (var i = 0; i < keys.length; ++i) {
+	            if (!REACT_STATICS[keys[i]] && !KNOWN_STATICS[keys[i]] && (!customStatics || !customStatics[keys[i]])) {
 	                try {
 	                    targetComponent[keys[i]] = sourceComponent[keys[i]];
 	                } catch (error) {

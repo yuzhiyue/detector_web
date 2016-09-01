@@ -209,7 +209,13 @@ var DetectorPage = React.createClass({
                     var idx = 1;
                     var lnglatArr = []
                     rsp.detector_list.forEach(function (e) {
+                        if(e.longitude == 0 || e.latitude == 0) {
+                            return
+                        }
                         lnglatArr.push(new AMap.LngLat(e.longitude, e.latitude))
+                        AMap.convertFrom(new AMap.LngLat(e.longitude, e.latitude), "gps", function (status, result) {
+                            console.log("convert geo", e, status, result)
+                        })
                     })
                     AMap.convertFrom(lnglatArr, "gps", function (status, result) {
                         console.log("convert geo", status, result)
@@ -217,33 +223,35 @@ var DetectorPage = React.createClass({
                         self.markers = []
                         var detector_list = []
                         var today_mac_count = 0
-                        result.locations.forEach(function (pos) {
-                            var detector = rsp.detector_list[idx - 1]
-                            var contains = this.detectorFilter(pos.getLng(), pos.getLat())
-                            console.log("contains", contains)
-                            if (contains){
-                                detector_list.push(detector)
-                                today_mac_count = today_mac_count + detector.today_mac_count
-                            } else {
+                        if (result.locations != null) {
+                            result.locations.forEach(function (pos) {
+                                var detector = rsp.detector_list[idx - 1]
+                                var contains = this.detectorFilter(pos.getLng(), pos.getLat())
+                                console.log("contains", contains)
+                                if (contains){
+                                    detector_list.push(detector)
+                                    today_mac_count = today_mac_count + detector.today_mac_count
+                                } else {
+                                    idx = idx + 1
+                                    return
+                                }
+                                var text = '<div class="marker-route marker-marker-bus-from">'+ detector.no.toString() +'号</div>'
+                                var marker = new AMap.Marker({
+                                    map: self.myMap,
+                                    position: [pos.getLng(), pos.getLat()],
+                                    offset: new AMap.Pixel(-10, -20), //相对于基点的偏移位置
+                                    draggable: false,  //是否可拖动
+                                    title: markerContent(detector),
+                                    content: text
+                                });
+                                // marker.content = markerContent(detector)
+                                // marker.my_map = self.myMap,
+                                // marker.on('click', markerClick);
+                                // marker.emit('click', {target: marker});
+                                self.markers.push(marker)
                                 idx = idx + 1
-                                return
-                            }
-                            var text = '<div class="marker-route marker-marker-bus-from">'+ detector.no.toString() +'号</div>'
-                            var marker = new AMap.Marker({
-                                map: self.myMap,
-                                position: [pos.getLng(), pos.getLat()],
-                                offset: new AMap.Pixel(-10, -20), //相对于基点的偏移位置
-                                draggable: false,  //是否可拖动
-                                title: markerContent(detector),
-                                content: text
-                            });
-                            // marker.content = markerContent(detector)
-                            // marker.my_map = self.myMap,
-                            // marker.on('click', markerClick);
-                            // marker.emit('click', {target: marker});
-                            self.markers.push(marker)
-                            idx = idx + 1
-                        }.bind(this))
+                            }.bind(this))
+                        }
                         this.setState({commData:{detector_list:detector_list, today_mac_count:today_mac_count}});
                     }.bind(this))
                 }
@@ -327,6 +335,9 @@ var DetectorPage = React.createClass({
             district.setLevel('district');
             //行政区查询
             district.search(value, function (status, result) {
+                if (result.districtList == null) {
+                    return;
+                }
                 var bounds = result.districtList[0].boundaries;
                 this.cleanPolygonsFromMap()
                 var polygons = []
@@ -491,6 +502,9 @@ var DetectorItem = React.createClass({
     componentDidMount: function() {
         AMap.convertFrom(new AMap.LngLat(this.props.data.longitude, this.props.data.latitude), "gps", function (status, result) {
             console.log("convert detector geo", status, result)
+            if(result.locations == null) {
+                return
+            }
             var gd_pos = result.locations[0]
             AMap.service('AMap.Geocoder',function() {
                 var geocoder = new AMap.Geocoder({
